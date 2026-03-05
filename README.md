@@ -1,6 +1,6 @@
 ### Skrypt antlr.bat
 ```
-antlr.bat plik_gramatyki.g4 string_wejsciowy
+antlr.bat plik_gramatyki.g4 punkt_startowy string_wejsciowy
 ```
 - Wymagana zainstalowana java
 - Wyświetlone zostanie drzewo i zapisane do ant_out\nazwa\nazwa.tree
