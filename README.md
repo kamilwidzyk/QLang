@@ -4,7 +4,8 @@ projektowany język powinien być bezkontekstowy (ale nie regularny)
 
 
 ## Elementy, które powinien posiadać projektowany język:
-odpowiednik zmiennych (w tym zasięgi (scope) obowiązywania zmiennych)
+
+- odpowiednik zmiennych (w tym zasięgi (scope) obowiązywania zmiennych)
 
 - operacje arytmetyczne za zmiennych (odpowiednik dodawania, odejmowania, mnożenia, itd., nawiasowanie) 
 
