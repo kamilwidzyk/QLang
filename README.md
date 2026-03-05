@@ -1,4 +1,4 @@
-### Skrypt antlr.bat
+### Skrypt antlr.bat i antlr_gui.bat
 ```
 antlr.bat plik_gramatyki.g4 punkt_startowy string_wejsciowy
 
@@ -8,6 +8,17 @@ antlr_gui.bat plik_gramatyki.g4 punkt_startowy -f plik_wejsciowy
 ```
 - Wymagana zainstalowana java
 - Wyświetlone zostanie drzewo i zapisane do ant_out\nazwa\nazwa.tree
+
+### Dokumentacja antlr
+
+- [Grammar Lexicon](https://github.com/antlr/antlr4/blob/master/doc/lexicon.md)
+
+- [Grammar Structure](https://github.com/antlr/antlr4/blob/master/doc/grammars.md)
+
+- [Parser Rules](https://github.com/antlr/antlr4/blob/master/doc/parser-rules.md)
+
+- [Left-recursive rules](thub.com/antlr/antlr4/blob/master/doc/left-recursion.md)
+
 
 
 # Wymagania języka
