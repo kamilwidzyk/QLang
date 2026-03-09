@@ -1,3 +1,10 @@
+### Skrypt parse.bat
+```
+parse.bat plik_programu.ql
+```
+Skrypt będzie generował wszystkie pliki po kolei do output\ 
+Na razie jest to tylko tekstowa i graficzna reprezentacja drzewa po przejściu programu przez ANTLR
+
 ### Skrypt antlr.bat i antlr_gui.bat
 ```
 antlr.bat plik_gramatyki.g4 punkt_startowy string_wejsciowy
