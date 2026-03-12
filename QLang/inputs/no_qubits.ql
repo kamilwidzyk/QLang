@@ -1,3 +1,7 @@
+obs someObs[4] = 5;
+print(someObs);
+
+
 place ClassicalSystem {
     function greetUser(obs count[8]) {
         println("--- Rozpoczynam powitanie ---");
