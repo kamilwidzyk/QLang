@@ -1,3 +1,40 @@
+### Struktura plików:
+
+```sql
+|-- ant_out
+    |-- QLang - pliki wyjściowe z ANTLR, nie ma po co tam wchodzić
+|-- draw_tree
+    |-- main.py - skrypt rysujący drzewo wynikowe ANTLR w SVG
+|-- sim
+    | <tu będą pliki związane z symulacją układu>
+|-- int
+    |-- QLang
+        | <pliki python wygenerowane przez ANTLR>
+    |-- main.py - interpreter QLang
+    |-- parse.py - skrypt zapisujący drzewo w postaci JSON z numerami linii
+|-- output
+        Pliki wynikowe całego procesu kompilacji
+        Nazwa pliku taka sama jak nazwa pliku programu QL
+    |-- <name>.svg - graficzna reprezentacja drzewa
+    |-- <name>.tree - tekstowa reprezentacja drzewa
+    |-- <name>.json - drzewo z dopisanymi numerami linii w formacie JSON
+    | <tu będzie więcej>
+|-- QLang
+    |-- QLang.g4 - gramatyka języka
+    |-- inputs
+        | Przykładowe programy w QLang
+|-- antlr_gui.bat - wyświetla interaktywne drzewo parsowania, nie wyświetla się dla większych programów
+|-- antlr_silent.bat - używany wewnętrznie przez parse.bat, uruchamia ANTLR
+|-- antlr-4.13.2-complete.jar - ANTLR
+|-- parse.bat - skrypt uruchamiający wszystko
+```
+
+### Interpreter
+```
+int\main.py drzewo.tree
+```
+Uruchamia interpreter na drzewie wyjściowym ANTLR
+
 ### Skrypt parse.bat
 ```
 parse.bat plik_programu.ql

@@ -27,6 +27,10 @@ def parse_antlr_tree(tree_str):
             stack.append(None)
         elif token == ')':
             child = stack.pop()
+
+            # ignoruj puste grupy ()
+            if child is None:
+                continue
             if stack:
                 if stack[-1] is None:
                     stack[-1] = child

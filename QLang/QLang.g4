@@ -1,145 +1,226 @@
 grammar QLang;
 
-// --- REGUŁY PARSERA ---
+// ==========================================
+// PARSER RULES
+// ==========================================
 
-// Cały program jest plikiem składającym się z instukcji
-// nowe linie nie mają znaczenia
-// pusty plik też jest poprawnym programem
-program : statement* EOF ;
+program: topLevelItem* EOF;
 
-// Każda z instrukcji może być
-// - deklaracją zmiennej
-// - bramką kwantową
-// - pomiarem
-// - instrukcją warunkową
-// - pętlą
-// - definicją funkcji
-// - wywołaniem funkcji
-// - wyświetleniem informacji
-// - wczytaniem informacji
-// - przypisaniem
-// Każda z instrukcji kończy się średnikiem
+/** Elementy najwyższego rzędu */
+topLevelItem
+    : placeDecl
+    | functionDecl
+    | statement
+    ;
+
+/** Miejsce (Place) - może zawierać funkcje i instrukcje */
+placeDecl: PLACE ID '{' placeMember* '}';
+
+placeMember
+    : functionDecl 
+    | statement
+    ;
+
+/** Definicja funkcji - parametry rejestrowe muszą mieć sztywny rozmiar */
+functionDecl: FUNCTION ID '(' paramList? ')' block;
+
+paramList: param (',' param)*;
+param: (STATE | OBS) ID ('[' NUMBER ']')?;
+
+/** Bloki kodu */
+block: '{' statement* '}';
+
 statement
-    : varDeclaration ';'
-    | quantumGate ';'
-    | measurement ';'
-    | ifStatement
-    | loopStatement
-    | functionDefinition
-    | functionCall ';'
-    | printStatement ';'
-    | inputStatement ';'
-    | assignment ';'
+    : stateDecl ';'
+    | obsDecl ';'
+    | receiveDecl ';'
+    | sendStmt ';'
+    | gateStmt ';'
+    | measureStmt ';'
+    | assignStmt ';'
+    | functionCallStmt ';'
+    | ifStmt
+    | forStmt
+    | whileStmt
+    | ioStmt ';'
+    | BREAK ';'
+    | CONTINUE ';'
+    | RETURN expr? ';'
+    | block
     ;
 
-// Deklaracje zmiennych
-// typ może być 'state' lub 'obs' 
-// deklaracja może być wielokrotna lub rejestr lub z przypisaniem
-varDeclaration
-    : 'state' (idList | idWithArray | stateSuperposed)
-    | 'obs' (idList | idWithArray | idAssign)
+// --- DEKLARACJE ---
+
+stateDecl
+    : STATE stateDef (',' stateDef)*
+    | STATE ID '=' SUPERPOSED
     ;
 
-// lista nazw po przecinku
-idList : IDENTIFIER (',' IDENTIFIER)* ;
-// nazwa i nawiasy kwadratowe z indeksem/rozmiarem
-idWithArray : IDENTIFIER '[' (NUMBER | expression) ']' ;
-// przypisanie - nazwa = wartość
-idAssign : IDENTIFIER '=' (NUMBER | BINARY | HEX) ;
-// inicjalizacja stanu w superpozycji
-stateSuperposed : IDENTIFIER '=' 'superposed' ;
+stateDef: ID ('[' expr ']')?;
 
-// Bramki kwantowe
-// - Bramka jednoqubitowa: <bramka> <cel>
-// - Bramka dwukubitowa: <bramka> <control> -> <cel>
-// - Operacja swap: swap <cel1> <cel2>
-quantumGate
-    : SINGLE_QUBIT_GATE target
-    | TWO_QUBIT_GATE control '->' target
-    | 'swap' target target
+obsDecl
+    : OBS obsDef (',' obsDef)*
+    | OBS ID ('[' expr ']')? '=' expr
     ;
 
-// Wszystkie możliwe bramki jedno i dwu qubitowe
-SINGLE_QUBIT_GATE : 'H' | 'superpose' | 'S' | 'X' | 'Y' | 'Z' | 'not' | 'phase_not' ;
-TWO_QUBIT_GATE : 'CNOT' | 'entangle' | 'CZ' | 'entangle_phase' ;
+obsDef: ID ('[' expr ']')?;
 
-// qubit kontrolny i docelowy może być jednym qubitem lub jednym z rejestru
-target : IDENTIFIER ('[' expression ']')? ;
-control : IDENTIFIER ('[' expression ']')? ;
+// --- KOMUNIKACJA ---
 
-// Pomiar
-measurement
-    : target '=' ('measure' | 'measureX') target
+receiveDecl
+    : (STATE | OBS) ID ('[' expr ']')? RECEIVED receiveOpt*
     ;
 
-// Instrukcje sterujące
-ifStatement
-    : 'if' '(' expression ')' '{' statement* '}' ('else' '{' statement* '}')?
+receiveOpt
+    : FROM (STRING | ID)
+    | AS STRING
     ;
 
-loopStatement
-    : 'for' IDENTIFIER 'from' expression 'to' expression ('step' expression)? '{' statement* '}'
-    | 'while' '(' expression ')' '{' statement* '}'
+sendStmt
+    : SEND ID ('[' expr ']')? TO (STRING | ID) (AS STRING)?
     ;
 
-// Funkcje
-functionDefinition
-    : 'function' IDENTIFIER '(' idList? ')' '{' statement* ('return' expression ';')? '}'
+// --- OPERACJE KWANTOWE ---
+
+gateStmt
+    : singleQubitGate ID ('[' expr ']')?
+    | multiQubitGate ID ('[' expr ']')? '->' ID ('[' expr ']')?
+    | SWAP ID ('[' expr ']')? ID ('[' expr ']')?
     ;
 
-functionCall
-    : IDENTIFIER '(' (expression (',' expression)*)? ')'
+singleQubitGate: H | SUPERPOSE | S | SHIFT | X | NOT | Y | DUAL_NOT | Z | PHASE_NOT;
+multiQubitGate: CNOT | ENTANGLE | CZ | ENTANGLE_PHASE;
+
+measureStmt
+    : ID ('[' expr ']')? '=' (MEASURE | MEASUREX) ID ('[' expr ']')?
     ;
 
-// Operacje na danych (Obserwacje)
-assignment : target '=' expression ;
+// --- PRZYPISANIA I FUNKCJE ---
 
-expression
-    : '(' expression ')'
-    | '!' expression
-    | expression ('**') expression
-    | expression ('*' | '/' | '%') expression
-    | expression ('+' | '-') expression
-    | expression ('<' | '>' | '<=' | '>=') expression
-    | expression ('==' | '!=') expression
-    | expression ('&&' | '||') expression
-    | terminalValue
-    | functionCall
+assignStmt: ID ('[' expr ']')? '=' expr;
+
+functionCallStmt: ID '(' argList? ')';
+
+// --- KONTROLA PRZEPŁYWU ---
+
+ifStmt: IF '(' expr ')' block (ELSE block)?;
+forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
+whileStmt: WHILE '(' expr ')' block;
+
+// --- WEJŚCIE / WYJŚCIE (I/O) ---
+
+ioStmt
+    : PRINT '(' expr (',' format)? ')'
+    | PRINTLN '(' (expr (',' format)?)? ')' // println() lub println(x) lub println(x, BIN)
+    | DEBUG '(' ID ('[' expr ']')? ')'
+    | INPUT '(' ID ('[' expr ']')? (',' format)? ')'
     ;
 
-terminalValue
-    : NUMBER
-    | BINARY
-    | HEX
-    | 'T' | 'F'
-    | IDENTIFIER ('[' expression ']')?
+format: BIN | HEX;
+argList: expr (',' expr)*;
+
+// --- WYRAŻENIA (Z PRIORYTETAMI) ---
+
+expr
+    : '!' expr                           # NotExpr
+    | expr '**' expr                     # PowExpr
+    | expr ('*' | '/' | '%') expr        # MulDivModExpr
+    | expr ('+' | '-') expr              # AddSubExpr
+    | expr ('<' | '>' | '<=' | '>=') expr# RelExpr
+    | expr ('==' | '!=') expr            # EqExpr
+    | expr '&&' expr                     # AndExpr
+    | expr '||' expr                     # OrExpr
+    | ID '(' argList? ')'                # FuncCallExpr
+    | ID ('[' expr ']')?                 # VarExpr
+    | NUMBER                             # NumExpr
+    | BOOL_VAL                           # BoolExpr
+    | STRING                             # StrExpr
+    | '(' expr ')'                       # ParenExpr
     ;
 
-// Wyjście/Wejście
-printStatement
-    : ('print' | 'println' | 'debug') '(' (expression | STRING)? (',' ('BIN' | 'HEX'))? ')'
-    ;
+// ==========================================
+// LEXER RULES
+// ==========================================
 
-inputStatement
-    : 'input' '(' target (',' ('BIN' | 'HEX'))? ')'
-    ;
+// Słowa kluczowe
+STATE: 'state';
+OBS: 'obs';
+SUPERPOSED: 'superposed';
 
-// --- REGUŁY LEKSERA ---
+H: 'H';
+SUPERPOSE: 'superpose';
+S: 'S';
+SHIFT: 'shift';
+X: 'X';
+NOT: 'not';
+Y: 'Y';
+DUAL_NOT: 'dual_not';
+Z: 'Z';
+PHASE_NOT: 'phase_not';
+CNOT: 'CNOT';
+ENTANGLE: 'entangle';
+CZ: 'CZ';
+ENTANGLE_PHASE: 'entangle_phase';
+SWAP: 'swap';
 
-// Słowa kluczowe (wybrane)
-STATE : 'state' ;
-OBS   : 'obs' ;
-IF    : 'if' ;
-ELSE  : 'else' ;
+MEASURE: 'measure';
+MEASUREX: 'measureX';
 
-// Typy danych i identyfikatory
-IDENTIFIER : [a-zA-Z_][a-zA-Z0-9_]* ;
-NUMBER     : [0-9]+ ;
-BINARY     : '0b' [01]+ ;
-HEX        : '0x' [0-9a-fA-F]+ ;
+IF: 'if';
+ELSE: 'else';
+FUNCTION: 'function';
+RETURN: 'return';
+FOR: 'for';
+FROM: 'from';
+TO: 'to';
+STEP: 'step';
+WHILE: 'while';
+BREAK: 'break';
+CONTINUE: 'continue';
+
+PRINT: 'print';
+PRINTLN: 'println';
+DEBUG: 'debug';
+INPUT: 'input';
+PLACE: 'place';
+SEND: 'send';
+RECEIVED: 'received';
+AS: 'as';
+BIN: 'BIN';
+HEX: 'HEX';
+
+// Literale
+BOOL_VAL: 'T' | 'F';
+
+POW_OP:   '**';
+LPAREN:   '(';
+RPAREN:   ')';
+LBRACE:   '{';
+RBRACE:   '}';
+LBRACK:   '[';
+RBRACK:   ']';
+COMMA:    ',';
+SEMI:     ';';
+COLON:    ':';
+DOT:      '.';
+QUESTION: '?';
+BANG:     '!';
+ARROW:    '->';
+ASSIGN:   '=';
+HAT:      '^';
+
 STRING     : '"' (~["\r\n])* '"' ;
 
-// --- CHANNELS / SKIPS ---
-LINE_COMMENT  : '//' ~[\r\n]* -> skip ;
-BLOCK_COMMENT : '/*' .*? '*/' -> skip ;
-WS            : [ \t\r\n]+    -> skip ;
+NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
+fragment HEX_NUMBER: '0x' [0-9a-fA-F]+;
+fragment BIN_NUMBER: '0b' [01]+;
+fragment DEC_NUMBER: [0-9]+;
+
+
+
+ID: [a-zA-Z_][a-zA-Z0-9_]*;
+
+// Ignorowane
+WS: [ \t\r\n]+ -> skip;
+LINE_COMMENT: '//' ~[\r\n]* -> skip;
+BLOCK_COMMENT: '/*' .*? '*/' -> skip;

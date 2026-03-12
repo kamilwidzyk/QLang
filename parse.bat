@@ -15,9 +15,20 @@ echo Visualizing parsed tree...
 python draw_tree\main.py ant_out\QLang\QLang.tree output\%FILE_NAME%.svg 
 copy ant_out\QLang\QLang.tree output\%FILE_NAME%.tree > nul
 
+echo Generating python files...
+cd int
+java -jar ..\antlr-4.13.2-complete.jar -Dlanguage=Python3 ..\QLang\QLang.g4 -o ..\int\generated -visitor
+cd ..
+
+echo Parsing QLang script into JSON tree...
+python int\parse.py %INPUT_FILE%
+
+echo.
 echo DONE!
-echo Parsed tree in: output\%FILE_NAME%.tree
-echo Graphical tree representation in: output\%FILE_NAME%.svg
+echo.
+echo Raw tree:      output\%FILE_NAME%.tree
+echo SVG tree:      output\%FILE_NAME%.svg
+echo JSON tree:     output\%FILE_NAME%.json
 
 goto :eof
 
