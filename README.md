@@ -22,7 +22,9 @@
 |-- QLang
     |-- QLang.g4 - gramatyka języka
     |-- inputs
-        | Przykładowe programy w QLang
+        |-- fails
+            | Pliki programów, które celowo powodują błędy podczas działania interpretera
+        | Przykładowe programu w QLang
 |-- antlr_gui.bat - wyświetla interaktywne drzewo parsowania, nie wyświetla się dla większych programów
 |-- antlr_silent.bat - używany wewnętrznie przez parse.bat, uruchamia ANTLR
 |-- antlr-4.13.2-complete.jar - ANTLR
