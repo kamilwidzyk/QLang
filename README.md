@@ -31,9 +31,9 @@
 
 ### Interpreter
 ```
-int\main.py drzewo.tree
+int\main.py <JSON tree> <QLang script>
 ```
-Uruchamia interpreter na drzewie wyjściowym ANTLR
+Uruchamia interpreter na drzewie w formacie JSON z dopisanymi numerami linii dla każdego wierzchołka drzewa. Kod programu QLang będzie potrzebny do informacji do błędów(np. wyświetlenie linii i położenia błędu).
 
 ### Skrypt parse.bat
 ```
