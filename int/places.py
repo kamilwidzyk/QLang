@@ -37,46 +37,70 @@ def divideIntoPlaces(tree, scriptErrors: ScriptErrors) -> Dict[str, List]:
     TERMINAL = "Terminal"
 
     def error_thereIsNoProgram():
-        pos = ScriptErrors.UNKNOWN_POSITION
-        msg = "DEEP PROBLEM: Tree seems empty. Are you sure you gave me a tree and not just a bark?"
-        scriptErrors.showError(pos, msg)
+        scriptErrors.showError(
+            pos=ScriptErrors.UNKNOWN_POSITION,
+            error_type="DEEP ERROR",
+            title="No program",
+            msg="Tree seems empty. Are you sure you gave me a tree and not just a bark?"
+        )
 
     def error_brokenTree():
-        pos = ScriptErrors.UNKNOWN_POSITION
-        msg = "DEEP PROBLEM: This tree is so broken it looks more like a stick."
-        scriptErrors.showError(pos, msg)
+        scriptErrors.showError(
+            pos=ScriptErrors.UNKNOWN_POSITION,
+            error_type="DEEP ERROR",
+            title="Broken tree",
+            msg="This tree is so broken it looks more like a stick."
+        )
 
     def error_brokenLeaf(node, text=None):
-        pos = ScriptErrors.Position.extract(node)
-        msg = "DEEP PROBLEM: Found a Terminal without a meaning - like a stem without a leaf." if text is None else \
-              f"This not a place for '{text}' Terminal, move it somewhere else(including the trash)."
-        scriptErrors.showError(pos, msg)
+        scriptErrors.showError(
+            pos=ScriptErrors.Position.extract(node),
+            error_type="DEEP ERROR",
+            title="Broken leaf",
+            msg="Found a Terminal without a meaning - like a stem without a leaf." 
+                if text is None else \
+                f"This not a place for '{text}' Terminal, move it somewhere else(including the trash)."            
+        )
 
     def error_brokenBranch(node):
-        pos = ScriptErrors.Position.extract(node)
-        msg = "DEEP PROBLEM: Where is the rest of this branch?"
-        scriptErrors.showError(pos, msg)
+        scriptErrors.showError(
+            pos=ScriptErrors.Position.extract(node),
+            error_type="DEEP ERROR",
+            title="Broken branch",
+            msg="Where is the rest of this branch?"
+        )
 
     def error_tooMuchChildren(node):
-        pos = ScriptErrors.Position.extract(node)
-        msg = "DEEP PROBLEM: This branch has too much children."
-        scriptErrors.showError(pos, msg)
+        scriptErrors.showError(
+            pos=ScriptErrors.Position.extract(node),
+            error_type="DEEP ERROR",
+            title="Too much children",
+            msg="You exceeded the child limit"
+        )
 
     def error_placeDeclError(node):
-        pos = ScriptErrors.Position.extract(node)
-        msg = "Place is not structured correctly, it collapsed like an old house."
-        scriptErrors.showError(pos, msg)
+        scriptErrors.showError(
+            pos=ScriptErrors.Position.extract(node),
+            error_type="SYNTAX ERROR",
+            title="Bad structure",
+            msg="Place is not structured correctly, it collapsed like an old house."
+        )
 
     def error_placeNameError(node):
-        pos = ScriptErrors.Position.extract(node)
-        msg = "Eww, who would want to name their place like that?"
-        scriptErrors.showError(pos, msg)
+        scriptErrors.showError(
+            pos=ScriptErrors.Position.extract(node),
+            error_type="SYNTAX ERROR",
+            title="Bad name",
+            msg="Eww, who would want to name their place like that?"
+        )
 
     def error_placeNameRepeat(node):
-        pos = ScriptErrors.Position.extract(node)
-        msg = "Somebody already has that name, think of something else"
-        scriptErrors.showError(pos, msg)
-
+        scriptErrors.showError(
+            pos=ScriptErrors.Position.extract(node),
+            error_type="SYNTAX ERROR",
+            title="Repeated name",
+            msg="This name is already taken, think of something else"
+        )
 
     def is_valid_name(name: str) -> bool:
         """
