@@ -1,20 +1,48 @@
-from typing import Any
+from typing import Any, List
+from multiprocessing import Process
+import time
 
 
 class Place:
+    """
+    Represents one place, holds name and inner code
+    """
     name: str = None
-    block: Any = None
+    block: List[Any] = []
 
-    def __init__(self, name: str, block: Any):
+    def __init__(self, name: str):
         """
-        Initializes the place with a name and the block of code within it
+        Initializes the place with a name
 
-        Parametrs:
+        Parameters:
             name (str): Place name, specified by the code
-            block (Any): Block of code inside the place
         """
         self.name = name
-        self.block = block
+
+    def add_code(self, code: Any):
+        """
+        Adds code to this place
+
+        Parameters:
+            code (Any): code to add to this place, type depends on code
+        """
+        self.block.append(code)
+
+    def process_target(self):
+        """
+        Place execution entry point
+        """
+        print(f"Place {self.name} started!")
+        time.sleep(5)
+        print(f"Place {self.name} waited")
+
+    def run(self):
+        """
+        Starts execution of this place inside a separate process
+        """
+        proc = Process(target=self.process_target)
+        proc.start()
+
 
     
 

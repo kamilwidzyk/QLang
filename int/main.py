@@ -10,7 +10,7 @@ from logger import FATAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, NOTHING
 from load import load_input_files
 from script_errors import ScriptErrors
 
-from places import divideIntoPlaces
+from places import divideIntoPlaces, Places
 
 def main():
     # Init logging
@@ -24,7 +24,9 @@ def main():
     scriptErrors = ScriptErrors(script)
     places = divideIntoPlaces(tree, scriptErrors)
 
-    ### TODO: run every place at the same time(including 'global')
+    # Start every place in separate processes
+    places.run()
+
     
 
     

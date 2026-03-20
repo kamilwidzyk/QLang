@@ -1,6 +1,6 @@
 import sys
 import json
-from typing import List, Dict
+from typing import List, Dict, Any
 import re
 
 from logger import init_log, log, log_level 
@@ -10,7 +10,9 @@ from logger import FATAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, NOTHING
 from load import load_input_files
 from script_errors import ScriptErrors
 
-def divideIntoPlaces(tree, scriptErrors: ScriptErrors) -> Dict[str, List]:
+from place import Place
+
+def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
     """ 
     Divides original tree into places. 
     Code not in any place ends up in 'global' place.
@@ -27,8 +29,19 @@ def divideIntoPlaces(tree, scriptErrors: ScriptErrors) -> Dict[str, List]:
                     ... (this is the place content)
                 Terminal }
         ...
+
+    Parameters:
+        tree (Any): Parsed JSON tree of the whole script
+        scriptErrors (ScriptErrors): instace of error displaying class
+    
+    Returns:
+        Instance of Places class with all of the places added along with their code
     """
     log(PLACE, INFO, "Dividing into places...", end=False)
+
+    # prepare places, create global place
+    places = Places()
+    places.create_place("global")
 
     PROGRAM_CONTEXT = "ProgramContext"
     STATEMENT_CONTEXT = "StatementContext"
@@ -110,13 +123,6 @@ def divideIntoPlaces(tree, scriptErrors: ScriptErrors) -> Dict[str, List]:
         if re.match(r'[a-zA-Z0-9_]+', name) and name != "global":
             return True
         return False
-
-    
-    places = {
-        # placeID -> code inside
-        "global": []
-    }
-
 
     # Check if there is a 'type' key at the root
     if "type" not in tree:
@@ -234,7 +240,7 @@ def divideIntoPlaces(tree, scriptErrors: ScriptErrors) -> Dict[str, List]:
                     exit()
 
                 # Check if this name does not already exist
-                if place_name in places:
+                if places.is_defined(place_name):
                     log(PLACE, FATAL, f"Place with the same name already defined: '{place_name}'")
                     error_placeNameRepeat(place_decl[1])
                     exit()
@@ -254,16 +260,71 @@ def divideIntoPlaces(tree, scriptErrors: ScriptErrors) -> Dict[str, List]:
                     exit()
 
                 # Finally, assign everything inside to the place
-                places[place_name] = place_decl[3:-1]
+                places.create_place(place_name)
+                places.add_code(place_name, place_decl[3:-1])
             # Or something else
             else:
                 # throw it into 'global' place
-                places["global"].append(top_level_item)
+                places.add_code("global", top_level_item)
 
         else:
             log(PLACE, WARNING, f"Found a node of type '{global_item["type"]}' in the second layer, why is it here?")
 
 
     log(PLACE, SUCCESS, "OK", only_msg=True)
-    log(PLACE, DEBUG, f"Got places: {" ".join(places.keys())}")
+    log(PLACE, DEBUG, f"Got places: {" ".join(places.list_names())}")
     return places
+
+
+class Places:
+    """
+    Represents all places with assigned names and code within them
+    """
+    places: Dict[str, Place] = {}
+
+    def create_place(self, name: str):
+        """
+        Creates empty place with given name
+
+        Parameters:
+            name (str): Name of the place to create
+        """
+        new_place = Place(name)
+        self.places[name] = new_place
+
+    def add_code(self, name: str, code: Any):
+        """
+        Adds code to specified place
+
+        Parameters:
+            name (str): Name of the place to add code to
+            code (Any): Code to add to the specified place
+        """
+        self.places[name].add_code(code)
+
+    def is_defined(self, name: str) -> bool:
+        """
+        Returns True if place with a given name exists
+
+        Parameters:
+            name (str): name of the place to check
+        """
+        return name in self.places.keys()
+    
+
+    def list_names(self) -> List[str]:
+        """
+        Returns a list of all names
+        """
+        return self.places.keys()
+    
+
+    def run(self):
+        """
+        Starts execution of all places at once
+        """
+        for place in self.places.values():
+            place.run()
+        print("Places started")
+        
+
