@@ -12,7 +12,9 @@ from script_errors import ScriptErrors
 
 from place import Place
 
-def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
+from network import QuantumNetwork
+
+def divideIntoPlaces(tree: Any, script_errors: ScriptErrors, network: QuantumNetwork) -> Places:
     """ 
     Divides original tree into places. 
     Code not in any place ends up in 'global' place.
@@ -32,7 +34,8 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
 
     Parameters:
         tree (Any): Parsed JSON tree of the whole script
-        scriptErrors (ScriptErrors): instace of error displaying class
+        script_errors (ScriptErrors): instace of error displaying class
+        network (QuantumNetwork): instace of QuantumNetwork
     
     Returns:
         Instance of Places class with all of the places added along with their code
@@ -41,7 +44,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
 
     # prepare places, create global place
     places = Places()
-    places.create_place("global")
+    places.create_place("global", script_errors, network)
 
     PROGRAM_CONTEXT = "ProgramContext"
     STATEMENT_CONTEXT = "StatementContext"
@@ -50,7 +53,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
     TERMINAL = "Terminal"
 
     def error_thereIsNoProgram():
-        scriptErrors.showError(
+        script_errors.showError(
             pos=ScriptErrors.UNKNOWN_POSITION,
             error_type="DEEP ERROR",
             title="No program",
@@ -58,7 +61,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
         )
 
     def error_brokenTree():
-        scriptErrors.showError(
+        script_errors.showError(
             pos=ScriptErrors.UNKNOWN_POSITION,
             error_type="DEEP ERROR",
             title="Broken tree",
@@ -66,7 +69,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
         )
 
     def error_brokenLeaf(node, text=None):
-        scriptErrors.showError(
+        script_errors.showError(
             pos=ScriptErrors.Position.extract(node),
             error_type="DEEP ERROR",
             title="Broken leaf",
@@ -76,7 +79,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
         )
 
     def error_brokenBranch(node):
-        scriptErrors.showError(
+        script_errors.showError(
             pos=ScriptErrors.Position.extract(node),
             error_type="DEEP ERROR",
             title="Broken branch",
@@ -84,7 +87,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
         )
 
     def error_tooMuchChildren(node):
-        scriptErrors.showError(
+        script_errors.showError(
             pos=ScriptErrors.Position.extract(node),
             error_type="DEEP ERROR",
             title="Too much children",
@@ -92,7 +95,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
         )
 
     def error_placeDeclError(node):
-        scriptErrors.showError(
+        script_errors.showError(
             pos=ScriptErrors.Position.extract(node),
             error_type="SYNTAX ERROR",
             title="Bad structure",
@@ -100,7 +103,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
         )
 
     def error_placeNameError(node):
-        scriptErrors.showError(
+        script_errors.showError(
             pos=ScriptErrors.Position.extract(node),
             error_type="SYNTAX ERROR",
             title="Bad name",
@@ -108,7 +111,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
         )
 
     def error_placeNameRepeat(node):
-        scriptErrors.showError(
+        script_errors.showError(
             pos=ScriptErrors.Position.extract(node),
             error_type="SYNTAX ERROR",
             title="Repeated name",
@@ -260,7 +263,7 @@ def divideIntoPlaces(tree: Any, scriptErrors: ScriptErrors) -> Places:
                     exit()
 
                 # Finally, assign everything inside to the place
-                places.create_place(place_name)
+                places.create_place(place_name, script_errors, network)
                 places.add_code(place_name, place_decl[3:-1])
             # Or something else
             else:
@@ -282,14 +285,16 @@ class Places:
     """
     places: Dict[str, Place] = {}
 
-    def create_place(self, name: str):
+    def create_place(self, name: str, script_errors: ScriptErrors, network: QuantumNetwork):
         """
         Creates empty place with given name
 
         Parameters:
             name (str): Name of the place to create
+            script_errors (ScriptErrors): instance of class for displaying errors
+            network (QuantumNetwork): instance of QuauntumNetwork
         """
-        new_place = Place(name)
+        new_place = Place(name, script_errors, network)
         self.places[name] = new_place
 
     def add_code(self, name: str, code: Any):
@@ -318,7 +323,6 @@ class Places:
         """
         return self.places.keys()
     
-
     def run(self):
         """
         Starts execution of all places at once
@@ -326,5 +330,13 @@ class Places:
         for place in self.places.values():
             place.run()
         print("Places started")
+
+    def wait_for_end(self):
+        """
+        Blocks until all places stop executing
+        """
+        for place in self.places.values():
+            place.wait_for_end()
+        print("Places stopped")
         
 

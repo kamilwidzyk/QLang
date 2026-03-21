@@ -1,5 +1,5 @@
 Jeden z tych sposobów(raczej drugi) będzie użyty do komunikacji między procesami symulacji
-
+Jednak chyba nie będzie to nic z tej listy
 
 import numpy as np
 from multiprocessing import Process, Barrier, Queue, shared_memory

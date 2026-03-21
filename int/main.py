@@ -12,6 +12,8 @@ from script_errors import ScriptErrors
 
 from places import divideIntoPlaces, Places
 
+from network import QuantumNetwork, create_quantum_network
+
 def main():
     # Init logging
     log_level(DEBUG)
@@ -20,14 +22,19 @@ def main():
     # Load input files
     tree, script = load_input_files()
 
+    # Start a quantum network used for communication between places
+    network, manager = create_quantum_network()
     # Split script into places that will run in parrael
     scriptErrors = ScriptErrors(script)
-    places = divideIntoPlaces(tree, scriptErrors)
+    places = divideIntoPlaces(tree, scriptErrors, network)
+
+    
 
     # Start every place in separate processes
     places.run()
+    places.wait_for_end()
 
-    
+
 
     
     

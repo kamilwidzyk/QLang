@@ -65,9 +65,12 @@ a w przypadku błędu:
 
 """
 # Module tags, add more if needed, but make everything the same length
-INIT =  "INIT " # Initialization
-PLACE = "PLACE" # Place divide/Place run
-SC_ER = "SC_ER" # ScriptErrors
+INIT =    "INIT " # Initialization
+PLACE =   "PLACE" # Place divide/Place run
+SC_ER =   "SC ER" # ScriptErrors
+QNET =    "Q NET" # Quantum Network
+OBS =     " OBS " # Observation
+STATE =   "STATE" # Quantum state
 
 # Types, do not add more, this is enough
 # NOTHING is used only for disabling the entire logging
@@ -78,6 +81,22 @@ WARNING = "W", colorama.Fore.YELLOW, colorama.Back.RESET, colorama.Style.BRIGHT,
 SUCCESS = "S", colorama.Fore.GREEN, colorama.Back.RESET, colorama.Style.BRIGHT, 4
 INFO = "I", colorama.Fore.BLUE, colorama.Back.RESET, colorama.Style.NORMAL, 5
 DEBUG = "D", colorama.Fore.WHITE, colorama.Back.RESET, colorama.Style.NORMAL, 6
+
+# Styles of each level
+STYLE_NOTHING = colorama.Fore.RED + colorama.Back.RESET + colorama.Style.BRIGHT
+STYLE_FATAL = colorama.Fore.RED + colorama.Back.RESET + colorama.Style.BRIGHT
+STYLE_ERROR = colorama.Fore.RED + colorama.Back.RESET + colorama.Style.BRIGHT
+STYLE_WARNING = colorama.Fore.YELLOW + colorama.Back.RESET + colorama.Style.BRIGHT
+STYLE_SUCCESS = colorama.Fore.GREEN + colorama.Back.RESET + colorama.Style.BRIGHT
+STYLE_INFO = colorama.Fore.BLUE + colorama.Back.RESET + colorama.Style.NORMAL
+STYLE_DEBUG = colorama.Fore.WHITE + colorama.Back.RESET + colorama.Style.NORMAL
+# + some more 
+STYLE_DEBUG_CYAN = colorama.Fore.CYAN + colorama.Back.RESET + colorama.Style.NORMAL
+STYLE_DEBUG_YELLOW = colorama.Fore.YELLOW + colorama.Back.RESET + colorama.Style.NORMAL
+STYLE_DEBUG_MAGENTA = colorama.Fore.MAGENTA + colorama.Back.RESET + colorama.Style.NORMAL
+
+
+
 
 # Default log level, show everything
 LOG_LEVEL = DEBUG
