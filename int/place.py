@@ -78,7 +78,7 @@ class ScopeManager:
 
 
 class Function:
-    def __init__(self, name: str, params, body, 
+    def __init__(self, name: str, params: List[FunctionParam], body, 
                  closure_scope, pos: ScriptErrors.Position):
         self.name = name
         self.params = params
@@ -87,7 +87,11 @@ class Function:
         self.pos = pos
         self.type = "Function"
 
-    
+class FunctionParam:
+    def __init__(self, name: str, type: str, size: int):
+        self.name = name # param name
+        self.type = type # param type 'state' or 'obs'
+        self.size = size # param size or None if not specified
     
 
 
@@ -204,16 +208,21 @@ class Place:
         
         pos = ScriptErrors.Position.extract(block)
 
-        STATEMENT_CONTEXT = "StatementContext"
-        OBS_DECL_CONTEXT = "ObsDeclContext"
-        NUM_EXPR_CONTEXT = "NumExprContext"
-        TERMINAL = "Terminal"
-        IO_STMT_CONTEXT = "IoStmtContext"
-        VAR_EXPR_CONTEXT = "VarExprContext" 
-        FORMAT_CONTEXT = "FormatContext"
-        PLACE_MEMBER_CONTEXT = "PlaceMemberContext"
-        FUNCTION_DECL_CONTEXT = "FunctionDeclContext"
-        BLOCK_CONTEXT = "BlockContext"
+        STATEMENT_CONTEXT = "StatementContext" # any statement
+        OBS_DECL_CONTEXT = "ObsDeclContext" # declaration of Observation variable
+        NUM_EXPR_CONTEXT = "NumExprContext" # number expr = just a number
+        TERMINAL = "Terminal" # terminal string
+        IO_STMT_CONTEXT = "IoStmtContext" # print/println/input/debug
+        VAR_EXPR_CONTEXT = "VarExprContext" # <name>[<index>] or <name>
+        FORMAT_CONTEXT = "FormatContext" # print format option
+        PLACE_MEMBER_CONTEXT = "PlaceMemberContext" # top level items of place block
+        FUNCTION_DECL_CONTEXT = "FunctionDeclContext" # function declaration
+        BLOCK_CONTEXT = "BlockContext" # block of code in { }
+        PARAM_LIST_CONTEXT = "ParamListContext" # list of function parameters
+        PARAM_CONTEXT = "ParamContext" # one function parameter (part of the list)
+        OBS_DEF_CONTEXT = "ObsDefContext" # Observation definition list item
+        STR_EXPR_CONTEXT = "StrExprContext" # String literal
+        FUNCTION_CALL_STMT_CONTEXT = "FunctionCallStmtContext"
 
         block_type = block["type"]
         print(block)
@@ -236,6 +245,7 @@ class Place:
             # new scope: no
 
             # children should be:
+            # OPTION A
             # 1. Terminal 'obs'
             # 2. Terminal <variable_name>
             # If size defined:
@@ -245,6 +255,15 @@ class Place:
             # If init with value:
             #   4a. Terminal '='
             #   4b. NumExprContext or measure(TODO!!!) -> handle to get value
+
+            # OR (OPTION B)
+            # 1. Terminal 'obs'
+            # 2. ObsDefContext
+            # Until end:
+            #   3a. Terminal ','
+            #   3b. ObsDefContext
+
+            
 
             # Combinations:
             #         (CHILD INDEX)
@@ -257,10 +276,38 @@ class Place:
             print("Parsing obs declaration")
 
             if not self.has_children(block):
-                print("obsDeclContext 'children' key missing or no children")
+                print("obsDeclContext: 'children' key missing or no children")
                 exit()
 
             children = block["children"]
+
+            if len(children) < 2:                
+                print("obsDeclContext: at least 2 children required")
+
+            
+            if self.is_type(children[1], type=OBS_DEF_CONTEXT, parent=block):
+                # OPTION B
+                # ...
+                expect_block = True
+
+                for child in children[1:]: # ignore the first
+                    if expect_block:
+                        if not self.is_type(child, type=OBS_DEF_CONTEXT, parent=block):
+                            print("obsDeclContext: optionB: expected ObsDefContext block")
+                            exit()
+                        self.handle_block(child, block)
+                        expect_block = False
+                    else:
+                        if not self.is_terminal(child, text=",", parent=block):
+                            print("obsDeclContext: optionB: expected Terminal ','")
+                            exit()
+                        expect_block = True
+
+
+                return
+
+            # OPTION A
+
             size_defined = False
             init_value_defined = False
             obs_size = None
@@ -274,7 +321,7 @@ class Place:
                         print("ObsDeclContext: first child is not terminal 'obs'")
                         exit()
                     print("1. Terminal 'obs' OK")
-                elif child_index == 1: # 2. Terminal <variable_name>
+                elif child_index == 1: # 2. Terminal <variable_name> or ObsDefContext
                     obs_name = self.extract_text(child, parent=block)
                     if not self.is_valid_name(obs_name):
                         print("obsDeclContext: name is not valid: " + obs_name)
@@ -392,7 +439,7 @@ class Place:
             return val
 
         elif block_type == IO_STMT_CONTEXT:
-            # first child can be 'print', 'println' or 'input', 'debug'
+            # first child can be 'print', 'println'(TODO) or 'input'(TODO), 'debug'(TODO)
 
             # PRINT
             # print(<val>)           -> print decimal
@@ -401,7 +448,7 @@ class Place:
 
             # 1. Terminal 'print'
             # 2. Terminal '('
-            # 3. VarExprContext
+            # 3. VarExprContext or StrExprContext
             # If format defined:
             #   4a. Terminal ','
             #   4b. block 'format' HEX/BIN 
@@ -423,6 +470,7 @@ class Place:
                 format_specified = False
                 format = None
                 to_print = None
+                is_string = False
 
                 children = block["children"][1:]
 
@@ -433,11 +481,16 @@ class Place:
                             print("IoStmtContext: child index 1, expected '('")
                             exit()
                     elif child_index == 1: # must be VarExprContext
-                        if not self.is_type(child, type=VAR_EXPR_CONTEXT, parent=block):
-                            print("IoStmtContext: child index 2, expected VarExprContext")
+                        if self.is_type(child, type=VAR_EXPR_CONTEXT, parent=block):
+                            to_print = self.handle_block(child, parent=block)
+                        elif self.is_type(child, type=STR_EXPR_CONTEXT, parent=block):
+                            is_string = True
+                            to_print = self.handle_block(child, parent=block)
+                        else:
+                            print("IoStmtContext: child index 2, expected VarExprContext pr StrExprContext")
                             exit()
                         
-                        to_print = self.handle_block(child, parent=block)
+                        
                     elif child_index == 2: # ')' or ','
                         if self.is_terminal(child, text=",", parent=block):
                             format_specified = True
@@ -472,11 +525,15 @@ class Place:
 
                 print_text = to_print
 
-                if format_specified:
-                    if format == "BIN":
-                        print_text = f"{to_print:b}"
-                    elif format == "HEX":
-                        print_text - f"{to_print:X}"
+                if not is_string:
+
+                    if format_specified:
+                        if format == "BIN":
+                            print_text = f"{to_print:b}"
+                        elif format == "HEX":
+                            print_text - f"{to_print:X}"
+                    else:
+                        print_text = str(to_print)
                 
                 self.console.write(print_text)
 
@@ -577,8 +634,8 @@ class Place:
         elif block_type == FUNCTION_DECL_CONTEXT:
 
             # functionDecl: FUNCTION ID '(' paramList? ')' block;
-            # paramList: param (',' param)*;
-            # param: (STATE | OBS) ID ('[' NUMBER ']')?;
+           
+            
             # block: '{' statement* '}';
 
             # NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
@@ -655,9 +712,208 @@ class Place:
             print("Function name: " + str(func_name))
             print("Function parameters: " + str(param_list))
             print("Function code: " + str(func_block))
+
+            if self.scopes.exists(func_name):
+                print("FuncDeclContext: variable or function with this name already exists")
+                exit()
+
+            func = Function(func_name, param_list, func_block, self.scopes.current, pos)
+            self.scopes.create(func_name, func)            
         
-        
+        elif block_type == PARAM_LIST_CONTEXT:
+            # paramList: param (',' param)*;
+
+            param_list = []
+
+            if not self.has_children(block):
+                print("ParamListContext: 'children' key missing or no children")
+                exit()
+
+            children = block["children"] 
+
+            for child_index in range(len(children)):
+                child = children[child_index]
+                # ignore Terminals ','
+                if not self.is_terminal(child, text=',', parent=block):
+                    param_list.append(self.handle_block(child, block))
+
+            return param_list
+
+        elif block_type == PARAM_CONTEXT:
+            # param: (STATE | OBS) ID ('[' NUMBER ']')?;
+
+            # 1. Terminal 'state' or 'obs' => param type
+            # 2. Terminal <variable_name> => param name (must be a valid name)
+            # If size specified:
+            #   3a. Terminal '['
+            #   3b. Number -> handle block to get value
+            #   3c. Terminal ']'
+
+            param_type = None
+            param_name = None
+            param_size = None
+            size_specified = False
+
+            if not self.has_children(block):
+                print("ParamContext: 'children' key missing or no children")
+                exit()
+
+            children = block["children"]
+
+            for child_index in range(len(children)):
+                child = children[child_index]
+
+                if child_index == 0: # 1. Terminal 'state' or 'obs'
+                    if self.is_terminal(child, text="state", parent=block):
+                        param_type = "state"
+                    elif self.is_terminal(child, text="obs", parent=block):
+                        param_type = "obs"
+                    else:
+                        print("ParamContext: child index 0, expected terminal 'state' or 'obs'")
+                        exit()
+                elif child_index == 1: # 2. Terminal <variable_name>
+                    param_name = self.extract_text(child, parent=block)
+                    if not self.is_valid_name(param_name):
+                        print("ParamContext: child index 1, param name is not valid")
+                        exit()
+                elif child_index == 2: # 3a. Terminal '[' 
+                    if not self.is_terminal(child, text='[', parent=block):
+                        print("ParamContext: child index 2, unexpected block")
+                        exit()
+                    size_specified = True
+                elif child_index == 3: # 3b. Number
+                    if not size_specified:
+                        print("ParamContext: child index 3, unexpected block")
+                        exit()
+                    param_size = self.handle_block(child, parent=block)
+                elif child_index == 4: # 3c. Terminal ']'
+                    if not size_specified:
+                        print("ParamContext: child index 4, unexpected block")
+                        exit()
+                    if not self.is_terminal(child, text="]", parent=block):
+                        print("ParamContext: child index 4, expected ']'")
+                        exit()
+                else:
+                    print("ParamContext: child index > 4, unexpected block")
+                    exit()
+
+            return FunctionParam(name=param_name, type=param_type, size=param_size)
+
+
+        elif block_type == BLOCK_CONTEXT:
+            # 1. Terminal '{' (first child)
+            # 2. Block of code to return (everything in between)
+            # 3. Terminal '}' (last child)
+
+            if not self.has_children(block):
+                print("BlockContext: missing 'children' key or no children")
+                exit()
+
+            children = block["children"]
+
+            if len(children) < 2:
+                print("BlockContext: at least 2 children required(empty block)")
+                exit()
+
+            if not self.is_terminal(children[0], text="{", parent=block):
+                print("BlockContext: child index 0, expected '{'")
+                exit()
+
+            if not self.is_terminal(children[-1], text="}", parent=block):
+                print("BlockContext: last child, expected '}'")
+                exit()
+
+            return children[1:-1]
+
+        elif block_type == OBS_DEF_CONTEXT:
+            # obsDef: ID ('[' expr ']')?;
+
+            # 1. Terminal <variable_name> (must be valid name)
+            # If size specified:
+            #   2a. Terminal '['
+            #   2b. expr -> handle to get size
+            #   2c. Terminal ']'
+
+            if not self.has_children(block):
+                print("ObsDefContext: missing 'children' key or no children")
+                exit()
+
+            children = block["children"]
+
+            var_name = None
+            var_size = None
+            size_specified = False
+
+            for child_index in range(len(children)):
+                child = children[child_index]
+
+                if child_index == 0:
+                    var_name = self.extract_text(child, parent=block)
+                    if not self.is_valid_name(var_name):
+                        print("ObsDefContext: variable name is not valid")
+                        exit()
+                elif child_index == 1:
+                    if not self.is_terminal(child, text='[', parent=block):
+                        print("ObsDefContext: child index 1, expected '['")
+                        exit()
+                    size_specified = True
+                elif child_index == 2:
+                    if not size_specified:
+                        print("ObsDefContext: child index 2, unexpected block")
+                        exit()
+                    var_size = self.handle_block(child, parent=block)
+                elif child_index == 3:
+                    if not size_specified:
+                        print("ObsDefContext: child index 3, unexpected block")
+                        exit()
+                    if not self.is_terminal(child, text=']', parent=block):
+                        print("ObsDefContext: child index 3, expected ']'")
+                        exit()
             
+            if self.scopes.exists(var_name):
+                print("ObsDefContext: variable name already exists")
+                exit()
+
+            if var_size <= 0:
+                print("ObsDefContext: variable size is <= 0")
+                exit()
+
+            variable = None
+
+            if size_specified:
+                variable = ObsRegister(var_size)
+            else:
+                variable = Obs()
+
+            self.scopes.create(var_name, variable)
+
+        elif block_type == STR_EXPR_CONTEXT:
+            # STRING     : '"' (~["\r\n])* '"' ;
+
+            # 1. Terminal "<content>"
+
+            if not self.has_children(block):
+                print("StrExprContext: missing 'children' key or no children")
+                exit()
+            
+            content = self.extract_text(block["children"][0], parent=block)
+
+            if len(content) < 2:
+                print("StrExprContent: content size of minimum 2 is required(empty string)")
+                exit()
+            
+            return content[1:-1] # remove first and last characters(")
+
+        elif block_type == FUNCTION_CALL_STMT_CONTEXT:
+            # functionCallStmt: ID '(' argList? ')';
+
+            pass
+
+
+
+
+
+
 
 
         elif block_type == TERMINAL:

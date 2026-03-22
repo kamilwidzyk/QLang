@@ -27,7 +27,7 @@ try:
         cmd, payload = data.split(':', 1)
         
         if cmd == "PRINT":
-            print(payload)
+            print(payload, end="", flush=True)
         elif cmd == "READ":
             resp = input(payload)
             client.sendall(resp.encode())
