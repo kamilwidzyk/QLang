@@ -168,9 +168,9 @@ class ScriptErrors:
             elif (line is not None) and (column is not None) and (width is not None):
                 return cls(start_line=line, start_col=column, width=width)
             elif (line is not None) and (column is not None):
-                return cls(start_line=line, start_col=column, end_line=line, end_column=column)
+                return cls(start_line=line, start_col=column, end_line=line, end_col=column)
             else:
-                return cls(start_line=-1, start_col=-1, end_line=-1, end_column=-1)
+                return cls(start_line=-1, start_col=-1, end_line=-1, end_col=-1)
         
             
 

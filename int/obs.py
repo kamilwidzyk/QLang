@@ -11,6 +11,7 @@ class ObsRegister:
     """
     obs: List[Obs]
     size: int
+    type: str = "ObsRegister"
 
     def __init__(self, size: int):
         """
@@ -83,6 +84,7 @@ class Obs:
     Represents one classical bit
     """
     state: int = 0 
+    type: str = "Obs"
 
     def set(self, new_value: int | bool):
         """

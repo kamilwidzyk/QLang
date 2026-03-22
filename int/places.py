@@ -44,7 +44,7 @@ def divideIntoPlaces(tree: Any, script_errors: ScriptErrors, network: QuantumNet
 
     # prepare places, create global place
     places = Places()
-    places.create_place("global", script_errors, network)
+    places.create_place("global", script_errors, ScriptErrors.Position(0, 0), network)
 
     PROGRAM_CONTEXT = "ProgramContext"
     STATEMENT_CONTEXT = "StatementContext"
@@ -263,7 +263,8 @@ def divideIntoPlaces(tree: Any, script_errors: ScriptErrors, network: QuantumNet
                     exit()
 
                 # Finally, assign everything inside to the place
-                places.create_place(place_name, script_errors, network)
+                places.create_place(place_name, script_errors, 
+                                    ScriptErrors.Position.extract(place_decl), network)
                 places.add_code(place_name, place_decl[3:-1])
             # Or something else
             else:
@@ -285,7 +286,8 @@ class Places:
     """
     places: Dict[str, Place] = {}
 
-    def create_place(self, name: str, script_errors: ScriptErrors, network: QuantumNetwork):
+    def create_place(self, name: str, script_errors: ScriptErrors, 
+                     declared_at: ScriptErrors, network: QuantumNetwork):
         """
         Creates empty place with given name
 
@@ -294,7 +296,7 @@ class Places:
             script_errors (ScriptErrors): instance of class for displaying errors
             network (QuantumNetwork): instance of QuauntumNetwork
         """
-        new_place = Place(name, script_errors, network)
+        new_place = Place(name, script_errors, declared_at, network)
         self.places[name] = new_place
 
     def add_code(self, name: str, code: Any):

@@ -6,6 +6,7 @@ class StateRegister:
     Represents a quantum register
     """
     states: List[State]
+    type: str = "StateRegister"
     
     def __init__(self, size: int):
         """
@@ -21,3 +22,4 @@ class State:
     Represents a quantum state
     """
     state = 0 # just a placeholder, there will be something else
+    type: str = "State"
