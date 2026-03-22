@@ -18,7 +18,7 @@ place ClassicalSystem {
 
     obs repeatTimes[8];
     print("Podaj liczbe 1-10: ");
-    intput(repeatTimes);
+    input(repeatTimes);
     println();
 
     print("Podales liczbe: ");

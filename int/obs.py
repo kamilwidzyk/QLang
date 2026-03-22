@@ -110,3 +110,6 @@ class Obs:
             False: otherwise
         """
         return self.state == 1
+    
+    def max_val(self) -> int:
+        return 1

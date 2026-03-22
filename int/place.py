@@ -223,6 +223,8 @@ class Place:
         OBS_DEF_CONTEXT = "ObsDefContext" # Observation definition list item
         STR_EXPR_CONTEXT = "StrExprContext" # String literal
         FUNCTION_CALL_STMT_CONTEXT = "FunctionCallStmtContext"
+        ARG_LIST_CONTEXT = "ArgListContext"
+        FOR_STMT_CONTEXT = "ForStmtContext"
 
         block_type = block["type"]
         print(block)
@@ -442,9 +444,11 @@ class Place:
             # first child can be 'print', 'println'(TODO) or 'input'(TODO), 'debug'(TODO)
 
             # PRINT
+            # print()                -> print nothing
             # print(<val>)           -> print decimal
             # print(<val>, <format>) -> print bin/hex 
             # <val> = VarExprContext
+            # (same for println)
 
             # 1. Terminal 'print'
             # 2. Terminal '('
@@ -457,8 +461,11 @@ class Place:
             # Combinations
             #       (CHILD INDEX)
             # (0) (1) (2)  (3)  (4)
+            # [2] [5]               -> ()
             # [2] [3] [5]           -> (<val>)
             # [2] [3] [4a] [4b] [5] -> (<val>, <format>)
+
+
 
             if not self.has_children(block):
                 print("IoStmtContext: 'children' key missing or no children")
@@ -466,7 +473,9 @@ class Place:
             
             ioOperation = self.extract_text(block["children"][0], parent=block)
 
-            if ioOperation == "print":
+            if ioOperation in ["print", "println"]:
+                
+                add_new_line = ioOperation == "println"
                 format_specified = False
                 format = None
                 to_print = None
@@ -480,7 +489,11 @@ class Place:
                         if not self.is_terminal(child, text="(", parent=block):
                             print("IoStmtContext: child index 1, expected '('")
                             exit()
-                    elif child_index == 1: # must be VarExprContext
+                    elif child_index == 1: # must be VarExprContext or ')'
+                        if self.is_terminal(child, text=')', parent=block):
+                            to_print = ""
+                            is_string = True
+                            break
                         if self.is_type(child, type=VAR_EXPR_CONTEXT, parent=block):
                             to_print = self.handle_block(child, parent=block)
                         elif self.is_type(child, type=STR_EXPR_CONTEXT, parent=block):
@@ -534,8 +547,153 @@ class Place:
                             print_text - f"{to_print:X}"
                     else:
                         print_text = str(to_print)
+                if add_new_line:
+                    self.console.write(print_text + "\n")
+                else:
+                    self.console.write(print_text)
+
+            elif ioOperation == "input":
+                children = block["children"][1:]
+
+                format_specified = False
+                format = None
+                index_specified = False
+                var_index = None
+                var_name = None
+
+                # INPUT '(' ID ('[' expr ']')? (',' format)? ')'
+               
+
+                # 1. Terminal '('
+                # 2. Terminal <obs_name>
+                # If index specified:
+                #   3a. Terminal '['
+                #   3b. index -> handle block to get value
+                #   3c. Terminal ']'
+                # If format specified:
+                #   4a. Terminal ','
+                #   4b. Terminal <format> = BIN or HEX
+                # 5. Terminal ')'
+
+                #            (CHILD INDEX)
+                # (0) (1) (2)  (3)  (4)  (5)  (6)  (7)
+                # [1] [2] [5]                          -> (<obs>)
+                # [1] [2] [3a] [3b] [3c] [5]           -> (<obs>[<index>])
+                # [1] [2] [4a] [4b] [5]                -> (<obs>, format)
+                # [1] [2] [3a] [3b] [3c] [4a] [4b] [5] -> (<obs>[<index>], format)
+
+                for child_index in range(len(children)):
+                    child = children[child_index]
+
+                    if child_index == 0: # 1. 
+                        if not self.is_terminal(child, text='(', parent=block):
+                            print("IoStmtContext: chid index 0, expected '('")
+                            exit()
+                    elif child_index == 1: # 2.
+                        var_name = self.extract_text(child, parent=block)
+                    elif child_index == 2: # 5. or 3a. or 4a
+                        if self.is_terminal(child, text='[', parent=block):
+                            # 3a.
+                            index_specified = True
+                        elif self.is_terminal(child, text=',', parent=block):
+                            # 4a.
+                            format_specified = True
+                        elif not self.is_terminal(child, text=')', parent=block): # 5.
+                            print("IoStmtContext: child index 2, expected '[' or ',' or ')'")
+                            exit()
+                    elif child_index == 3: # 3b.(index specified) or 4b.(otherwise)
+                        if index_specified:
+                            var_index = self.handle_block(child, parent=block)
+                        else:
+                            format = self.handle_block(child, parent=block)
+                    elif child_index == 4: # 3c.(index specified) or 5.(otherwise)
+                        if index_specified:
+                            if not self.is_terminal(child, text=']', parent=block):
+                                print("IoStmtContext: child index 4, expected ']'")
+                                exit()
+                        else:
+                            if not self.is_terminal(child, text=')', parent=block):
+                                print("IoStmtContext: child index 4, expected ')'")
+                                exit()
+                    elif child_index == 5: # 4a.(format specified) or 5.(otherwise)
+                        if format_specified:
+                            if not self.is_terminal(child, text=',', parent=block):
+                                print("IoStmtContext: child index 5, expected ','")
+                                exit()
+                        else:
+                            if not self.is_terminal(child, text=')', parent=block):
+                                print("IoStmtContext: child index 5, expected ')'")
+                                exit()
+                    elif child_index == 6: # 4b.
+                        format = self.handle_block(child, parent=block)
+                    elif child_index == 7: # 5.
+                        if not self.is_terminal(child, text=')', parent=block):
+                            print("IoStmtContext: child index 7, expected ')'")
+                            exit()
+
+                print("IO operation: input")
+                print("var_name: " + str(var_name))
+                print("var_index: " + str(var_index))
+                print("format: " + str(format))
+
+                if not self.scopes.exists(var_name):
+                    print("IoStmtContext: input, variable does not exist")
+                    exit()
+
+                variable: Obs | ObsRegister = self.scopes.get(var_name)
+
+                if variable.type not in ["Obs", "ObsRegister"]:
+                    print("IoStmtContext: input, variable must be of type 'Obs' or 'ObsRegister'")
+                    exit()
+
+                if var_index is not None and variable.type == "Obs":
+                    print("IoStmtContext: input, variable of type 'Obs' is not indexable")
+                    exit()
                 
-                self.console.write(print_text)
+                max_val = variable.max_val()
+                min_val = 0
+
+                value = None
+
+                while True:
+                    print("Waiting for console input...")
+                    console_in = self.console.read("")
+                    print("Console input: " + str(console_in))
+
+                    if console_in is None:
+                        continue
+                        
+                    if format is not None:
+                        if format == "BIN" and console_in.startswith("0b"):
+                            try:
+                                value = int(console_in, 2)
+                                if value >= min_val and value <= max_val:
+                                    break # valid value received -> end of loop
+                            except:
+                                pass # not a number
+                        elif format == "HEX" and console_in.startswith("0x"):
+                            try:
+                                value = int(console_in, 16)
+                                if value >= min_val and value <= max_val:
+                                    break # valid value received -> end of loop
+                            except:
+                                pass # not a number
+                    else:
+                        try:
+                            value = int(console_in)
+                            if value >= min_val and value <= max_val:
+                                break # valid value received -> end of loop
+                        except:
+                            pass # not a number
+                    
+                    format_str = {None: "decimal", "BIN": "binary", "HEX": "hexadecimal"}[format]
+                    self.console.write(f"[Invalid input, required value range {min_val}-{max_val} in {format_str} format] ")
+
+                print("Parsed console input: " + str(value))
+
+                variable.set(value)
+                self.scopes.set(var_name, variable)
+
 
             else:
                 print("IoStmtContext: operation " + ioOperation + " unknown or not implemented")
@@ -635,14 +793,6 @@ class Place:
 
             # functionDecl: FUNCTION ID '(' paramList? ')' block;
            
-            
-            # block: '{' statement* '}';
-
-            # NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
-            # fragment HEX_NUMBER: '0x' [0-9a-fA-F]+;
-            # fragment BIN_NUMBER: '0b' [01]+;
-            # fragment DEC_NUMBER: [0-9]+;
-
             # 1. Terminal 'function'
             # 2. Terminal <function_name>
             # 3. Terminal '('
@@ -907,7 +1057,123 @@ class Place:
         elif block_type == FUNCTION_CALL_STMT_CONTEXT:
             # functionCallStmt: ID '(' argList? ')';
 
-            pass
+            # 1. Terminal <function_name> 
+            # 2. Terminal '('
+            # If has arguments:
+            #   3. argList block
+            # 4. Terminal ')'
+
+            if not self.has_children(block):
+                print("FunctionCallStmtContext")
+                exit()
+            
+            children = block["children"]
+
+            func_name = None
+            args = None
+            has_args = False
+
+            for child_index in range(len(children)):
+                child = children[child_index]
+                if child_index == 0:
+                    func_name = self.extract_text(child, block)
+                elif child_index == 1:
+                    if not self.is_terminal(child, text='(', parent=block):
+                        print("FunctionCallStmtContext: child index 1, expected '('")
+                        exit()
+                elif child_index == 2:
+                    if self.is_type(child, type=ARG_LIST_CONTEXT, parent=block):
+                        args = self.handle_block(child, parent=block)
+                        has_args = True
+                    elif not self.is_terminal(child, text=')', parent=block):
+                        print("FunctionCallStmtContext: child index 2, expected ')'")
+                        exit()
+                elif child_index == 3:
+                    if not has_args:
+                        print("FunctionCallStmtContext: child index 3, unexpected block")
+                        exit()
+                    if not self.is_terminal(child, text=")", parent=block):
+                        print("FunctionCallStmtContext: child index 3, expected ')'")
+                        exit()
+
+            print("Function call: name: " + str(func_name) + " args: " + str(args))
+
+           
+            if not self.scopes.exists(func_name):
+                print("FunctionCallStmtContext: Function does not exist")
+                exit()
+
+            # Call the function
+            function_def: Function = self.scopes.get(func_name)
+
+            # Create new scope for function
+            new_scope = Scope(
+                pos=pos,
+                parent=function_def.closure_scope
+            )
+
+            # Add names functions args to it
+            param_names = [p.name for p in function_def.params]
+            for param_name, param_value in zip(param_names, args):
+                new_scope.vars[param_name] = param_value
+            
+            # Switch execution context
+            old_scope = self.scopes.current
+            self.scopes.current = new_scope
+
+            return_val = None
+            # Execute function
+            for func_block in function_def.body:
+                return_val = self.handle_block(func_block)
+                # TODO: This is propably wrong way to handle return values
+                # but it will do for now
+                if return_val is not None: # return called
+                    break # do not execute more
+            
+
+            # Recover scope
+            self.scopes.current = old_scope
+
+            print("Function execution done")
+            print("Return val: " + str(return_val))
+
+            return return_val
+
+
+        
+        elif block_type == ARG_LIST_CONTEXT:
+            # argList: expr (',' expr)*;
+
+            if not self.has_children(block):
+                print("ArgListContext: missing 'children' key or no children")
+                exit()
+            
+            children = block["children"]
+
+            args = []
+
+            expect_block = True
+
+            for child in children:
+                if expect_block:
+                    val = self.handle_block(child, block)
+                    args.append(val)
+                    expect_block = False
+                else:
+                    if not self.is_terminal(child, text=',', parent=block):
+                        print("ArgListContext: expected ','")
+                        exit()
+                    expect_block = True
+
+            return args
+
+        elif block_type == FOR_STMT_CONTEXT:
+
+            pass # TODO: For loop
+
+
+
+
 
 
 
