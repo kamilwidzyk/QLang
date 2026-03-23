@@ -3,16 +3,16 @@ import json
 from typing import List, Dict, Any
 import re
 
-from logger import init_log, log, log_level 
-from logger import INIT, PLACE
-from logger import FATAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, NOTHING
+from .logger import init_log, log, log_level 
+from .logger import INIT, PLACE
+from .logger import FATAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, NOTHING
 
-from load import load_input_files
-from script_errors import ScriptErrors
+from .load import load_input_files
+from .script_errors import ScriptErrors
 
-from place import Place
+from .place import Place
 
-from network import QuantumNetwork
+from .network import QuantumNetwork
 
 def divideIntoPlaces(tree: Any, script_errors: ScriptErrors, network: QuantumNetwork) -> Places:
     """ 

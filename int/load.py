@@ -2,7 +2,7 @@ import sys
 import json
 from typing import Any, Tuple
 
-from logger import log, INIT, INFO, FATAL, SUCCESS
+from .logger import log, INIT, INFO, FATAL, SUCCESS
 
 """
 This file contains function for loading input files into memory

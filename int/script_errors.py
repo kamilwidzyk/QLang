@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from logger import log, WARNING, SC_ER, DEBUG
 import colorama
 from typing import Any, Self, List
 
+from .logger import log, WARNING, SC_ER, DEBUG
 """
 Type of errors:
   > DEEP ERROR: This might not be related to your program, but to the interpreter.

@@ -3,16 +3,16 @@ import json
 from typing import List, Dict
 import re
 
-from logger import init_log, log, log_level 
-from logger import INIT, PLACE
-from logger import FATAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, NOTHING
+from .logger import init_log, log, log_level 
+from .logger import INIT, PLACE
+from .logger import FATAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, NOTHING
 
-from load import load_input_files
-from script_errors import ScriptErrors
+from .load import load_input_files
+from .script_errors import ScriptErrors
 
-from places import divideIntoPlaces, Places
+from .places import divideIntoPlaces, Places
 
-from network import QuantumNetwork, create_quantum_network
+from .network import QuantumNetwork, create_quantum_network
 
 def main():
     # Init logging

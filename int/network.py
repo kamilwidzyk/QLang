@@ -3,9 +3,10 @@ import time
 import uuid
 from typing import List, Any, Tuple
 from dataclasses import dataclass
-from logger import log, DEBUG, QNET, SUCCESS, FATAL, STYLE_DEBUG, STYLE_DEBUG_CYAN, STYLE_DEBUG_MAGENTA, STYLE_DEBUG_YELLOW
-from script_errors import ScriptErrors
 import colorama
+
+from .script_errors import ScriptErrors
+from .logger import log, DEBUG, QNET, SUCCESS, FATAL, STYLE_DEBUG, STYLE_DEBUG_CYAN, STYLE_DEBUG_MAGENTA, STYLE_DEBUG_YELLOW
 
 @dataclass
 class Packet:

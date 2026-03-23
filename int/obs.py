@@ -1,5 +1,6 @@
 from typing import List
-from logger import log, OBS, WARNING
+
+from .logger import log, OBS, WARNING
 
 
 class ObsRegister:
