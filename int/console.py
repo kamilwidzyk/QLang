@@ -5,37 +5,49 @@ import os
 import sys
 
 class Console:
+    """
+    Allows a process to open a console window in a separate process
+    Basic write and read operations supported
+    """
     def __init__(self, title="Process Console"):
         self.process = None
         self.conn = None
         self.title = title
-        # Get the absolute path to the child script to avoid "File Not Found" errors
         self.child_path = "int\console_worker.py"
-        self.port = self._find_free_port()
+        self.port = self.find_free_port()
         self.FLAGS = 0x00000010 
 
-    def _find_free_port(self):
+    def find_free_port(self):
+        """
+        Weird windows way to get any free port.
+
+        Returns:
+            int: any port number that is currently free
+        """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind(('', 0))
             return s.getsockname()[1]
 
     def launch(self):
-        # We use 'cmd /k' so if it crashes, the window stays open to show the error
-        # We use double quotes around paths in case your folder name has spaces
+        """
+        Starts the console_worker.py script and connects to it via a socket
+        """
         python_exe = sys.executable
         command = f'title {self.title} && cls && python {self.child_path} {self.port}'
         
+        # Start it
         self.process = subprocess.Popen(
             ['cmd', '/c', command], 
             creationflags=self.FLAGS
         )
         
-        # Setup listener
+        # Connect to it
         listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        listener.settimeout(10.0) # Increased timeout for slow system starts
+        listener.settimeout(10.0) 
         listener.bind(('localhost', self.port))
         listener.listen(1)
         
+        # Handle timeout
         try:
             self.conn, _ = listener.accept()
             self.conn.settimeout(None)
@@ -44,32 +56,26 @@ class Console:
         finally:
             listener.close()
 
-    def write(self, text):
+    def write(self, text: str):
+        """
+        Write to the console
+
+        Parameters:
+            text (str): Text to write
+        """
         if self.conn:
             self.conn.sendall(f"PRINT:{text}".encode())
 
-    def read(self, prompt="> "):
+    def read(self, prompt="") -> str | None:
+        """
+        Read a line from the console and return it
+        (ignore the prompt parameter for now)
+
+        Returns:
+            str: User entered input
+            None: Connection lost
+        """
         if self.conn:
             self.conn.sendall(f"READ:{prompt}".encode())
             return self.conn.recv(4096).decode()
         return None
-
-# --- TESTING MULTIPLE WINDOWS ---
-if __name__ == "__main__":
-    # Create them
-    c1 = ConsoleController("Logger Alpha")
-    c2 = ConsoleController("Input Beta")
-
-    # Launch them
-    print("Launching Window 1...")
-    c1.launch()
-    
-    print("Launching Window 2...")
-    c2.launch()
-
-    # Interaction
-    c1.write("Alpha is online.")
-    c2.write("Beta is online.")
-    
-    val = c2.read("Type something for Beta: ")
-    c1.write(f"Beta sent us: {val}")

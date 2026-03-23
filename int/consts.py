@@ -1,3 +1,8 @@
+"""
+This file contains consts that are access from multiple files
+Do not import anything from this module to not make a cyclic import
+"""
+
 
 # Tree block types
 STATEMENT_CONTEXT = "StatementContext" # any statement

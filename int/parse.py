@@ -6,9 +6,11 @@ from QLang.QLangParser import QLangParser
 
 
 def tree_to_dict(node, parser):
-    """Konwertuje drzewo ANTLR na słownik Pythona (serializowalny do JSON)"""
+    """
+    Converts ANTLR tree to a dict with some extra info
+    """
 
-    # TERMINAL
+    # Terminals
     if isinstance(node, TerminalNode):
         token = node.symbol
         return {
@@ -18,7 +20,7 @@ def tree_to_dict(node, parser):
             "column": token.column
         }
 
-    # NODE PARSERA
+    # Parser node type -> block type
     res = {
         "type": type(node).__name__
     }
@@ -26,7 +28,7 @@ def tree_to_dict(node, parser):
     if hasattr(node, 'getRuleIndex'):
         res["rule"] = parser.ruleNames[node.getRuleIndex()]
 
-    # pozycja w kodzie
+    # Position in the original script
     if hasattr(node, "start") and node.start:
         res["line"] = node.start.line
         res["column"] = node.start.column
@@ -35,7 +37,7 @@ def tree_to_dict(node, parser):
         res["endLine"] = node.stop.line
         res["endColumn"] = node.stop.column
 
-    # dzieci
+    # Children
     if node.children:
         res["children"] = [tree_to_dict(c, parser) for c in node.children]
 
@@ -43,20 +45,20 @@ def tree_to_dict(node, parser):
 
 
 def main():
+    # Get filename and extract only the name
     input_filename = sys.argv[1]
-
     input_name = ("".join(input_filename.split(".")[:-1])).split("\\")[-1]
-
+    # Open file
     input_stream = FileStream(input_filename)
-
+    # Parse program to tree
     lexer = QLangLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = QLangParser(stream)
-
     tree = parser.program()
-
+    # convert tree -> dict -> json
+    # (the indent option will get removed later)
     resultJSON = json.dumps(tree_to_dict(tree, parser), indent=2)
-
+    # save to file
     with open(f"output/{input_name}.json", "w", encoding="utf-8") as resultFile:
         resultFile.write(resultJSON)
 

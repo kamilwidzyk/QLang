@@ -185,7 +185,7 @@ class QuantumNetwork:
 def create_quantum_network() -> Tuple:
     """
     Returns instance of QuantumNetwork and manager.
-    Do not create QuantumNetwork instace direcly
+    Do not create QuantumNetwork instance direcly
     """
     manager = multiprocessing.Manager()
     packet_pool = manager.list()

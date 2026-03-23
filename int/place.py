@@ -5,15 +5,11 @@ import re
 from dataclasses import dataclass
 import sys
 
-
 from .network import QuantumNetwork
 from .script_errors import ScriptErrors
-from .state import State, StateRegister
-from .obs import Obs, ObsRegister
 from .console import Console
 from .consts import *
-from .function import Function, FunctionParam
-from .scope import Scope, ScopeManager
+from .scope import ScopeManager
 
 ######################## CONTEXT HANDLERS #############################
 from .context.statement              import handle_statement
@@ -47,7 +43,11 @@ from .context.terminal               import handle_terminal
 
 class Place:
     """
-    Represents one place, holds name and inner code
+    Represents one place.
+
+    Every instance of place starts a separate process to execute its code in.
+
+    TODO: Replace every print(...) exit() with proper error displaying
     """
     name: str = None
     block: List = []
@@ -85,10 +85,19 @@ class Place:
         """
         self.block.append(code)
 
-    # TODO: add displaying of proper errors
-    def is_terminal(self, block, text=None, parent=None) -> bool:
-        # check if given block is a terminal and text matches
-        # pass parent for error displaying
+    def is_terminal(self, block, text: str, parent=None) -> bool:
+        """
+        Check if a block matches is a Terminal and text matches
+
+        Parameters:
+            block: Block to test
+            text(str): Text to match
+            parent: Block one level higher than block, used for errors
+        Returns:
+            True: given block is a Terminal with given text
+            False: otherwise
+        """
+
         if "type" not in block:
             print("Terminal check: 'type' key missing")
             exit()
@@ -105,9 +114,16 @@ class Place:
         
         return True
     
-    # check if block it terminal and try to read 'text'
-    # TODO: add displaying of proper errors
     def extract_text(self, block, parent=None) -> str:
+        """
+        Extracts text from Terminal block
+
+        Parameters:
+            block: Block to extract text from
+            parent: Block one level higher, used for errors
+        Returns:
+            str: Extracted text
+        """
         if "type" not in block:
             print("extract text: 'type' key missing")
             exit()
@@ -122,24 +138,47 @@ class Place:
 
         return block["text"]
 
-    # valid name can only contain a-z A-z 0-9 and '_'
-    # name cannot be 'global' or any keyword
     def is_valid_name(self, name: str) -> bool:
-        if re.match(r'[a-zA-Z0-9_]+', name) and name != "global":
-            return True
-        return False
+        """
+        Checks if given name is a valid name.
+        Valid name:
+            - can only contains a-z A-Z 0-9 '_'
+            - can't be a keyword
 
-    # check if block is the given type
-    # TODO: add error displaying
+        Parameters:
+            name(str): Name to check
+        
+        Returns:
+            True: name is valid
+            False: name is invalid
+        """
+        keywords = ["global"] # TODO: Add more keywords here
+
+        return re.match(r'[a-zA-Z0-9_]+', name) and name not in keywords
+
     def is_type(self, block, type: str, parent=None) -> bool:
+        """
+        Checks if a block is of given type
+
+        Parameters:
+            block: Block to check
+            type: Which type to expect
+            parent: Block one level higher, for errors
+
+        Returns:
+            True: Block is of given type
+            False: Block type is different
+        """
         if "type" not in block:
             print("is type: 'type' key missing")
             exit()
         
         return block["type"] == type
 
-    # check if block has 'children' key and at least one child
     def has_children(self, block) -> bool:
+        """
+        Returns True is given block has any children
+        """
         if "children" not in block:
             return False
         
@@ -148,24 +187,31 @@ class Place:
         
         return True
     
-    # TODO: add displaying of errors, in places where there are 'print' now
-    # handle block may return a value when handling a NumExpr or function return
     def handle_block(self, block, parent=None):
-        # check if 'type' key exists
+        """
+        Recursive tree code execution
+
+        Parameters:
+            block: block to execute
+            parent: block one level higher or none(if top-level)
+        
+        Returns:
+            Return value depends on the block content
+        """
+
+        # check if type key exists and extract block position in code
         if "type" not in block:
             print("'type' key missing")
             exit()
-        
-        pos = ScriptErrors.Position.extract(block)
-
-        
-
         block_type = block["type"]
+
+        pos = ScriptErrors.Position.extract(block)
+        
+        # Uncomment to show content of every executed block
         #print(block)
-        print("BLOCK TYPE: " + block_type)
+        #print("BLOCK TYPE: " + block_type)
 
-        handle_args = (self, block, parent, pos)
-
+        # Dictionary of handlers for every block type implemented
         HANDLERS = {
             TERMINAL:                       handle_terminal,
             STATEMENT_CONTEXT:              handle_statement,
@@ -197,10 +243,13 @@ class Place:
             PAREN_EXPR_CONTEXT:             handle_parentheses,
         }
 
+        # Unknown block, do not execute, show error
         if block_type not in HANDLERS:
             print("UNKNOWN BLOCK TYPE: " + str(block_type))
             exit()
 
+        # Choose the fitting handler and run it on the block
+        handle_args = (self, block, parent, pos)
         return HANDLERS[block_type](*handle_args)
 
 
@@ -211,26 +260,17 @@ class Place:
         """
         sys.setrecursionlimit(4_000_000)
 
-        print("Opening console")
-
+        # Open console with title that includes place's name
         self.console = Console("Place: " + self.name)
         self.console.launch()
 
-        # For some unknown reason not global place ends up in double list
+        # For some unknown reason not global place ends up in a double list
         if len(self.block) > 0 and type(self.block[0]) is list:
-            print("Extra list removed")
             self.block = self.block[0]
 
-        print(f"[{self.name}] Started!")
-
-
-        print("---------------------------------------")
-
+        # Run every top-level block of code
         for bl in self.block:
             self.handle_block(bl, parent=self.block)
-
-        print("---------------------------------------")
-
         
 
     def run(self):

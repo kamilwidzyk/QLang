@@ -5,31 +5,53 @@ from .script_errors import ScriptErrors
 
 @dataclass
 class Scope:
+    """
+    Represents one level of scope
+    """
     def __init__(self, pos: ScriptErrors.Position, scope_type="block", parent=None):
-        self.vars = {}
-        self.pos = pos
-        self.parent = parent
-        self.type = scope_type
+        self.vars = {} # dict with name -> variable
+        self.pos = pos # where is was added
+        self.parent = parent # scope one level higher
+        self.type = scope_type # type of scope (for, if, ...)
 
 
 class ScopeManager:
     def __init__(self):
-        # initialize with global scope that begins at 0, 0
+        """
+        Initializes a global scope at default position (0, 0)
+        """
         self.current = Scope(ScriptErrors.Position(0, 0))
 
     def push(self, pos: ScriptErrors.Position, scope_type: str):
-        # go one scope down, pos = position of element that started the scope
+        """
+        Goes one scope deeper
+
+        Parameters:
+            pos: Position of the block that created this scope
+            scope_type: what block of code caused this scope to be created
+        """
         self.current = Scope(pos, scope_type, parent=self.current)
 
     def pop(self):
-        # exit from scope
+        """
+        Exits from scope
+        """
         if self.current.parent is not None:
             self.current = self.current.parent
         else:
             raise Exception("Cannot pop global scope")
         
-    def get(self, name):
-        # get var/func from current scope or higher
+    def get(self, name: str):
+        """
+        Return variable with given name
+        If the variable is not found, this will result in an Exception. 
+        Make sure to check first if the variable exists
+
+        Parameters:
+            name(str): Variable name
+        Returns:
+            The found variable, can depends on variable
+        """
         scope = self.current
         while scope:
             print(scope.vars)
@@ -38,11 +60,14 @@ class ScopeManager:
             scope = scope.parent
         raise Exception(f"Variable {name} not defined")
     
-    def set(self, name, value):
-        # assign a variable:
-        # if found: assign value
-        # if not found: create variable at current scope and assign (this will propably change)
-        # there will be most likely a create method added to prevent assigment of non-existing variables
+    def set(self, name: str, value):
+        """
+        Assign or create a variable at current scope
+
+        Parameters:
+            name(str): Variable name
+            value: Variable content, type depends
+        """
         scope = self.current
         while scope:
             if name in scope.vars:
@@ -51,8 +76,17 @@ class ScopeManager:
             scope = scope.parent
         self.current.vars[name] = value
 
-    def exists(self, name) -> bool:
-        # check if variable with a given name exists at the current scope
+    def exists(self, name: str) -> bool:
+        """
+        Checks if a variable exists
+
+        Parameters:
+            name(str): Variable name
+
+        Returns:
+            True: variable exists
+            False: variable does not exits
+        """
         scope = self.current
         while scope:
             if name in scope.vars:
@@ -61,13 +95,23 @@ class ScopeManager:
         return False
 
     def create(self, name: str, value: Any):
-        # create variable with given name at current scope
-        # value will be a class instance which will specify type and size
+        """
+        Creates a variable at current scope and assign it
+
+        Parameters:
+            name(str): Variable name
+            value: variable content, type depends
+        """
         self.current.vars[name] = value
 
     def assign(self, name: str, value: Any):
-        # assign an existing variable
-        # search all the scopes 
+        """
+        Assign an already existing variable
+
+        Parameters:
+            name(str): Variable name
+            value: variable content, type depends
+        """
         scope = self.current
         while scope:
             if name in scope.vars:

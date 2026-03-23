@@ -28,19 +28,11 @@ def main():
     scriptErrors = ScriptErrors(script)
     places = divideIntoPlaces(tree, scriptErrors, network)
 
-    
-
     # Start every place in separate processes
     places.run()
+
+    # Wait for all places to finish execution
     places.wait_for_end()
-
-
-
-    
-    
-
-
-
     
 
 if __name__ == '__main__':

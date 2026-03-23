@@ -5,7 +5,7 @@ from typing import Any, Tuple
 from .logger import log, INIT, INFO, FATAL, SUCCESS
 
 """
-This file contains function for loading input files into memory
+This file contains functions for loading input files into memory
 """
 
 def load_json(path: str) -> Any:

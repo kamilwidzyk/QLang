@@ -73,11 +73,6 @@ class ObsRegister:
             result = (result << 1) | self[i]
         return result
     
-
-
-
-    
-    
     
 
 class Obs:
