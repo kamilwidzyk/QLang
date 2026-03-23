@@ -223,8 +223,19 @@ class Place:
         OBS_DEF_CONTEXT = "ObsDefContext" # Observation definition list item
         STR_EXPR_CONTEXT = "StrExprContext" # String literal
         FUNCTION_CALL_STMT_CONTEXT = "FunctionCallStmtContext"
-        ARG_LIST_CONTEXT = "ArgListContext"
-        FOR_STMT_CONTEXT = "ForStmtContext"
+        ARG_LIST_CONTEXT = "ArgListContext" # Argument list of function call
+        FOR_STMT_CONTEXT = "ForStmtContext" # For loop
+        POW_EXPR_CONTEXT = "PowExprContext" # x^b 
+        IF_STMT_CONTEXT = "IfStmtContext" # If
+        REL_EXPR_CONTEXT = "RelExprContext" # comparision operators
+        ADD_SUB_EXPR_CONTEXT = "AddSubExprContext" # add(+) substract(-)
+        NOT_EXPR_CONTEXT = "NotExprContext" # not(!) 0-->1 >=1-->0
+        MUL_DIV_MOD_EXPR_CONTEXT = "MulDivModExprContext" # multiply(*) divide(/) mod(%)
+        EQ_EXPR_CONTEXT = "EqExprContext" # equal(==) notEqual(!=)
+        AND_EXPR_CONTEXT = "AndExprContext" # and(&&) both > 0 --> 1
+        OR_EXPR_CONTEXT = "OrExprContext" # or(&&) any > 0 --> 1
+        BOOL_EXPR_CONTEXT = "BoolExprContext" # true(T)-->1 false(F)-->0
+        PAREN_EXPR_CONTEXT = "ParenExprContext" # ()
 
         block_type = block["type"]
         print(block)
@@ -349,12 +360,8 @@ class Place:
                         obs_size = self.handle_block(child, parent=block)
                         print("3b. size = " + str(obs_size))
                     elif init_value_defined:
-                        # TODO: add more value init types here 
-                        if not self.is_type(child, NUM_EXPR_CONTEXT, parent=block):
-                            print("obsDeclContext: expected block of type numExprContext")
-                            exit()
-                        # handle to get init value
                         obs_value = self.handle_block(child, parent=block)
+                        # handle to get init value
                         print("4b. init value = " + str(obs_value))
                     else:
                         print("obsDeclContext: unexpected block at child index 3")
@@ -373,10 +380,6 @@ class Place:
                     init_value_defined = True
                 elif child_index == 6: # must be val 
                     if init_value_defined:
-                        # TODO: add more value init types here 
-                        if not self.is_type(child, NUM_EXPR_CONTEXT, parent=block):
-                            print("obsDeclContext: expected block of type numExprContext")
-                            exit()
                         # handle to get init value
                         obs_value = self.handle_block(child, parent=block)
                         print("4b. init value = " + str(obs_value))
@@ -441,7 +444,7 @@ class Place:
             return val
 
         elif block_type == IO_STMT_CONTEXT:
-            # first child can be 'print', 'println'(TODO) or 'input'(TODO), 'debug'(TODO)
+            # first child can be 'print', 'println' or 'input', 'debug'(TODO)
 
             # PRINT
             # print()                -> print nothing
@@ -494,15 +497,12 @@ class Place:
                             to_print = ""
                             is_string = True
                             break
-                        if self.is_type(child, type=VAR_EXPR_CONTEXT, parent=block):
-                            to_print = self.handle_block(child, parent=block)
-                        elif self.is_type(child, type=STR_EXPR_CONTEXT, parent=block):
+
+
+                        if self.is_type(child, type=STR_EXPR_CONTEXT, parent=block):
                             is_string = True
-                            to_print = self.handle_block(child, parent=block)
-                        else:
-                            print("IoStmtContext: child index 2, expected VarExprContext pr StrExprContext")
-                            exit()
                         
+                        to_print = self.handle_block(child, parent=block)
                         
                     elif child_index == 2: # ')' or ','
                         if self.is_terminal(child, text=",", parent=block):
@@ -542,9 +542,9 @@ class Place:
 
                     if format_specified:
                         if format == "BIN":
-                            print_text = f"{to_print:b}"
+                            print_text = f"0b{to_print:b}"
                         elif format == "HEX":
-                            print_text - f"{to_print:X}"
+                            print_text = f"0x{to_print:X}"
                     else:
                         print_text = str(to_print)
                 if add_new_line:
@@ -1307,7 +1307,347 @@ class Place:
             print("For loop: done")
 
             
-                
+        elif block_type == POW_EXPR_CONTEXT:
+            # expr '**' expr
+
+            if not self.has_children(block):
+                print("PowExprContext: missing 'children' key or no children")
+                exit()
+
+            children = block["children"]
+
+            if len(children) != 3:
+                print("PowExprContext: 3 children required")
+                exit()
+
+            if not self.is_terminal(children[1], text="**", parent=block):
+                print("PowExprContext: second child needs to be '**'")
+                exit()
+            
+            base = self.handle_block(children[0], parent=block)
+            power = self.handle_block(children[2], parent=block)
+
+            result = base ** power
+            return result
+        
+        elif block_type == FORMAT_CONTEXT:
+            # format: BIN | HEX;
+
+            if not self.has_children(block):
+                print("FormatContext: missing 'children' key or no children")
+                exit()
+
+            child = block["children"][0]
+
+            if self.is_terminal(child, text="HEX", parent=block):
+                return "HEX"
+            elif self.is_terminal(child, text="BIN", parent=block):
+                return "BIN"
+            else:
+                print("FormatContext: unknown format")
+                exit()
+            
+        elif block_type == IF_STMT_CONTEXT:
+            # ifStmt: IF '(' expr ')' block (ELSE block)?;
+
+            # expr > 0 -> if block
+            # expr == 0 -> else block
+
+            if not self.has_children(block):
+                print("IfStmtContext: missing 'children' key or no children")
+                exit()
+
+            # 1. Terminal 'if'
+            # 2. Terminal '('
+            # 3. condition -> handle to get value
+            # 4. Terminal ')'
+            # 5. BlockContext -> if block
+            # Else defined:
+            #   6a. Terminal 'else'
+            #   6b. BlockContext -> else block
+
+            if_block = None
+            else_block = None
+            else_defined = False
+            condition = None
+
+            children = block["children"]
+
+            for child_index in range(len(children)):
+                child = children[child_index]
+
+                if child_index == 0: # Terminal 'if'
+                    if not self.is_terminal(child, text='if', parent=block):
+                        print("IfStmtContext: child index 0, expected 'if'")
+                        exit()
+                elif child_index == 1: # Terminal '('
+                    if not self.is_terminal(child, text='(', parent=block):
+                        print("IfStmtContext: child index 1, expected '('")
+                        exit()
+                elif child_index == 2: # condition
+                    condition = self.handle_block(child, parent=block)
+                elif child_index == 3: # Terminal ')'
+                    if not self.is_terminal(child, text=')', parent=block):
+                        print("IfStmtContext: child index 3, expected ')'")
+                        exit()
+                elif child_index == 4: # if block
+                    if_block = self.handle_block(child, parent=block)
+                elif child_index == 5: # Terminal 'else'
+                    if self.is_terminal(child, text='else', parent=block):
+                        else_defined = True
+                    else:
+                        print("IfStmtContext: child index 5, expected 'else'")
+                        exit()
+                elif child_index == 6:
+                    if not else_defined:
+                        print("IfStmtContext: child index 6, unexpected block")
+                        exit()
+                    else_block = self.handle_block(child, parent=block)
+                else:
+                    print("IfStmtContext: child index > 6, unexpected block")
+                    exit()
+
+            condition_satisfied = condition > 0
+            enter_scope = condition_satisfied or else_defined
+
+            if not enter_scope:
+                return
+            
+            print("Entering new scope")
+
+            self.scopes.push(pos, scope_type="if")
+
+            if condition_satisfied:
+                for item in if_block:
+                    self.handle_block(item, parent=if_block)
+            elif else_defined:
+                for item in else_block:
+                    self.handle_block(item, parent=else_block)
+
+            print("Exiting scope")
+            self.scopes.pop()
+
+        elif block_type == REL_EXPR_CONTEXT:
+            # expr ('<' | '>' | '<=' | '>=') expr
+
+            if not self.has_children(block):
+                print("RelExprContext: missing 'children' key or no children")
+                exit()
+
+            children = block["children"]
+
+            if len(children) != 3:
+                print("RelExprContext: 3 children required")
+                exit()
+
+            val1 = self.handle_block(children[0], parent=block)
+            val2 = self.handle_block(children[2], parent=block)
+
+            result = None
+
+            if self.is_terminal(children[1], text='<', parent=block):
+                result = val1 < val2
+            elif self.is_terminal(children[1], text='>', parent=block):
+                result = val1 > val2
+            elif self.is_terminal(children[1], text='<=', parent=block):
+                result = val1 <= val2
+            elif self.is_terminal(children[1], text='>=', parent=block):
+                result = val1 >= val2
+
+            return 1 if result else 0
+
+
+        elif block_type == ADD_SUB_EXPR_CONTEXT:
+            # expr ('+' | '-') expr 
+
+            if not self.has_children(block):
+                print("AddSubExprContext: missing 'children' key or no children")
+                exit()
+            
+            children = block["children"]
+            
+            if len(children) != 3:
+                print("AddSubExprContext: 3 children expected")
+                exit()
+            
+            val1 = self.handle_block(children[0], parent=block)
+            val2 = self.handle_block(children[2], parent=block)
+
+            result = None
+
+            if self.is_terminal(children[1], text='+', parent=block):
+                result = val1 + val2
+            elif self.is_terminal(children[1], text='-', parent=block):
+                result = val1 - val2
+            else:
+                print("AddSubExprContext: child index 1, expected '+' or '-'")
+                exit()
+
+            if result < 0:
+                result = 0
+
+            return result
+        
+        elif block_type == NOT_EXPR_CONTEXT:
+            # '!' expr
+
+            if not self.has_children(block):
+                print("NotExprContext: missing 'children' key or no children")
+                exit()
+
+            children = block["children"]
+
+            if len(children) != 2:
+                print("NotExprContext: 2 children expected")
+                exit()
+
+            if not self.is_terminal(children[0], text='!', parent=block):
+                print("NotExprContext: child index 0, expected '!'")
+                exit()
+
+            val = self.handle_block(children[1], parent=block)
+
+            return 1 if val == 0 else 0
+
+        elif block_type == MUL_DIV_MOD_EXPR_CONTEXT:
+            # expr ('*' | '/' | '%') expr 
+
+            if not self.has_children(block):
+                print("MulDivModExprContext: missing 'children' key or no children")
+                exit()
+
+            children = block["children"]
+
+            if len(children) != 3:
+                print("MulDivModExprContext: 3 children expected")
+                exit()
+            
+            val1 = self.handle_block(children[0], parent=block)
+            val2 = self.handle_block(children[2], parent=block)
+
+            if self.is_terminal(children[1], text='*', parent=block):
+                return val1 * val2
+            elif self.is_terminal(children[1], text='/', parent=block):
+                if val2 == 0:
+                    print("MulDivModExprContext: divide by zero")
+                    exit()
+                return val1 // val2
+            elif self.is_terminal(children[1], text='%', parent=block):
+                if val2 == 0:
+                    print("MulDivModExprContext: mod over zero")
+                    exit()
+                return val1 % val2
+            else:
+                print("MulDivModExprContext: child index 1, expected '*', '/' or '%'")
+                exit()
+            
+        elif block_type == EQ_EXPR_CONTEXT:
+            # expr ('==' | '!=') expr
+
+            if not self.has_children(block):
+                print("EqExprContext: missing 'children' key or no children")
+                exit()
+
+            children = block["children"]
+
+            if len(children) != 3:
+                print("EqExprContext: 3 children expected")
+                exit()
+
+            val1 = self.handle_block(children[0], parent=block)
+            val2 = self.handle_block(children[2], parent=block)
+
+            if self.is_terminal(children[1], text='==', parent=block):
+                return 1 if val1 == val2 else 0
+            elif self.is_terminal(children[1], text='!=', parent=block):
+                return 1 if val1 != val2 else 0
+            else:
+                print("EqExprContext: child index 1, expected '==' or '!='")
+                exit()
+
+        elif block_type == AND_EXPR_CONTEXT:
+            # expr '&&' expr
+
+            if not self.has_children(block):
+                print("AndExprContext: missing 'children' key or no children")
+                exit()
+            
+            children = block["children"]
+
+            if len(children) != 3:
+                print("AndExprContext: expected 3 children")
+                exit()
+
+            val1 = self.handle_block(children[0], parent=block)
+            val2 = self.handle_block(children[2], parent=block)
+
+            if not self.is_terminal(children[1], text='&&', parent=block):
+                print("AndExprContext: child index 1, expected '&&'")
+                exit()
+            
+            return 1 if (val1 > 0) and (val2 > 0) else 0
+        
+        elif block_type == OR_EXPR_CONTEXT:
+            # expr '||' expr
+
+            if not self.has_children(block):
+                print("OrExprContext: missing 'children' key or no children")
+                exit()
+
+            children = block["children"]
+
+            if len(children) != 3:
+                print("OrExprContext: 3 children required")
+                exit()
+            
+            val1 = self.handle_block(children[0], parent=block)
+            val2 = self.handle_block(children[2], parent=block)
+
+            if not self.is_terminal(children[1], text='||', parent=block):
+                print("OrExprContext: child index 1, expected '||'")
+                exit()
+            
+            return 1 if (val1 > 0) or (val2 > 0) else 0
+
+        elif block_type == BOOL_EXPR_CONTEXT:
+            # BOOL_VAL: 'T' | 'F';
+
+            if not self.has_children(block):
+                print("BoolExprContext: missing 'children' key or no children")
+                exit()
+
+            if self.is_terminal(block["children"][0], text='T', parent=block):
+                return 1
+            elif self.is_terminal(block["children"][0], text='F', parent=block):
+                return 0
+            else:
+                print("BoolExprContext: child index 0, expected 'T' or 'F'")
+                exit()
+            
+        elif block_type == PAREN_EXPR_CONTEXT:
+            # '(' expr ')'
+
+            if not self.has_children(block):
+                print("ParenExprContext: missing 'children' key or no children")
+                exit()
+
+            children = block["children"]
+
+            if len(children) != 3:
+                print("ParenExprContext: 3 children expected")
+                exit()
+
+            if not self.is_terminal(children[0], text='(', parent=block):
+                print("ParenExprContext: child index 0, expected '('")
+                exit()
+            
+            if not self.is_terminal(children[2], text=')', parent=block):
+                print("ParentExprContext: child index 2, expected ')'")
+                exit()
+            
+            return self.handle_block(children[1], parent=block)
+        
+
                 
 
         
