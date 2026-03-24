@@ -17,11 +17,11 @@ place ClassicalSystem {
     }
 
     obs repeatTimes[8];
-    print("Podaj liczbe 1-10: ");
-    input(repeatTimes);
+    print("Podaj liczbę 1-10: ");
+    input(repeatTimes, 1..10);
     println();
 
-    print("Podales liczbe: ");
+    print("Podałeś liczbę: ");
     println(repeatTimes);
 
     greetUser(repeatTimes);
@@ -41,9 +41,9 @@ place ClassicalSystem {
     println(result, BIN);
 
     if (result > 200) {
-        println("Wynik jest wiekszy niz 200!");
+        println("Wynik jest większy niż 200!");
     } else {
-        println("Wynik jest mniejszy lub rowny 200.");
+        println("Wynik jest mniejszy lub równy 200.");
     }
 
     println();
