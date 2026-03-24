@@ -10,7 +10,7 @@ def handle_format(self: Place, block: Any, parent: Any, pos: ScriptErrors.Positi
     # format: BIN | HEX;
 
     if not self.has_children(block):
-        print("FormatContext: missing 'children' key or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FormatContext: missing 'children' key or no children")
         exit()
 
     child = block["children"][0]
@@ -20,5 +20,5 @@ def handle_format(self: Place, block: Any, parent: Any, pos: ScriptErrors.Positi
     elif self.is_terminal(child, text="BIN", parent=block):
         return "BIN"
     else:
-        print("FormatContext: unknown format")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FormatContext: unknown format")
         exit()
