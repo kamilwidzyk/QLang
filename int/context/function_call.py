@@ -75,9 +75,10 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     )
 
     # Add names functions args to it
-    param_names = [p.name for p in function_def.params]
-    for param_name, param_value in zip(param_names, args):
-        new_scope.vars[param_name] = param_value
+    if function_def.params is not None:
+        param_names = [p.name for p in function_def.params]
+        for param_name, param_value in zip(param_names, args):
+            new_scope.vars[param_name] = param_value
     
     # Switch execution context
     old_scope = self.scopes.current
