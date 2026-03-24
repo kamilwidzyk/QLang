@@ -18,6 +18,7 @@ class Console:
         self.child_path = "int\console_worker.py"
         self.port = self.find_free_port()
         self.FLAGS = 0x00000010 
+        self.SEP = "\x1f"
 
     def find_free_port(self):
         """
@@ -66,7 +67,7 @@ class Console:
             text (str): Text to write
         """
         if self.conn:
-            self.conn.sendall(f"PRINT:{text}".encode())
+            self.conn.sendall(f"PRINT:{text}{self.SEP}".encode('utf-8'))
 
     def read(self, prompt="") -> str | None:
         """
@@ -79,9 +80,17 @@ class Console:
         """
         try:
             if self.conn:
-                self.conn.sendall(f"READ:{prompt}".encode())
-                return self.conn.recv(4096).decode()
+                self.conn.sendall(f"READ:{prompt}{self.SEP}".encode('utf-8'))
+                
+                resp_buffer = ""
+                while self.SEP not in resp_buffer:
+                    chunk = self.conn.recv(4096).decode('utf-8')
+                    if not chunk:
+                        return None
+                    resp_buffer += chunk
+                
+                return resp_buffer.split(self.SEP)[0]
             return None
-        except ConnectionResetError:
+        except (ConnectionResetError, BrokenPipeError):
             log(IN_OUT, ERROR, f"Console '{self.title}' closed or connection lost. Interrupting this place.")
             exit()

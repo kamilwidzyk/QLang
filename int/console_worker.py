@@ -25,23 +25,38 @@ while True:
     except ConnectionRefusedError:
         time.sleep(0.1)
 
+
+
+SEP = "\x1f"
+buffer = ""
+
 try:
     while True:
-        # one packet of max 4KB, should good for now
-        # if it will not be, then the master will split the packets
-        # and send the message in parts
-        data = client.recv(4096).decode()
-        if not data: break
-        
-        cmd, payload = data.split(':', 1)
-        # run 1 of 3 available commands
-        if cmd == "PRINT":
-            print(payload, end="", flush=True)
-        elif cmd == "READ":
-            resp = input(payload)
-            client.sendall(resp.encode())
-        elif cmd == "EXIT":
+        # Receive up to 4KB
+        data = client.recv(4096).decode('utf-8', errors='ignore')
+        if not data:
             break
+        
+        # Add new data to the persistent buffer
+        buffer += data
+
+        # Process the buffer as long as it contains our separator
+        while SEP in buffer:
+            # Split the first complete message out
+            message, buffer = buffer.split(SEP, 1)
+            
+            if not message:
+                continue
+
+            if message.startswith("PRINT:"):
+                print(message[6:], end="", flush=True)
+            elif message.startswith("READ:"):
+                # Note: input() still blocks the thread until Enter is pressed
+                resp = input(message[5:])
+                # Send response back with the same separator
+                client.sendall((resp + SEP).encode('utf-8'))
+            elif message.startswith("EXIT:"):
+                sys.exit(0)
 finally:
     client.close()
 
