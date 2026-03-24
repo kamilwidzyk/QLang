@@ -26,14 +26,13 @@ def handle_mul_div_mod(self: Place, block: Any, parent: Any, pos: ScriptErrors.P
         return val1 * val2
     elif self.is_terminal(children[1], text='/', parent=block):
         if val2 == 0:
-            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Math Error", "MulDivModExprContext: divide by zero")
+            self.script_errors.showError(pos, "RUNTIME ERROR", "Math Error", "I don't do division by zero. Nobody does.")
             exit()
         return val1 // val2
     elif self.is_terminal(children[1], text='%', parent=block):
         if val2 == 0:
             parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Math Error", "MulDivModExprContext: mod over zero")
+            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Math Error", "Modulo over zero? Bold of you to assume I'd allow that.")
             exit()
         return val1 % val2
     else:

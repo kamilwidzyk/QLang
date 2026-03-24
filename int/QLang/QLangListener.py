@@ -242,6 +242,15 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#constraint.
+    def enterConstraint(self, ctx:QLangParser.ConstraintContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#constraint.
+    def exitConstraint(self, ctx:QLangParser.ConstraintContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#format.
     def enterFormat(self, ctx:QLangParser.FormatContext):
         pass

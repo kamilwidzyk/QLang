@@ -63,7 +63,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
     
     if not self.scopes.exists(func_name):
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Name Error", "FunctionCallStmtContext: Function does not exist")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "You Error", "Tried calling that function: No one picked up.")
         exit()
 
     # Call the function

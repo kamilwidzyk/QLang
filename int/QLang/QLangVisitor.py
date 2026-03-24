@@ -139,6 +139,11 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#constraint.
+    def visitConstraint(self, ctx:QLangParser.ConstraintContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#format.
     def visitFormat(self, ctx:QLangParser.FormatContext):
         return self.visitChildren(ctx)

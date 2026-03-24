@@ -40,6 +40,7 @@ from .context.or_op                  import handle_or
 from .context.bool_val               import handle_bool
 from .context.parentheses            import handle_parentheses
 from .context.terminal               import handle_terminal
+from .context.constraint             import handle_constraint
 
 class Place:
     """
@@ -255,6 +256,7 @@ class Place:
             OR_EXPR_CONTEXT:                handle_or,
             BOOL_EXPR_CONTEXT:              handle_bool,
             PAREN_EXPR_CONTEXT:             handle_parentheses,
+            CONSTRAINT_CONTEXT:             handle_constraint,
         }
 
         # Unknown block, do not execute, show error

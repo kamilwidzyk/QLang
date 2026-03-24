@@ -83,7 +83,7 @@ def handle_function_declaration(self: Place, block: Any, parent: Any, pos: Scrip
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
 
     if self.scopes.exists(func_name):
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Name Error", "FuncDeclContext: variable or function with this name already exists")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "You Error", "The function already exists, whether you remember it or not.")
         exit()
 
     func = Function(func_name, param_list, func_block, self.scopes.current, pos)

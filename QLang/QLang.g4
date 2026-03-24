@@ -113,7 +113,13 @@ ioStmt
     : PRINT '(' expr (',' format)? ')'
     | PRINTLN '(' (expr (',' format)?)? ')' // println() lub println(x) lub println(x, BIN)
     | DEBUG '(' ID ('[' expr ']')? ')'
-    | INPUT '(' ID ('[' expr ']')? (',' format)? ')'
+    | INPUT '(' ID ('[' expr ']')? (',' format)? (',' constraint)? ')'
+    ;
+
+// Zakres przyjmowanych wartości do input
+constraint
+    : expr '..' expr
+    | 'range' '(' expr ',' expr ')'
     ;
 
 format: BIN | HEX;

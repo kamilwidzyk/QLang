@@ -34,3 +34,4 @@ AND_EXPR_CONTEXT = "AndExprContext" # and(&&) both > 0 --> 1
 OR_EXPR_CONTEXT = "OrExprContext" # or(&&) any > 0 --> 1
 BOOL_EXPR_CONTEXT = "BoolExprContext" # true(T)-->1 false(F)-->0
 PAREN_EXPR_CONTEXT = "ParenExprContext" # ()
+CONSTRAINT_CONTEXT = "ConstraintContext" # input min max

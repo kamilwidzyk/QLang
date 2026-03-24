@@ -98,18 +98,18 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
 
     if start_val < 0:
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "For loop: start_val < 0")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "Start < 0. I only count from 0 and up.")
         exit()
 
     if end_val < 0:
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "For loop: end_val < 0")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "End value < 0? That loop ends before is begins.")
         exit()
     
     if step_val is None:
         step_val = 1
 
     if step_val < 0:
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "For loop: step_val < 0")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "Negative step? I'm not walking backwards through this loop.")
         exit()
 
     if end_val < start_val:
