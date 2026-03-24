@@ -2,7 +2,7 @@ from typing import Any, TYPE_CHECKING
 
 from ..script_errors import ScriptErrors
 from ..consts import *
-from ..place import FunctionParam
+from ..function import FunctionParam
 
 if TYPE_CHECKING:
     from place import Place

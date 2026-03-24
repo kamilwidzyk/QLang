@@ -2,7 +2,8 @@ from typing import Any, TYPE_CHECKING
 
 from ..script_errors import ScriptErrors
 from ..consts import *
-from ..place import Function, Scope
+from ..function import Function
+from ..scope import Scope
 
 if TYPE_CHECKING:
     from place import Place
