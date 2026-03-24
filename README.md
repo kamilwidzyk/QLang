@@ -1,3 +1,24 @@
+# Aktualny sposób uruchomienia programu
+```
+Przykłady programów znajdują się QLang\inputs
+Programy, które powodują błędy są w QLang\inputs\fails
+
+Wstępne przetworzenie programu i gramatyki do postaci dla interpretera(wszystko uruchamiane z katalogu głównego):
+
+.\parse.bat <ścieżka do pliku .ql>
+uv run python -m int.main output\<nazwa pliku .ql>.json <ścieżka do pliku .ql>
+
+np. dla pliku QLang\inputs\no_qubits.ql
+
+.\parse.bat QLang\inputs\no_qubits.ql
+uv run python -m int.main output\no_qubits.json QLang\inputs\no_qubits.ql
+
+(jak ktoś nie ma uv to można to uruchomić bezpośrednio python -m ...)
+(wygany python >= 3.14.3, jak ktoś ma jakiś błąd to sprawdzić python --version)
+```
+
+
+
 ### Struktura plików:
 
 ```sql
