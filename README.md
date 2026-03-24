@@ -3,7 +3,7 @@
 Przykłady programów znajdują się QLang\inputs
 Programy, które powodują błędy są w QLang\inputs\fails
 
-Wstępne przetworzenie programu i gramatyki do postaci dla interpretera(wszystko uruchamiane z katalogu głównego):
+Wstępne przetworzenie programu i gramatyki do postaci dla interpretera + uruchomienie interpretera(wszystko uruchamiane z katalogu głównego):
 
 .\parse.bat <ścieżka do pliku .ql>
 uv run python -m int.main output\<nazwa pliku .ql>.json <ścieżka do pliku .ql>
