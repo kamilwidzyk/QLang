@@ -75,10 +75,10 @@ def handle_function_declaration(self: Place, block: Any, parent: Any, pos: Scrip
             self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: child index > 5, unexpected block")
             exit()
 
-    print("Function Declaration parse done")
-    print("Function name: " + str(func_name))
-    print("Function parameters: " + str(param_list))
-    print("Function code: " + str(func_block))
+    #print("Function Declaration parse done")
+    #print("Function name: " + str(func_name))
+    #print("Function parameters: " + str(param_list))
+    #print("Function code: " + str(func_block))
 
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
 

@@ -88,12 +88,12 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
             exit()
 
     
-    print("For loop")
-    print("Variable name: " + var_name)
-    print("Start: " + str(start_val))
-    print("End: " + str(end_val))
-    print("Step: " + str(step_val))
-    print("Block: " + str(for_block))
+    #print("For loop")
+    #print("Variable name: " + var_name)
+    #print("Start: " + str(start_val))
+    #print("End: " + str(end_val))
+    #print("Step: " + str(step_val))
+    #print("Block: " + str(for_block))
 
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
 
@@ -113,7 +113,7 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
         exit()
 
     if end_val < start_val:
-        print("For loop: skip") # This is not an error
+        #print("For loop: skip") # This is not an error
         return # do not run loop
     
     current_val = ObsRegister(32)
@@ -135,4 +135,4 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
         # Exit scope
         self.scopes.pop()
 
-    print("For loop: done")
+    #print("For loop: done")

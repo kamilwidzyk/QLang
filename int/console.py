@@ -4,6 +4,8 @@ import time
 import os
 import sys
 
+from .logger import log, IN_OUT, ERROR
+
 class Console:
     """
     Allows a process to open a console window in a separate process
@@ -75,7 +77,11 @@ class Console:
             str: User entered input
             None: Connection lost
         """
-        if self.conn:
-            self.conn.sendall(f"READ:{prompt}".encode())
-            return self.conn.recv(4096).decode()
-        return None
+        try:
+            if self.conn:
+                self.conn.sendall(f"READ:{prompt}".encode())
+                return self.conn.recv(4096).decode()
+            return None
+        except ConnectionResetError:
+            log(IN_OUT, ERROR, f"Console '{self.title}' closed or connection lost. Interrupting this place.")
+            exit()

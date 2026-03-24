@@ -50,9 +50,9 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
             self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "VarExprContext: child index > 3, unexpected block")
             exit()
     
-    print("VarExprContext parsed")
-    print("Name: " + str(var_name))
-    print("Index: " + str(index))
+    #print("VarExprContext parsed")
+    #print("Name: " + str(var_name))
+    #print("Index: " + str(index))
 
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
 

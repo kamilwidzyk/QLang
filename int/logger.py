@@ -71,6 +71,7 @@ SC_ER =   "SC ER" # ScriptErrors
 QNET =    "Q NET" # Quantum Network
 OBS =     " OBS " # Observation
 STATE =   "STATE" # Quantum state
+IN_OUT =  "INOUT" # Console input output
 
 # Types, do not add more, this is enough
 # NOTHING is used only for disabling the entire logging

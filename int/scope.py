@@ -54,7 +54,7 @@ class ScopeManager:
         """
         scope = self.current
         while scope:
-            print(scope.vars)
+            #print(scope.vars)
             if name in scope.vars:
                 return scope.vars[name]
             scope = scope.parent

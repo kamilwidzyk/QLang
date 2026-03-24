@@ -181,7 +181,7 @@ class ScriptErrors:
             Returns:
                 int: number of columns
             """
-            return self.end.col - self.start.col
+            return self.end.col - self.start.col 
         
 
         def height(self) -> int:
@@ -324,7 +324,7 @@ class ScriptErrors:
 
                 if pos.is_single_line() and line_number == pos.start_line():
                     highlight_start = pos.start_col()
-                    highlight_end = pos.end_col()
+                    highlight_end = pos.end_col() + 1
                 elif not pos.is_single_line() and \
                      (line_number >= pos.start_line() and line_number <= pos.end_line()):
                     

@@ -11,6 +11,8 @@ from .console import Console
 from .consts import *
 from .scope import ScopeManager
 
+from .logger import log, PLACE, INFO
+
 ######################## CONTEXT HANDLERS #############################
 from .context.statement              import handle_statement
 from .context.obs_declaration        import handle_obs_declaration
@@ -296,12 +298,15 @@ class Place:
         """
         self.proc = Process(target=self.process_target)
         self.proc.start()
+        log(PLACE, INFO, f"Place {self.name} started")
 
     def wait_for_end(self):
         """
         Waits for execution to finish
         """
         self.proc.join()
+        log(PLACE, INFO, f"Place {self.name} stopped")
+
 
 
     

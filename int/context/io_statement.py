@@ -5,6 +5,7 @@ from ..consts import *
 from ..obs import Obs, ObsRegister
 
 import random
+from ..logger import log, DEBUG, IN_OUT
 
 if TYPE_CHECKING:
     from place import Place
@@ -98,9 +99,9 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext, child index > 5, unexpected block")
                 exit()
         
-        print("IoStmtContext, parsed 'print'")
-        print("To print: " + str(to_print))
-        print("Format: " + (str(format) if format_specified else "DEC")) 
+        #print("IoStmtContext, parsed 'print'")
+        #print("To print: " + str(to_print))
+        #print("Format: " + (str(format) if format_specified else "DEC")) 
 
         print_text = to_print
 
@@ -175,8 +176,6 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             self.script_errors.showError(pos, "RUNTIME ERROR", "You Error", "No arguments. Where should I put the data?")
             exit()
 
-        print(args)
-
         var_arg = args[0]
 
         # <obs>[<index>]?
@@ -244,12 +243,12 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                     self.script_errors.showError(pos, "SYNTAX ERROR", "Unexpected block", "There can only be a constraint")
                     exit()
 
-        print("IO operation: input")
-        print("var_name: " + str(var_name))
-        print("var_index: " + str(var_index))
-        print("format: " + str(format))
-        print("Min: " + str(constraint_min))
-        print("Max: " + str(constraint_max))
+        #print("IO operation: input")
+        #print("var_name: " + str(var_name))
+        #print("var_index: " + str(var_index))
+        #print("format: " + str(format))
+        #print("Min: " + str(constraint_min))
+        #print("Max: " + str(constraint_max))
 
         if not self.scopes.exists(var_name):
             parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
@@ -283,9 +282,10 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         value = None
 
         while True:
-            print("Waiting for console input...")
+            
+            log(IN_OUT, DEBUG, f"{self.name}: Waiting for console input...")
             console_in = self.console.read("")
-            print("Console input: " + str(console_in))
+            log(IN_OUT, DEBUG, f"{self.name}: Console input: {console_in}")
 
             if console_in is None:
                 continue
@@ -325,7 +325,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
 
             self.console.write(f"[{random.sample(invalid, 1)[0]} I need a number in range {min_val}-{max_val} in {format_str} format] ")
 
-        print("Parsed console input: " + str(value))
+        #print("Parsed console input: " + str(value))
 
         variable.set(value)
         self.scopes.set(var_name, variable)

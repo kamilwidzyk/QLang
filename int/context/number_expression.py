@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 def handle_number_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # numerical expression
     # TODO: there will be more, not it's just a Terminal number
-    print("Parsing numExprContext")
+    #print("Parsing numExprContext")
 
     if not self.has_children(block):
         self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "numExprContext: 'children' key missing or no children")
@@ -22,8 +22,13 @@ def handle_number_expression(self: Place, block: Any, parent: Any, pos: ScriptEr
         # terminal -> just a numebr
         if self.is_type(child, type=TERMINAL, parent=block):
             text = self.extract_text(child, parent=block)
-            # TODO: add more ways of writing numbers: hex, bin, not just dec
-            val = int(text)
+            # parse text as hex(0x...), bin(0b...) or dec
+            if text.startswith("0x") or text.startswith("0X"):
+                val = int(text, 16)
+            elif text.startswith("0b") or text.startswith("0B"):
+                val = int(text, 2)
+            else:
+                val = int(text)
     
-    print("Parsing done, value: " + str(val))
+    #print("Parsing done, value: " + str(val))
     return val

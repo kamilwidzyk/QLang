@@ -58,7 +58,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
                 self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext: child index 3, expected ')'")
                 exit()
 
-    print("Function call: name: " + str(func_name) + " args: " + str(args))
+    #print("Function call: name: " + str(func_name) + " args: " + str(args))
 
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
     
@@ -98,7 +98,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     # Recover scope
     self.scopes.current = old_scope
 
-    print("Function execution done")
-    print("Return val: " + str(return_val))
+    #print("Function execution done")
+    #print("Return val: " + str(return_val))
 
     return return_val

@@ -73,7 +73,7 @@ def handle_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     if not enter_scope:
         return
     
-    print("Entering new scope")
+    #print("Entering new scope")
 
     self.scopes.push(pos, scope_type="if")
     try:
@@ -84,5 +84,5 @@ def handle_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
             for item in else_block:
                 self.handle_block(item, parent=else_block)
     finally:
-        print("Exiting scope")
+        #print("Exiting scope")
         self.scopes.pop()

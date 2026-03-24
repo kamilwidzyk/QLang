@@ -331,7 +331,7 @@ class Places:
         """
         for place in self.places.values():
             place.run()
-        print("Places started")
+        log(PLACE, SUCCESS, "All places running")
 
     def wait_for_end(self):
         """
@@ -339,6 +339,6 @@ class Places:
         """
         for place in self.places.values():
             place.wait_for_end()
-        print("Places stopped")
+        log(PLACE, INFO, "All places stopped")
         
 
