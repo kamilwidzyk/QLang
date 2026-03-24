@@ -1,9 +1,16 @@
+from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 from ..script_errors import ScriptErrors
 from ..consts import *
 from ..function import Function
 from ..scope import Scope
+
+class FunctionReturn(Exception):
+    """Control flow exception raised when a function returns a value."""
+    def __init__(self, value: Any):
+        super().__init__("Function return")
+        self.value = value
 
 if TYPE_CHECKING:
     from place import Place
@@ -25,7 +32,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     children = block["children"]
 
     func_name = None
-    args = None
+    args = []
     has_args = False
 
     for child_index in range(len(children)):
@@ -80,13 +87,11 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
     return_val = None
     # Execute function
-    for func_block in function_def.body:
-        return_val = self.handle_block(func_block)
-        # TODO: This is propably wrong way to handle return values
-        # but it will do for now
-        if return_val is not None: # return called
-            break # do not execute more
-    
+    try:
+        for func_block in function_def.body:
+            self.handle_block(func_block)
+    except FunctionReturn as ret:
+        return_val = ret.value
 
     # Recover scope
     self.scopes.current = old_scope

@@ -20,6 +20,7 @@ PARAM_CONTEXT = "ParamContext" # one function parameter (part of the list)
 OBS_DEF_CONTEXT = "ObsDefContext" # Observation definition list item
 STR_EXPR_CONTEXT = "StrExprContext" # String literal
 FUNCTION_CALL_STMT_CONTEXT = "FunctionCallStmtContext"
+FUNCTION_CALL_EXPR_CONTEXT = "FuncCallExprContext"
 ARG_LIST_CONTEXT = "ArgListContext" # Argument list of function call
 FOR_STMT_CONTEXT = "ForStmtContext" # For loop
 POW_EXPR_CONTEXT = "PowExprContext" # x^b 

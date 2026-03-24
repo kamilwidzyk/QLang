@@ -49,7 +49,7 @@ def main():
     input_filename = sys.argv[1]
     input_name = ("".join(input_filename.split(".")[:-1])).split("\\")[-1]
     # Open file
-    input_stream = FileStream(input_filename)
+    input_stream = FileStream(input_filename, encoding='utf-8')
     # Parse program to tree
     lexer = QLangLexer(input_stream)
     stream = CommonTokenStream(lexer)

@@ -46,8 +46,6 @@ class Place:
     Represents one place.
 
     Every instance of place starts a separate process to execute its code in.
-
-    TODO: Replace every print(...) exit() with proper error displaying
     """
     name: str = None
     block: List = []
@@ -99,15 +97,19 @@ class Place:
         """
 
         if "type" not in block:
-            print("Terminal check: 'type' key missing")
-            exit()
+            pos = ScriptErrors.Position.extract(block)
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
+                                        "Terminal check: 'type' key missing in block structure")
+            return False
         
         if block["type"] != "Terminal":
             return False
         
         if "text" not in block:
-            print("Terminal check: 'text' key missing")
-            exit()
+            pos = ScriptErrors.Position.extract(block)
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
+                                        "Terminal check: 'text' key missing in block structure")
+            return False
         
         if block["text"] != text:
             return False
@@ -125,16 +127,22 @@ class Place:
             str: Extracted text
         """
         if "type" not in block:
-            print("extract text: 'type' key missing")
-            exit()
+            pos = ScriptErrors.Position.extract(block)
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
+                                        "Extract text: 'type' key missing in block structure")
+            return ""
 
         if block["type"] != "Terminal":
-            print("extract text: block is not a terminal")
-            exit()
+            pos = ScriptErrors.Position.extract(block)
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
+                                        "Extract text: block is not a terminal (type: " + block["type"] + ")")
+            return ""
 
         if "text" not in block:
-            print("extract text: 'text' key missing")
-            exit()
+            pos = ScriptErrors.Position.extract(block)
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
+                                        "Extract text: 'text' key missing in terminal block")
+            return ""
 
         return block["text"]
 
@@ -154,7 +162,8 @@ class Place:
         """
         keywords = ["global"] # TODO: Add more keywords here
 
-        return re.match(r'[a-zA-Z0-9_]+', name) and name not in keywords
+        # Polish/Unicode identifiers allowed (letters/digits/underscore), but cannot be a keyword
+        return re.match(r'^[\w]+$', name, flags=re.UNICODE) and name not in keywords
 
     def is_type(self, block, type: str, parent=None) -> bool:
         """
@@ -170,8 +179,10 @@ class Place:
             False: Block type is different
         """
         if "type" not in block:
-            print("is type: 'type' key missing")
-            exit()
+            pos = ScriptErrors.Position.extract(block)
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
+                                        "Is type: 'type' key missing in block structure")
+            return False
         
         return block["type"] == type
 
@@ -201,8 +212,10 @@ class Place:
 
         # check if type key exists and extract block position in code
         if "type" not in block:
-            print("'type' key missing")
-            exit()
+            pos = ScriptErrors.Position.extract(block)
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
+                                        "Handle block: 'type' key missing in block structure")
+            return None
         block_type = block["type"]
 
         pos = ScriptErrors.Position.extract(block)
@@ -227,6 +240,7 @@ class Place:
             OBS_DEF_CONTEXT:                handle_obs_definition,
             STR_EXPR_CONTEXT:               handle_string,
             FUNCTION_CALL_STMT_CONTEXT:     handle_function_call,
+            FUNCTION_CALL_EXPR_CONTEXT:     handle_function_call,
             ARG_LIST_CONTEXT:               handle_arg_list,
             FOR_STMT_CONTEXT:               handle_for_loop,
             POW_EXPR_CONTEXT:               handle_power,
@@ -245,8 +259,9 @@ class Place:
 
         # Unknown block, do not execute, show error
         if block_type not in HANDLERS:
-            print("UNKNOWN BLOCK TYPE: " + str(block_type))
-            exit()
+            self.script_errors.showError(pos, "DEEP ERROR", "Unknown Block Type", 
+                                        "Unknown block type in AST: " + str(block_type) + " (not implemented)")
+            return None
 
         # Choose the fitting handler and run it on the block
         handle_args = (self, block, parent, pos)

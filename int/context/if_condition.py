@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 from ..script_errors import ScriptErrors
@@ -75,13 +76,13 @@ def handle_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     print("Entering new scope")
 
     self.scopes.push(pos, scope_type="if")
-
-    if condition_satisfied:
-        for item in if_block:
-            self.handle_block(item, parent=if_block)
-    elif else_defined:
-        for item in else_block:
-            self.handle_block(item, parent=else_block)
-
-    print("Exiting scope")
-    self.scopes.pop()
+    try:
+        if condition_satisfied:
+            for item in if_block:
+                self.handle_block(item, parent=if_block)
+        elif else_defined:
+            for item in else_block:
+                self.handle_block(item, parent=else_block)
+    finally:
+        print("Exiting scope")
+        self.scopes.pop()

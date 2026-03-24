@@ -92,6 +92,13 @@ def main():
     try:
         with open(args.input, "r", encoding="utf-8") as f:
             tree_data = f.read()
+    except UnicodeDecodeError:
+        try:
+            with open(args.input, "r", encoding="utf-8-sig") as f:
+                tree_data = f.read()
+        except UnicodeDecodeError:
+            with open(args.input, "r", encoding="cp1250") as f:
+                tree_data = f.read()
     except FileNotFoundError:
         print(f"Błąd: Nie znaleziono pliku {args.input}")
         sys.exit(1)

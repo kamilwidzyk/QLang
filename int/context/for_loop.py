@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 from ..script_errors import ScriptErrors
@@ -120,24 +121,16 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     self.scopes.push(pos, scope_type="for")
     self.scopes.create(var_name, current_val)
 
-    # Repeat block until current_val <= end_val
-    while current_val.get() <= end_val:
-        break_loop = False
-        for child in for_block:
-            ret_val = self.handle_block(child, parent=block)
+    try:
+        # Repeat block until current_val <= end_val
+        while current_val.get() <= end_val:
+            for child in for_block:
+                self.handle_block(child, parent=block)
 
-            if ret_val is not None:
-                break_loop = True
-                print("For loop: break")
-                break
-
-        if break_loop:
-            break
-
-        current_val.set(current_val.get() + step_val)
-        self.scopes.set(var_name, current_val)
-
-    # Exit scope
-    self.scopes.pop()
+            current_val.set(current_val.get() + step_val)
+            self.scopes.set(var_name, current_val)
+    finally:
+        # Exit scope
+        self.scopes.pop()
 
     print("For loop: done")
