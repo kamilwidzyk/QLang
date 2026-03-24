@@ -35,7 +35,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
 
 
     if not self.has_children(block):
-        print("IoStmtContext: 'children' key missing or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: 'children' key missing or no children")
         exit()
     
     ioOperation = self.extract_text(block["children"][0], parent=block)
@@ -54,7 +54,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             child = children[child_index]
             if child_index == 0: # must be '('
                 if not self.is_terminal(child, text="(", parent=block):
-                    print("IoStmtContext: child index 1, expected '('")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 1, expected '('")
                     exit()
             elif child_index == 1: # must be VarExprContext or ')'
                 if self.is_terminal(child, text=')', parent=block):
@@ -72,28 +72,28 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 if self.is_terminal(child, text=",", parent=block):
                     format_specified = True
                 elif not self.is_terminal(child, text=")", parent=block):
-                    print("IoStmtContext: child index 3, unexpected terminal")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 3, unexpected terminal")
                     exit()
             elif child_index == 3:
                 if not format_specified:
-                    print("IoStmtContext: child index 4, unexpected block")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 4, unexpected block")
                     exit()
                 
                 if not self.is_type(child, type=FORMAT_CONTEXT, parent=block):
-                    print("IoStmtContext: child index 4, expected 'FormatContext' block")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 4, expected 'FormatContext' block")
                     exit()
 
                 format = self.handle_block(child, parent=block)
             elif child_index == 4: # must be ')'
                 if not format_specified:
-                    print("IoStmtContext: child index 5, unexpected block")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 5, unexpected block")
                     exit()
 
                 if not self.is_terminal(child, text=")", parent=block):
-                    print("IoStmtContext: child index 5, expected ')'")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 5, expected ')'")
                     exit()
             else:
-                print("IoStmtContext, child index > 5, unexpected block")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext, child index > 5, unexpected block")
                 exit()
         
         print("IoStmtContext, parsed 'print'")
@@ -151,7 +151,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
 
             if child_index == 0: # 1. 
                 if not self.is_terminal(child, text='(', parent=block):
-                    print("IoStmtContext: chid index 0, expected '('")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: chid index 0, expected '('")
                     exit()
             elif child_index == 1: # 2.
                 var_name = self.extract_text(child, parent=block)
@@ -163,7 +163,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                     # 4a.
                     format_specified = True
                 elif not self.is_terminal(child, text=')', parent=block): # 5.
-                    print("IoStmtContext: child index 2, expected '[' or ',' or ')'")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 2, expected '[' or ',' or ')'")
                     exit()
             elif child_index == 3: # 3b.(index specified) or 4b.(otherwise)
                 if index_specified:
@@ -173,26 +173,26 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             elif child_index == 4: # 3c.(index specified) or 5.(otherwise)
                 if index_specified:
                     if not self.is_terminal(child, text=']', parent=block):
-                        print("IoStmtContext: child index 4, expected ']'")
+                        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 4, expected ']'")
                         exit()
                 else:
                     if not self.is_terminal(child, text=')', parent=block):
-                        print("IoStmtContext: child index 4, expected ')'")
+                        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 4, expected ')'")
                         exit()
             elif child_index == 5: # 4a.(format specified) or 5.(otherwise)
                 if format_specified:
                     if not self.is_terminal(child, text=',', parent=block):
-                        print("IoStmtContext: child index 5, expected ','")
+                        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 5, expected ','")
                         exit()
                 else:
                     if not self.is_terminal(child, text=')', parent=block):
-                        print("IoStmtContext: child index 5, expected ')'")
+                        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 5, expected ')'")
                         exit()
             elif child_index == 6: # 4b.
                 format = self.handle_block(child, parent=block)
             elif child_index == 7: # 5.
                 if not self.is_terminal(child, text=')', parent=block):
-                    print("IoStmtContext: child index 7, expected ')'")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 7, expected ')'")
                     exit()
 
         print("IO operation: input")
@@ -201,17 +201,20 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         print("format: " + str(format))
 
         if not self.scopes.exists(var_name):
-            print("IoStmtContext: input, variable does not exist")
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Name Error", "IoStmtContext: input, variable does not exist")
             exit()
 
         variable: Obs | ObsRegister = self.scopes.get(var_name)
 
         if variable.type not in ["Obs", "ObsRegister"]:
-            print("IoStmtContext: input, variable must be of type 'Obs' or 'ObsRegister'")
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Type Error", "IoStmtContext: input, variable must be of type 'Obs' or 'ObsRegister'")
             exit()
 
         if var_index is not None and variable.type == "Obs":
-            print("IoStmtContext: input, variable of type 'Obs' is not indexable")
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Type Error", "IoStmtContext: input, variable of type 'Obs' is not indexable")
             exit()
         
         max_val = variable.max_val()
@@ -260,5 +263,5 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
 
 
     else:
-        print("IoStmtContext: operation " + ioOperation + " unknown or not implemented")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: operation " + ioOperation + " unknown or not implemented")
         exit()

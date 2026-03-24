@@ -26,7 +26,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     # 4. Terminal ')'
 
     if not self.has_children(block):
-        print("FunctionCallStmtContext")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext")
         exit()
     
     children = block["children"]
@@ -41,28 +41,29 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
             func_name = self.extract_text(child, block)
         elif child_index == 1:
             if not self.is_terminal(child, text='(', parent=block):
-                print("FunctionCallStmtContext: child index 1, expected '('")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext: child index 1, expected '('")
                 exit()
         elif child_index == 2:
             if self.is_type(child, type=ARG_LIST_CONTEXT, parent=block):
                 args = self.handle_block(child, parent=block)
                 has_args = True
             elif not self.is_terminal(child, text=')', parent=block):
-                print("FunctionCallStmtContext: child index 2, expected ')'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext: child index 2, expected ')'")
                 exit()
         elif child_index == 3:
             if not has_args:
-                print("FunctionCallStmtContext: child index 3, unexpected block")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext: child index 3, unexpected block")
                 exit()
             if not self.is_terminal(child, text=")", parent=block):
-                print("FunctionCallStmtContext: child index 3, expected ')'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext: child index 3, expected ')'")
                 exit()
 
     print("Function call: name: " + str(func_name) + " args: " + str(args))
 
+    parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
     
     if not self.scopes.exists(func_name):
-        print("FunctionCallStmtContext: Function does not exist")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Name Error", "FunctionCallStmtContext: Function does not exist")
         exit()
 
     # Call the function

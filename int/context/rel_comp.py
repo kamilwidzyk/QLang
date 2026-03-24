@@ -10,13 +10,13 @@ def handle_rel_comp(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     # expr ('<' | '>' | '<=' | '>=') expr
 
     if not self.has_children(block):
-        print("RelExprContext: missing 'children' key or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "RelExprContext: missing 'children' key or no children")
         exit()
 
     children = block["children"]
 
     if len(children) != 3:
-        print("RelExprContext: 3 children required")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "RelExprContext: 3 children required")
         exit()
 
     val1 = self.handle_block(children[0], parent=block)

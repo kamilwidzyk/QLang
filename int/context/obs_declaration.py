@@ -43,13 +43,14 @@ def handle_obs_declaration(self: Place, block: Any, parent: Any, pos: ScriptErro
     print("Parsing obs declaration")
 
     if not self.has_children(block):
-        print("obsDeclContext: 'children' key missing or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: 'children' key missing or no children")
         exit()
 
     children = block["children"]
 
     if len(children) < 2:                
-        print("obsDeclContext: at least 2 children required")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: at least 2 children required")
+        exit()
 
     
     if self.is_type(children[1], type=OBS_DEF_CONTEXT, parent=block):
@@ -60,13 +61,13 @@ def handle_obs_declaration(self: Place, block: Any, parent: Any, pos: ScriptErro
         for child in children[1:]: # ignore the first
             if expect_block:
                 if not self.is_type(child, type=OBS_DEF_CONTEXT, parent=block):
-                    print("obsDeclContext: optionB: expected ObsDefContext block")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: optionB: expected ObsDefContext block")
                     exit()
                 self.handle_block(child, block)
                 expect_block = False
             else:
                 if not self.is_terminal(child, text=",", parent=block):
-                    print("obsDeclContext: optionB: expected Terminal ','")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: optionB: expected Terminal ','")
                     exit()
                 expect_block = True
 
@@ -85,13 +86,13 @@ def handle_obs_declaration(self: Place, block: Any, parent: Any, pos: ScriptErro
         child = children[child_index]
         if child_index == 0: # 1. Terminal 'obs'
             if not self.is_terminal(child, text="obs", parent=block):
-                print("ObsDeclContext: first child is not terminal 'obs'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ObsDeclContext: first child is not terminal 'obs'")
                 exit()
             print("1. Terminal 'obs' OK")
         elif child_index == 1: # 2. Terminal <variable_name> or ObsDefContext
             obs_name = self.extract_text(child, parent=block)
             if not self.is_valid_name(obs_name):
-                print("obsDeclContext: name is not valid: " + obs_name)
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: name is not valid: " + obs_name)
                 exit()
             print("2. Terminal <variable_name> = " + obs_name)
         elif child_index == 2: # can be '[' or '='
@@ -103,12 +104,12 @@ def handle_obs_declaration(self: Place, block: Any, parent: Any, pos: ScriptErro
                 init_value_defined = True
                 print("4a. Terminal '='")
             else:
-                print("obsDeclContext: unexpected terminal: " + text)
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: unexpected terminal: " + text)
                 exit()
         elif child_index == 3: # can be size num or assigment val
             if size_defined:
                 if not self.is_type(child, NUM_EXPR_CONTEXT, parent=block):
-                    print("obsDeclContext: expected block of type numExprContext")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: expected block of type numExprContext")
                     exit()
                 # handle numExprContext to get size
                 obs_size = self.handle_block(child, parent=block)
@@ -118,18 +119,18 @@ def handle_obs_declaration(self: Place, block: Any, parent: Any, pos: ScriptErro
                 # handle to get init value
                 print("4b. init value = " + str(obs_value))
             else:
-                print("obsDeclContext: unexpected block at child index 3")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: unexpected block at child index 3")
                 exit()
         elif child_index == 4: # must be ']'
             if not self.is_terminal(child, text="]", parent=block):
                 if size_defined:
-                    print("obsDeclContext: child index 4, expected ']'")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: child index 4, expected ']'")
                 else:
-                    print("obsDeclContext: child index 4, unexpected block")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: child index 4, unexpected block")
                 exit()
         elif child_index == 5: # must be '='
             if not self.is_terminal(child, text='=', parent=block):
-                print("obsDeclContext: child index 5, expected '='")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext: child index 5, expected '='")
                 exit()
             init_value_defined = True
         elif child_index == 6: # must be val 
@@ -138,10 +139,10 @@ def handle_obs_declaration(self: Place, block: Any, parent: Any, pos: ScriptErro
                 obs_value = self.handle_block(child, parent=block)
                 print("4b. init value = " + str(obs_value))
             else:
-                print("obsDeclContext, child index 6, unexpected block")                         
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext, child index 6, unexpected block")                        
                 exit()
         else:
-            print("obsDeclContext, child index > 6, unexpected block")                         
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "obsDeclContext, child index > 6, unexpected block")                        
             exit()
 
     print("Parsing done: ")
@@ -154,22 +155,26 @@ def handle_obs_declaration(self: Place, block: Any, parent: Any, pos: ScriptErro
 
     if obs_size is not None: # size specified
         if int(obs_size) != obs_size or obs_size <= 0:
-            print("obsDeclContext: obs_size is not int or <= 0")
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "obsDeclContext: obs_size is not int or <= 0")
             exit()
         obs = ObsRegister(obs_size)
         if obs_value is not None: # value specified
             if int(obs_value) != obs_value or obs_value < 0:
-                print("obsDeclContext: obs_value is not int or < 0")
+                parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+                self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "obsDeclContext: obs_value is not int or < 0")
                 exit()
             max_val = obs.max_val()
             if obs_value > max_val:
-                print(f"obsDeclContext: obs_value is too large to fit in {obs_size} bits")                
+                parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+                self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", f"obsDeclContext: obs_value is too large to fit in {obs_size} bits")                
                 exit()
             obs.set(obs_value) # set value
     else: # one bit obs
         obs = Obs()
         if obs_value != 0 and obs_value != 1:
-            print("obsDeclContext: no size specified -> value can only be 0 or 1")
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "obsDeclContext: no size specified -> value can only be 0 or 1")
             exit()
         obs.set(obs_value)
     

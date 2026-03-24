@@ -100,7 +100,7 @@ class Place:
             pos = ScriptErrors.Position.extract(block)
             self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
                                         "Terminal check: 'type' key missing in block structure")
-            return False
+            exit()
         
         if block["type"] != "Terminal":
             return False
@@ -109,7 +109,7 @@ class Place:
             pos = ScriptErrors.Position.extract(block)
             self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
                                         "Terminal check: 'text' key missing in block structure")
-            return False
+            exit()
         
         if block["text"] != text:
             return False
@@ -130,19 +130,19 @@ class Place:
             pos = ScriptErrors.Position.extract(block)
             self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
                                         "Extract text: 'type' key missing in block structure")
-            return ""
+            exit()
 
         if block["type"] != "Terminal":
             pos = ScriptErrors.Position.extract(block)
             self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
                                         "Extract text: block is not a terminal (type: " + block["type"] + ")")
-            return ""
+            exit()
 
         if "text" not in block:
             pos = ScriptErrors.Position.extract(block)
             self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
                                         "Extract text: 'text' key missing in terminal block")
-            return ""
+            exit()
 
         return block["text"]
 
@@ -182,7 +182,7 @@ class Place:
             pos = ScriptErrors.Position.extract(block)
             self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
                                         "Is type: 'type' key missing in block structure")
-            return False
+            exit()
         
         return block["type"] == type
 
@@ -215,7 +215,7 @@ class Place:
             pos = ScriptErrors.Position.extract(block)
             self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", 
                                         "Handle block: 'type' key missing in block structure")
-            return None
+            exit()
         block_type = block["type"]
 
         pos = ScriptErrors.Position.extract(block)
@@ -261,7 +261,7 @@ class Place:
         if block_type not in HANDLERS:
             self.script_errors.showError(pos, "DEEP ERROR", "Unknown Block Type", 
                                         "Unknown block type in AST: " + str(block_type) + " (not implemented)")
-            return None
+            exit()
 
         # Choose the fitting handler and run it on the block
         handle_args = (self, block, parent, pos)

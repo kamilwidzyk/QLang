@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 def handle_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     if "children" not in block:
-        print("statementContext 'children' key missing")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "statementContext 'children' key missing")
         exit()
 
     children = block["children"]

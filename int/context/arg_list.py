@@ -10,7 +10,7 @@ def handle_arg_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     # argList: expr (',' expr)*;
 
     if not self.has_children(block):
-        print("ArgListContext: missing 'children' key or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ArgListContext: missing 'children' key or no children")
         exit()
     
     children = block["children"]
@@ -26,7 +26,7 @@ def handle_arg_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
             expect_block = False
         else:
             if not self.is_terminal(child, text=',', parent=block):
-                print("ArgListContext: expected ','")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ArgListContext: expected ','")
                 exit()
             expect_block = True
 

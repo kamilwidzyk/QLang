@@ -10,17 +10,17 @@ def handle_power(self: Place, block: Any, parent: Any, pos: ScriptErrors.Positio
     # expr '**' expr
 
     if not self.has_children(block):
-        print("PowExprContext: missing 'children' key or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "PowExprContext: missing 'children' key or no children")
         exit()
 
     children = block["children"]
 
     if len(children) != 3:
-        print("PowExprContext: 3 children required")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "PowExprContext: 3 children required")
         exit()
 
     if not self.is_terminal(children[1], text="**", parent=block):
-        print("PowExprContext: second child needs to be '**'")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "PowExprContext: second child needs to be '**'")
         exit()
     
     base = self.handle_block(children[0], parent=block)

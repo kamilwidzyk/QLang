@@ -10,7 +10,7 @@ def handle_param_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Po
     param_list = []
 
     if not self.has_children(block):
-        print("ParamListContext: 'children' key missing or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ParamListContext: 'children' key missing or no children")
         exit()
 
     children = block["children"] 

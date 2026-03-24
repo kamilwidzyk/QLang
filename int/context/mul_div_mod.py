@@ -10,13 +10,13 @@ def handle_mul_div_mod(self: Place, block: Any, parent: Any, pos: ScriptErrors.P
     # expr ('*' | '/' | '%') expr 
 
     if not self.has_children(block):
-        print("MulDivModExprContext: missing 'children' key or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "MulDivModExprContext: missing 'children' key or no children")
         exit()
 
     children = block["children"]
 
     if len(children) != 3:
-        print("MulDivModExprContext: 3 children expected")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "MulDivModExprContext: 3 children expected")
         exit()
     
     val1 = self.handle_block(children[0], parent=block)
@@ -26,14 +26,16 @@ def handle_mul_div_mod(self: Place, block: Any, parent: Any, pos: ScriptErrors.P
         return val1 * val2
     elif self.is_terminal(children[1], text='/', parent=block):
         if val2 == 0:
-            print("MulDivModExprContext: divide by zero")
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Math Error", "MulDivModExprContext: divide by zero")
             exit()
         return val1 // val2
     elif self.is_terminal(children[1], text='%', parent=block):
         if val2 == 0:
-            print("MulDivModExprContext: mod over zero")
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Math Error", "MulDivModExprContext: mod over zero")
             exit()
         return val1 % val2
     else:
-        print("MulDivModExprContext: child index 1, expected '*', '/' or '%'")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "MulDivModExprContext: child index 1, expected '*', '/' or '%'")
         exit()

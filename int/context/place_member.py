@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 def handle_place_member(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     if not self.has_children(block):
-        print("PlaceMemberContext: 'children' key missing or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "PlaceMemberContext: 'children' key missing or no children")
         exit()
 
     for child in block["children"]:

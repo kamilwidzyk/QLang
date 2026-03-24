@@ -32,7 +32,7 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     # 
     
     if not self.has_children(block):
-        print("ForStmtContext: missing 'child' key or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ForStmtContext: missing 'child' key or no children")
         exit()
 
     children = block["children"]
@@ -50,19 +50,19 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
 
         if child_index == 0:
             if not self.is_terminal(child, text='for', parent=block):
-                print("ForStmtContext: child index 0, expected 'for'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ForStmtContext: child index 0, expected 'for'")
                 exit()
         elif child_index == 1:
             var_name = self.handle_block(child, parent=block)
         elif child_index == 2:
             if not self.is_terminal(child, text='from', parent=block):
-                print("ForStmtContext: child index 2, expected 'from'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ForStmtContext: child index 2, expected 'from'")
                 exit()
         elif child_index == 3:
             start_val = self.handle_block(child, parent=block)
         elif child_index == 4:
             if not self.is_terminal(child, text='to', parent=block):
-                print("ForStmtContext: child index 4, expected 'to'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ForStmtContext: child index 4, expected 'to'")
                 exit()
         elif child_index == 5:
             end_val = self.handle_block(child, parent=block)
@@ -73,18 +73,18 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
                 for_block = self.handle_block(child, parent=block)
         elif child_index == 7:
             if not step_defined:
-                print("ForStmtContext: child index 7, unexpecxted block")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ForStmtContext: child index 7, unexpecxted block")
                 exit()
 
             step_val = self.handle_block(child, parent=block)
         elif child_index == 8:
             if not step_defined:
-                print("ForStmtContext: child index 8, unexpected block")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ForStmtContext: child index 8, unexpected block")
                 exit()
 
             for_block = self.handle_block(child, parent=block)
         else:
-            print("ForStmtContext: child index > 8, unexpected block")
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ForStmtContext: child index > 8, unexpected block")
             exit()
 
     
@@ -95,19 +95,21 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     print("Step: " + str(step_val))
     print("Block: " + str(for_block))
 
+    parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+
     if start_val < 0:
-        print("For loop: start_val < 0")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "For loop: start_val < 0")
         exit()
 
     if end_val < 0:
-        print("For loop: end_val < 0")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "For loop: end_val < 0")
         exit()
     
     if step_val is None:
         step_val = 1
 
     if step_val < 0:
-        print("For loop: step_val < 0")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "For loop: step_val < 0")
         exit()
 
     if end_val < start_val:

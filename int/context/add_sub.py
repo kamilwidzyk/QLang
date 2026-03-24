@@ -10,13 +10,13 @@ def handle_add_sub(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posit
     # expr ('+' | '-') expr 
 
     if not self.has_children(block):
-        print("AddSubExprContext: missing 'children' key or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "AddSubExprContext: missing 'children' key or no children")
         exit()
     
     children = block["children"]
     
     if len(children) != 3:
-        print("AddSubExprContext: 3 children expected")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "AddSubExprContext: 3 children expected")
         exit()
     
     val1 = self.handle_block(children[0], parent=block)
@@ -29,7 +29,7 @@ def handle_add_sub(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posit
     elif self.is_terminal(children[1], text='-', parent=block):
         result = val1 - val2
     else:
-        print("AddSubExprContext: child index 1, expected '+' or '-'")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "AddSubExprContext: child index 1, expected '+' or '-'")
         exit()
 
     if result < 0:

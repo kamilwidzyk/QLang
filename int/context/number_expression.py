@@ -13,7 +13,7 @@ def handle_number_expression(self: Place, block: Any, parent: Any, pos: ScriptEr
     print("Parsing numExprContext")
 
     if not self.has_children(block):
-        print("numExprContext: 'children' key missing or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "numExprContext: 'children' key missing or no children")
         exit()
 
     val = None

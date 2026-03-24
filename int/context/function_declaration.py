@@ -18,7 +18,7 @@ def handle_function_declaration(self: Place, block: Any, parent: Any, pos: Scrip
     # 6. BlockContext -> handle block
 
     if not self.has_children(block):
-        print("functionDeclContext: 'children' key missing or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: 'children' key missing or no children")
         exit()
 
     children = block["children"]
@@ -33,21 +33,21 @@ def handle_function_declaration(self: Place, block: Any, parent: Any, pos: Scrip
 
         if child_index == 0: # 1. Terminal 'function'
             if not self.is_terminal(child, text="function", parent=block):
-                print("functionDeclContext: child index 0, expected 'function'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: child index 0, expected 'function'")
                 exit()
         elif child_index == 1: # 2. Terminal <function_name>
             func_name = self.extract_text(child, parent=block)
             if not self.is_valid_name(func_name):
-                print("functionDeclContext: child index 1, function name invalid")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: child index 1, function name invalid")
                 exit()
         elif child_index == 2: # 3. Terminal '('
             if not self.is_terminal(child, text="(", parent=block):
-                print("functionDeclContext: child index 2, expected '('")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: child index 2, expected '('")
                 exit()
         elif child_index == 3: # 4. or 5.
             if self.is_type(child, TERMINAL, parent=block):
                 if not self.is_terminal(child, text=')', parent=block):
-                    print("functionDeclContext: child index 3, expected ')'")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: child index 3, expected ')'")
                     exit()
                 no_params = True # this function has no parameters
             else:
@@ -55,24 +55,24 @@ def handle_function_declaration(self: Place, block: Any, parent: Any, pos: Scrip
         elif child_index == 4: # 5. or 6.
             if no_params:
                 if not self.is_type(child, BLOCK_CONTEXT, parent=block):
-                    print("functionDeclContext: child index 4, expected BlockContext")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: child index 4, expected BlockContext")
                     exit()
                 func_block = self.handle_block(child, parent=block)
             else:
                 if not self.is_terminal(child, text=')', parent=block):
-                    print("functionDeclContext: child index 4, expected ')'")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: child index 4, expected ')'")
                     exit()
         elif child_index == 5: # 6. only if function has params
             if no_params:
-                print("functionDeclContext: child index 5, unexpected block")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: child index 5, unexpected block")
                 exit()
             else:
                 if not self.is_type(child, BLOCK_CONTEXT, parent=block):
-                    print("funcDeclContext: child index 5, excepted BlockContext")
+                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "funcDeclContext: child index 5, excepted BlockContext")
                     exit()
                 func_block = self.handle_block(child, parent=block)
         else:
-            print("functionDeclContext: child index > 5, unexpected block")
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "functionDeclContext: child index > 5, unexpected block")
             exit()
 
     print("Function Declaration parse done")
@@ -80,9 +80,11 @@ def handle_function_declaration(self: Place, block: Any, parent: Any, pos: Scrip
     print("Function parameters: " + str(param_list))
     print("Function code: " + str(func_block))
 
+    parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+
     if self.scopes.exists(func_name):
-        print("FuncDeclContext: variable or function with this name already exists")
+        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Name Error", "FuncDeclContext: variable or function with this name already exists")
         exit()
 
     func = Function(func_name, param_list, func_block, self.scopes.current, pos)
-    self.scopes.create(func_name, func)        
+    self.scopes.create(func_name, func)

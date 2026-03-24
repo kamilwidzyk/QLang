@@ -14,7 +14,7 @@ def handle_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr == 0 -> else block
 
     if not self.has_children(block):
-        print("IfStmtContext: missing 'children' key or no children")
+        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IfStmtContext: missing 'children' key or no children")
         exit()
 
     # 1. Terminal 'if'
@@ -38,17 +38,17 @@ def handle_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
 
         if child_index == 0: # Terminal 'if'
             if not self.is_terminal(child, text='if', parent=block):
-                print("IfStmtContext: child index 0, expected 'if'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IfStmtContext: child index 0, expected 'if'")
                 exit()
         elif child_index == 1: # Terminal '('
             if not self.is_terminal(child, text='(', parent=block):
-                print("IfStmtContext: child index 1, expected '('")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IfStmtContext: child index 1, expected '('")
                 exit()
         elif child_index == 2: # condition
             condition = self.handle_block(child, parent=block)
         elif child_index == 3: # Terminal ')'
             if not self.is_terminal(child, text=')', parent=block):
-                print("IfStmtContext: child index 3, expected ')'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IfStmtContext: child index 3, expected ')'")
                 exit()
         elif child_index == 4: # if block
             if_block = self.handle_block(child, parent=block)
@@ -56,15 +56,15 @@ def handle_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
             if self.is_terminal(child, text='else', parent=block):
                 else_defined = True
             else:
-                print("IfStmtContext: child index 5, expected 'else'")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IfStmtContext: child index 5, expected 'else'")
                 exit()
         elif child_index == 6:
             if not else_defined:
-                print("IfStmtContext: child index 6, unexpected block")
+                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IfStmtContext: child index 6, unexpected block")
                 exit()
             else_block = self.handle_block(child, parent=block)
         else:
-            print("IfStmtContext: child index > 6, unexpected block")
+            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IfStmtContext: child index > 6, unexpected block")
             exit()
 
     condition_satisfied = condition > 0
