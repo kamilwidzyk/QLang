@@ -263,6 +263,11 @@ class Place:
 
         # Unknown block, do not execute, show error
         if block_type not in HANDLERS:
+            if self.is_type(block, type="ExprContext", parent=parent):
+                self.script_errors.showError(pos, "RUNTIME ERROR", "Syntax Error", 
+                                        "Something is wrong, check syntax!")
+                exit()
+
             self.script_errors.showError(pos, "DEEP ERROR", "Unknown Block Type", 
                                         "Unknown block type in AST: " + str(block_type) + " (not implemented)")
             exit()

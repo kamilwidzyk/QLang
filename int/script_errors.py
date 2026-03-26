@@ -164,10 +164,14 @@ class ScriptErrors:
 
             if (line is not None) and (column is not None) and \
                (end_line is not None) and (end_column is not None):
+                if(line > end_line):
+                    line, end_line = end_line, line
                 return cls(start_line=line, start_col=column, end_line=end_line, end_col=end_column)
             elif (line is not None) and (column is not None) and (width is not None):
                 return cls(start_line=line, start_col=column, width=width)
             elif (line is not None) and (column is not None):
+                if(line > end_line):
+                    line, end_line = end_line, line
                 return cls(start_line=line, start_col=column, end_line=line, end_col=column)
             else:
                 return cls(start_line=-1, start_col=-1, end_line=-1, end_col=-1)
