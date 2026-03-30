@@ -47,6 +47,7 @@ statement
     | CONTINUE ';'
     | RETURN expr? ';'
     | block
+    | ';'
     ;
 
 // --- DEKLARACJE ---

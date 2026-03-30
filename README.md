@@ -2,7 +2,6 @@ TODO:
 Dodać floaty(z notacją naukową)
 Dodać przebieg listenera za pierwszym razem
 Dorobić więcej błędów składniowych
-Dopuścić samotny średnik np print();;
 
 
 
