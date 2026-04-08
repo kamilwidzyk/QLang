@@ -1,8 +1,5 @@
 place calculatingFactorial {
     function factorial(obs n[32]) {
-        if (n < 0){
-            return 0;
-        }
         if (n == 0){
             return 1;
         }
