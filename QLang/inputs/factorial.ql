@@ -10,7 +10,10 @@ place calculatingFactorial {
     }
     
     obs num[32];
-    print("Podaj liczbę -> ");
-    input(num);
-    print(factorial(num));
+    print("Enter a number 0-1000: ");
+    input(num, 0..1000);
+    
+    print(num);
+    print("! = ");
+    println(factorial(num));
 }

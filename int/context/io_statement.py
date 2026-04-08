@@ -315,7 +315,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             
             format_str = {None: "decimal", "BIN": "binary", "HEX": "hexadecimal"}[format]
             invalid = [
-                "That's not gonna work.", "What evein is that input.", "Try again, but correctly.",
+                "That's not gonna work.", "What even is that input.", "Try again, but correctly.",
                 "I can't work with that.", "Rejected.", "Input denied.", "Nice try, but no.",
                 "Be serious.", "No idea what that is.", "Nah.", "Hard no.", "Rejected in 0ms.",
                 "Absolutely not.", "Fail.", "Not today.", "Not a chance.", "Try harder.",

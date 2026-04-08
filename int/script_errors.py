@@ -161,19 +161,25 @@ class ScriptErrors:
             if "text" in node:
                 width = len(node["text"])
 
+            
 
+            # start and end is known
             if (line is not None) and (column is not None) and \
                (end_line is not None) and (end_column is not None):
                 if(line > end_line):
                     line, end_line = end_line, line
+                if(column > end_column):
+                    column, end_column = end_column, column
                 return cls(start_line=line, start_col=column, end_line=end_line, end_col=end_column)
-            elif (line is not None) and (column is not None) and (width is not None):
+            elif (line is not None) and (column is not None) and (width is not None): # start and width known
                 return cls(start_line=line, start_col=column, width=width)
-            elif (line is not None) and (column is not None):
+            elif (line is not None) and (column is not None): # only start known -> start = end
                 if(line > end_line):
                     line, end_line = end_line, line
+                if(column > end_column):
+                    column, end_column = end_column, column
                 return cls(start_line=line, start_col=column, end_line=line, end_col=column)
-            else:
+            else: # unknown
                 return cls(start_line=-1, start_col=-1, end_line=-1, end_col=-1)
         
             
@@ -328,7 +334,7 @@ class ScriptErrors:
 
                 if pos.is_single_line() and line_number == pos.start_line():
                     highlight_start = pos.start_col()
-                    highlight_end = pos.end_col() + 1
+                    highlight_end = pos.end_col()
                 elif not pos.is_single_line() and \
                      (line_number >= pos.start_line() and line_number <= pos.end_line()):
                     
@@ -361,6 +367,7 @@ class ScriptErrors:
                         line_highlight = current_line[highlight_start:]
                 else:
                     line_normal_left = current_line
+
                     
 
                 context_margin_right = window_width - line_number_width - 1 - len(context_lines[i]) - 1

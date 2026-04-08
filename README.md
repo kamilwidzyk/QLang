@@ -7,6 +7,10 @@ Dorobić więcej błędów składniowych
 
 # Aktualny sposób uruchomienia programu
 ```
+Uruchomienie tylko generowania JSON i interpretera(bez niepetrzebnych normalnie rzeczy)
+
+.\run.bat <ścieżka do pliku .ql>
+
 Przykłady programów znajdują się QLang\inputs
 Programy, które powodują błędy są w QLang\inputs\fails
 
