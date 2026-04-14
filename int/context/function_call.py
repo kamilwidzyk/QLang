@@ -16,58 +16,35 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-
     # functionCallStmt: ID '(' argList? ')';
 
-    # 1. Terminal <function_name> 
-    # 2. Terminal '('
-    # If has arguments:
-    #   3. argList block
-    # 4. Terminal ')'
-
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext")
-        exit()
+    func_name = block.ID().getText()
+    args = None
+    if block.argList():
+        args = self.handle_block(block.argList(), block)
     
-    children = block["children"]
-
-    func_name = None
-    args = []
-    has_args = False
-
-    for child_index in range(len(children)):
-        child = children[child_index]
-        if child_index == 0:
-            func_name = self.extract_text(child, block)
-        elif child_index == 1:
-            if not self.is_terminal(child, text='(', parent=block):
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext: child index 1, expected '('")
-                exit()
-        elif child_index == 2:
-            if self.is_type(child, type=ARG_LIST_CONTEXT, parent=block):
-                args = self.handle_block(child, parent=block)
-                has_args = True
-            elif not self.is_terminal(child, text=')', parent=block):
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext: child index 2, expected ')'")
-                exit()
-        elif child_index == 3:
-            if not has_args:
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext: child index 3, unexpected block")
-                exit()
-            if not self.is_terminal(child, text=")", parent=block):
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "FunctionCallStmtContext: child index 3, expected ')'")
-                exit()
-
-    #print("Function call: name: " + str(func_name) + " args: " + str(args))
-
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
     
+    # Check if the function exists
     if not self.scopes.exists(func_name):
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "You Error", "Tried calling that function: No one picked up.")
+        self.script_errors.showError(
+            pos=parent_pos, 
+            error_type="RUNTIME ERROR", 
+            title="You Error", 
+            msg="Tried calling that function: No one picked up.")
         exit()
 
-    # Call the function
+    # Get the function
     function_def: Function = self.scopes.get(func_name)
+
+    # Check if it's a function(variable can is possible but not legal)
+    if not function_def.type == "Function":
+        self.script_errors.showError(
+            pos=parent_pos, 
+            error_type="RUNTIME ERROR", 
+            title="ExecutionError", 
+            msg=f"I tried to call '{func_name}' but a variable picked up.")
+        exit()
 
     # Create new scope for function
     new_scope = Scope(
@@ -85,7 +62,6 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     old_scope = self.scopes.current
     self.scopes.current = new_scope
     self.scopes.set(func_name, function_def)
-    
 
     return_val = None
     # Execute function
@@ -97,8 +73,5 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
     # Recover scope
     self.scopes.current = old_scope
-
-    #print("Function execution done")
-    #print("Return val: " + str(return_val))
 
     return return_val

@@ -952,91 +952,462 @@ class QLangParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def stateDecl(self):
-            return self.getTypedRuleContext(QLangParser.StateDeclContext,0)
+
+        def getRuleIndex(self):
+            return QLangParser.RULE_statement
+
+     
+        def copyFrom(self, ctx:ParserRuleContext):
+            super().copyFrom(ctx)
 
 
-        def SEMI(self):
-            return self.getToken(QLangParser.SEMI, 0)
 
-        def obsDecl(self):
-            return self.getTypedRuleContext(QLangParser.ObsDeclContext,0)
+    class BlockStatementContext(StatementContext):
 
-
-        def receiveDecl(self):
-            return self.getTypedRuleContext(QLangParser.ReceiveDeclContext,0)
-
-
-        def sendStmt(self):
-            return self.getTypedRuleContext(QLangParser.SendStmtContext,0)
-
-
-        def gateStmt(self):
-            return self.getTypedRuleContext(QLangParser.GateStmtContext,0)
-
-
-        def measureStmt(self):
-            return self.getTypedRuleContext(QLangParser.MeasureStmtContext,0)
-
-
-        def assignStmt(self):
-            return self.getTypedRuleContext(QLangParser.AssignStmtContext,0)
-
-
-        def functionCallStmt(self):
-            return self.getTypedRuleContext(QLangParser.FunctionCallStmtContext,0)
-
-
-        def ifStmt(self):
-            return self.getTypedRuleContext(QLangParser.IfStmtContext,0)
-
-
-        def forStmt(self):
-            return self.getTypedRuleContext(QLangParser.ForStmtContext,0)
-
-
-        def whileStmt(self):
-            return self.getTypedRuleContext(QLangParser.WhileStmtContext,0)
-
-
-        def ioStmt(self):
-            return self.getTypedRuleContext(QLangParser.IoStmtContext,0)
-
-
-        def BREAK(self):
-            return self.getToken(QLangParser.BREAK, 0)
-
-        def CONTINUE(self):
-            return self.getToken(QLangParser.CONTINUE, 0)
-
-        def RETURN(self):
-            return self.getToken(QLangParser.RETURN, 0)
-
-        def expr(self):
-            return self.getTypedRuleContext(QLangParser.ExprContext,0)
-
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
 
         def block(self):
             return self.getTypedRuleContext(QLangParser.BlockContext,0)
 
 
-        def getRuleIndex(self):
-            return QLangParser.RULE_statement
-
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterStatement" ):
-                listener.enterStatement(self)
+            if hasattr( listener, "enterBlockStatement" ):
+                listener.enterBlockStatement(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitStatement" ):
-                listener.exitStatement(self)
+            if hasattr( listener, "exitBlockStatement" ):
+                listener.exitBlockStatement(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitStatement" ):
-                return visitor.visitStatement(self)
+            if hasattr( visitor, "visitBlockStatement" ):
+                return visitor.visitBlockStatement(self)
             else:
                 return visitor.visitChildren(self)
 
+
+    class AssignmentStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def assignStmt(self):
+            return self.getTypedRuleContext(QLangParser.AssignStmtContext,0)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterAssignmentStatement" ):
+                listener.enterAssignmentStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitAssignmentStatement" ):
+                listener.exitAssignmentStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAssignmentStatement" ):
+                return visitor.visitAssignmentStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class IoStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def ioStmt(self):
+            return self.getTypedRuleContext(QLangParser.IoStmtContext,0)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterIoStatement" ):
+                listener.enterIoStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitIoStatement" ):
+                listener.exitIoStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitIoStatement" ):
+                return visitor.visitIoStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class ForStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def forStmt(self):
+            return self.getTypedRuleContext(QLangParser.ForStmtContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterForStatement" ):
+                listener.enterForStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitForStatement" ):
+                listener.exitForStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitForStatement" ):
+                return visitor.visitForStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class BreakStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def BREAK(self):
+            return self.getToken(QLangParser.BREAK, 0)
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterBreakStatement" ):
+                listener.enterBreakStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitBreakStatement" ):
+                listener.exitBreakStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitBreakStatement" ):
+                return visitor.visitBreakStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class IfStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def ifStmt(self):
+            return self.getTypedRuleContext(QLangParser.IfStmtContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterIfStatement" ):
+                listener.enterIfStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitIfStatement" ):
+                listener.exitIfStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitIfStatement" ):
+                return visitor.visitIfStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class ReturnStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def RETURN(self):
+            return self.getToken(QLangParser.RETURN, 0)
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+        def expr(self):
+            return self.getTypedRuleContext(QLangParser.ExprContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterReturnStatement" ):
+                listener.enterReturnStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitReturnStatement" ):
+                listener.exitReturnStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitReturnStatement" ):
+                return visitor.visitReturnStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class MeasureStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def measureStmt(self):
+            return self.getTypedRuleContext(QLangParser.MeasureStmtContext,0)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterMeasureStatement" ):
+                listener.enterMeasureStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitMeasureStatement" ):
+                listener.exitMeasureStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMeasureStatement" ):
+                return visitor.visitMeasureStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class GateStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def gateStmt(self):
+            return self.getTypedRuleContext(QLangParser.GateStmtContext,0)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterGateStatement" ):
+                listener.enterGateStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitGateStatement" ):
+                listener.exitGateStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitGateStatement" ):
+                return visitor.visitGateStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class WhileStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def whileStmt(self):
+            return self.getTypedRuleContext(QLangParser.WhileStmtContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterWhileStatement" ):
+                listener.enterWhileStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitWhileStatement" ):
+                listener.exitWhileStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitWhileStatement" ):
+                return visitor.visitWhileStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class SemicolonStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterSemicolonStatement" ):
+                listener.enterSemicolonStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitSemicolonStatement" ):
+                listener.exitSemicolonStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitSemicolonStatement" ):
+                return visitor.visitSemicolonStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class SendStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def sendStmt(self):
+            return self.getTypedRuleContext(QLangParser.SendStmtContext,0)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterSendStatement" ):
+                listener.enterSendStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitSendStatement" ):
+                listener.exitSendStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitSendStatement" ):
+                return visitor.visitSendStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class FunctionCallStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def functionCallStmt(self):
+            return self.getTypedRuleContext(QLangParser.FunctionCallStmtContext,0)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterFunctionCallStatement" ):
+                listener.enterFunctionCallStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitFunctionCallStatement" ):
+                listener.exitFunctionCallStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFunctionCallStatement" ):
+                return visitor.visitFunctionCallStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class ContinueStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def CONTINUE(self):
+            return self.getToken(QLangParser.CONTINUE, 0)
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterContinueStatement" ):
+                listener.enterContinueStatement(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitContinueStatement" ):
+                listener.exitContinueStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitContinueStatement" ):
+                return visitor.visitContinueStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class StateDeclarationContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def stateDecl(self):
+            return self.getTypedRuleContext(QLangParser.StateDeclContext,0)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterStateDeclaration" ):
+                listener.enterStateDeclaration(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitStateDeclaration" ):
+                listener.exitStateDeclaration(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitStateDeclaration" ):
+                return visitor.visitStateDeclaration(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class ObsDeclarationContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def obsDecl(self):
+            return self.getTypedRuleContext(QLangParser.ObsDeclContext,0)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterObsDeclaration" ):
+                listener.enterObsDeclaration(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitObsDeclaration" ):
+                listener.exitObsDeclaration(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitObsDeclaration" ):
+                return visitor.visitObsDeclaration(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class ReceiveDeclarationContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a QLangParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def receiveDecl(self):
+            return self.getTypedRuleContext(QLangParser.ReceiveDeclContext,0)
+
+        def SEMI(self):
+            return self.getToken(QLangParser.SEMI, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterReceiveDeclaration" ):
+                listener.enterReceiveDeclaration(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitReceiveDeclaration" ):
+                listener.exitReceiveDeclaration(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitReceiveDeclaration" ):
+                return visitor.visitReceiveDeclaration(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1050,6 +1421,7 @@ class QLangParser ( Parser ):
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,9,self._ctx)
             if la_ == 1:
+                localctx = QLangParser.StateDeclarationContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 121
                 self.stateDecl()
@@ -1058,6 +1430,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 2:
+                localctx = QLangParser.ObsDeclarationContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
                 self.state = 124
                 self.obsDecl()
@@ -1066,6 +1439,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 3:
+                localctx = QLangParser.ReceiveDeclarationContext(self, localctx)
                 self.enterOuterAlt(localctx, 3)
                 self.state = 127
                 self.receiveDecl()
@@ -1074,6 +1448,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 4:
+                localctx = QLangParser.SendStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
                 self.state = 130
                 self.sendStmt()
@@ -1082,6 +1457,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 5:
+                localctx = QLangParser.GateStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 5)
                 self.state = 133
                 self.gateStmt()
@@ -1090,6 +1466,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 6:
+                localctx = QLangParser.MeasureStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 6)
                 self.state = 136
                 self.measureStmt()
@@ -1098,6 +1475,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 7:
+                localctx = QLangParser.AssignmentStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 7)
                 self.state = 139
                 self.assignStmt()
@@ -1106,6 +1484,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 8:
+                localctx = QLangParser.FunctionCallStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 8)
                 self.state = 142
                 self.functionCallStmt()
@@ -1114,24 +1493,28 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 9:
+                localctx = QLangParser.IfStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 9)
                 self.state = 145
                 self.ifStmt()
                 pass
 
             elif la_ == 10:
+                localctx = QLangParser.ForStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 10)
                 self.state = 146
                 self.forStmt()
                 pass
 
             elif la_ == 11:
+                localctx = QLangParser.WhileStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 11)
                 self.state = 147
                 self.whileStmt()
                 pass
 
             elif la_ == 12:
+                localctx = QLangParser.IoStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 12)
                 self.state = 148
                 self.ioStmt()
@@ -1140,6 +1523,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 13:
+                localctx = QLangParser.BreakStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 13)
                 self.state = 151
                 self.match(QLangParser.BREAK)
@@ -1148,6 +1532,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 14:
+                localctx = QLangParser.ContinueStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 14)
                 self.state = 153
                 self.match(QLangParser.CONTINUE)
@@ -1156,6 +1541,7 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 15:
+                localctx = QLangParser.ReturnStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 15)
                 self.state = 155
                 self.match(QLangParser.RETURN)
@@ -1172,12 +1558,14 @@ class QLangParser ( Parser ):
                 pass
 
             elif la_ == 16:
+                localctx = QLangParser.BlockStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 16)
                 self.state = 160
                 self.block()
                 pass
 
             elif la_ == 17:
+                localctx = QLangParser.SemicolonStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 17)
                 self.state = 161
                 self.match(QLangParser.SEMI)

@@ -137,52 +137,39 @@ class ScriptErrors:
         def extract(cls, node: Any) -> Self:
             """
             Tries to extract position from a given node
-
-            Possible combinations of specified fields:
-            1. line, column, endLine, endColumn
-            2. line, column, text
-            3. line, column -> ends will be set with the same values
-            None of the above: returns a position with all values set to -1
+            Returns a point with the extracted position
             """
-            line = None
-            column = None
+            
             end_line = None
-            end_column = None
-            width = None
+            end_col = None
 
-            if "line" in node:
-                line = node["line"]
-            if "column" in node:
-                column = node["column"]
-            if "endLine" in node:
-                end_line = node["endLine"]
-            if "endColumn" in node:
-                end_column = node["endColumn"]
-            if "text" in node:
-                width = len(node["text"])
+            start_token = node.symbol if hasattr(node, 'symbol') else node.start
+            end_token = node.symbol if hasattr(node, 'symbol') else node.stop
 
+            start_line = start_token.line
+            start_col = start_token.column
+
+            # Only start position is known
+            if end_token is None:
+                return cls(
+                    start_line=start_line,
+                    start_col=start_col,
+                    end_line=start_line,
+                    end_col=start_col
+                )
             
+            # Try to extract the text length
+            end_line = end_token.line
+            token_text = end_token.text if end_token.text else ""
+            end_col = end_token.column + len(token_text)
 
-            # start and end is known
-            if (line is not None) and (column is not None) and \
-               (end_line is not None) and (end_column is not None):
-                if(line > end_line):
-                    line, end_line = end_line, line
-                if(column > end_column):
-                    column, end_column = end_column, column
-                return cls(start_line=line, start_col=column, end_line=end_line, end_col=end_column)
-            elif (line is not None) and (column is not None) and (width is not None): # start and width known
-                return cls(start_line=line, start_col=column, width=width)
-            elif (line is not None) and (column is not None): # only start known -> start = end
-                if(line > end_line):
-                    line, end_line = end_line, line
-                if(column > end_column):
-                    column, end_column = end_column, column
-                return cls(start_line=line, start_col=column, end_line=line, end_col=column)
-            else: # unknown
-                return cls(start_line=-1, start_col=-1, end_line=-1, end_col=-1)
-        
-            
+            return cls(
+                start_line=start_line,
+                start_col=start_col,
+                end_line=end_line,
+                end_col=end_col
+            )
+
 
         def width(self) -> int:
             """

@@ -10,61 +10,48 @@ if TYPE_CHECKING:
 def handle_obs_definition(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # obsDef: ID ('[' expr ']')?;
 
-    # 1. Terminal <variable_name> (must be valid name)
-    # If size specified:
-    #   2a. Terminal '['
-    #   2b. expr -> handle to get size
-    #   2c. Terminal ']'
-
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ObsDefContext: missing 'children' key or no children")
-        exit()
-
-    children = block["children"]
-
-    var_name = None
+    var_name = block.ID().getText()
     var_size = None
-    size_specified = False
+    if block.expr():
+        var_size = self.handle_block(block.expr(), block)
 
-    for child_index in range(len(children)):
-        child = children[child_index]
-
-        if child_index == 0:
-            var_name = self.extract_text(child, parent=block)
-            if not self.is_valid_name(var_name):
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ObsDefContext: variable name is not valid")
-                exit()
-        elif child_index == 1:
-            if not self.is_terminal(child, text='[', parent=block):
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ObsDefContext: child index 1, expected '['")
-                exit()
-            size_specified = True
-        elif child_index == 2:
-            if not size_specified:
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ObsDefContext: child index 2, unexpected block")
-                exit()
-            var_size = self.handle_block(child, parent=block)
-        elif child_index == 3:
-            if not size_specified:
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ObsDefContext: child index 3, unexpected block")
-                exit()
-            if not self.is_terminal(child, text=']', parent=block):
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ObsDefContext: child index 3, expected ']'")
-                exit()
-    
+    # Check if variable does not exists
     if self.scopes.exists(var_name):
         parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Name Error", "ObsDefContext: variable name already exists")
+        self.script_errors.showError(
+            pos=pos,
+            error_type="RUNTIME ERROR",
+            title="SuperpositionError",
+            msg="An observation cannot be in superposition. Pick one definition and stick to it."
+        )
         exit()
 
-    if var_size <= 0:
-        parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "ObsDefContext: variable size is <= 0")
-        exit()
+    if var_size is not None:
+        # Check if size is int
+        if int(var_size) != var_size:
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(
+                pos=parent_pos, 
+                error_type="RUNTIME ERROR", 
+                title="RealityError", 
+                msg="You cannot have half of a bit. Use an integer."
+            )
+            exit()
+
+
+        if var_size <= 0:
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(
+                pos=parent_pos, 
+                error_type="RUNTIME ERROR", 
+                title="SizeError", 
+                msg="I'm not capable of managing your imaginary, negative-sized registers.")
+            exit()
 
     variable = None
 
-    if size_specified:
+    # Create obs register if size defined or obs if not
+    if var_size is not None:
         variable = ObsRegister(var_size)
     else:
         variable = Obs()

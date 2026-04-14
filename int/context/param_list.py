@@ -6,19 +6,11 @@ from ..consts import *
 if TYPE_CHECKING:
     from place import Place
 
-def handle_param_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):   
+def handle_param_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):  
+    # paramList: param (',' param)*;
     param_list = []
 
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "ParamListContext: 'children' key missing or no children")
-        exit()
-
-    children = block["children"] 
-
-    for child_index in range(len(children)):
-        child = children[child_index]
-        # ignore Terminals ','
-        if not self.is_terminal(child, text=',', parent=block):
-            param_list.append(self.handle_block(child, block))
+    for param in block.param():
+        param_list.append(self.handle_block(param, block))
 
     return param_list

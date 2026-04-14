@@ -8,24 +8,12 @@ if TYPE_CHECKING:
 
 def handle_eq_comp(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr ('==' | '!=') expr
+    children = [x for x in block.getChildren()]
+    left = self.handle_block(children[0], block)
+    right = self.handle_block(children[2], block)
 
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "EqExprContext: missing 'children' key or no children")
-        exit()
-
-    children = block["children"]
-
-    if len(children) != 3:
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "EqExprContext: 3 children expected")
-        exit()
-
-    val1 = self.handle_block(children[0], parent=block)
-    val2 = self.handle_block(children[2], parent=block)
-
-    if self.is_terminal(children[1], text='==', parent=block):
-        return 1 if val1 == val2 else 0
-    elif self.is_terminal(children[1], text='!=', parent=block):
-        return 1 if val1 != val2 else 0
+    if children[1].getText() == "==":
+        return 1 if left == right else 0
     else:
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "EqExprContext: child index 1, expected '==' or '!='")
-        exit()
+        return 1 if left != right else 0
+    

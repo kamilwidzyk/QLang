@@ -8,15 +8,9 @@ if TYPE_CHECKING:
 
 def handle_bool(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # BOOL_VAL: 'T' | 'F';
+    value = [x for x in block.getChildren()][0].getText()
 
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "BoolExprContext: missing 'children' key or no children")
-        exit()
-
-    if self.is_terminal(block["children"][0], text='T', parent=block):
+    if value == 'T':
         return 1
-    elif self.is_terminal(block["children"][0], text='F', parent=block):
+    if value == 'F':
         return 0
-    else:
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "BoolExprContext: child index 0, expected 'T' or 'F'")
-        exit()

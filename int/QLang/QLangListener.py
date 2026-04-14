@@ -80,12 +80,156 @@ class QLangListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#statement.
-    def enterStatement(self, ctx:QLangParser.StatementContext):
+    # Enter a parse tree produced by QLangParser#stateDeclaration.
+    def enterStateDeclaration(self, ctx:QLangParser.StateDeclarationContext):
         pass
 
-    # Exit a parse tree produced by QLangParser#statement.
-    def exitStatement(self, ctx:QLangParser.StatementContext):
+    # Exit a parse tree produced by QLangParser#stateDeclaration.
+    def exitStateDeclaration(self, ctx:QLangParser.StateDeclarationContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#obsDeclaration.
+    def enterObsDeclaration(self, ctx:QLangParser.ObsDeclarationContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#obsDeclaration.
+    def exitObsDeclaration(self, ctx:QLangParser.ObsDeclarationContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#receiveDeclaration.
+    def enterReceiveDeclaration(self, ctx:QLangParser.ReceiveDeclarationContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#receiveDeclaration.
+    def exitReceiveDeclaration(self, ctx:QLangParser.ReceiveDeclarationContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#sendStatement.
+    def enterSendStatement(self, ctx:QLangParser.SendStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#sendStatement.
+    def exitSendStatement(self, ctx:QLangParser.SendStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#gateStatement.
+    def enterGateStatement(self, ctx:QLangParser.GateStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#gateStatement.
+    def exitGateStatement(self, ctx:QLangParser.GateStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#measureStatement.
+    def enterMeasureStatement(self, ctx:QLangParser.MeasureStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#measureStatement.
+    def exitMeasureStatement(self, ctx:QLangParser.MeasureStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#assignmentStatement.
+    def enterAssignmentStatement(self, ctx:QLangParser.AssignmentStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#assignmentStatement.
+    def exitAssignmentStatement(self, ctx:QLangParser.AssignmentStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#functionCallStatement.
+    def enterFunctionCallStatement(self, ctx:QLangParser.FunctionCallStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#functionCallStatement.
+    def exitFunctionCallStatement(self, ctx:QLangParser.FunctionCallStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#ifStatement.
+    def enterIfStatement(self, ctx:QLangParser.IfStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#ifStatement.
+    def exitIfStatement(self, ctx:QLangParser.IfStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#forStatement.
+    def enterForStatement(self, ctx:QLangParser.ForStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#forStatement.
+    def exitForStatement(self, ctx:QLangParser.ForStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#whileStatement.
+    def enterWhileStatement(self, ctx:QLangParser.WhileStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#whileStatement.
+    def exitWhileStatement(self, ctx:QLangParser.WhileStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#ioStatement.
+    def enterIoStatement(self, ctx:QLangParser.IoStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#ioStatement.
+    def exitIoStatement(self, ctx:QLangParser.IoStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#breakStatement.
+    def enterBreakStatement(self, ctx:QLangParser.BreakStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#breakStatement.
+    def exitBreakStatement(self, ctx:QLangParser.BreakStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#continueStatement.
+    def enterContinueStatement(self, ctx:QLangParser.ContinueStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#continueStatement.
+    def exitContinueStatement(self, ctx:QLangParser.ContinueStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#returnStatement.
+    def enterReturnStatement(self, ctx:QLangParser.ReturnStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#returnStatement.
+    def exitReturnStatement(self, ctx:QLangParser.ReturnStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#blockStatement.
+    def enterBlockStatement(self, ctx:QLangParser.BlockStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#blockStatement.
+    def exitBlockStatement(self, ctx:QLangParser.BlockStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#semicolonStatement.
+    def enterSemicolonStatement(self, ctx:QLangParser.SemicolonStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#semicolonStatement.
+    def exitSemicolonStatement(self, ctx:QLangParser.SemicolonStatementContext):
         pass
 
 

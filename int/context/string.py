@@ -8,17 +8,4 @@ if TYPE_CHECKING:
 
 def handle_string(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # STRING     : '"' (~["\r\n])* '"' ;
-
-    # 1. Terminal "<content>"
-
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "StrExprContext: missing 'children' key or no children")
-        exit()
-    
-    content = self.extract_text(block["children"][0], parent=block)
-
-    if len(content) < 2:
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "StrExprContent: content size of minimum 2 is required(empty string)")
-        exit()
-    
-    return content[1:-1] # remove first and last characters(")
+    return [x for x in block.getChildren()][0].getText()[1:-1]

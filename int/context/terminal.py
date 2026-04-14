@@ -7,4 +7,4 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_terminal(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    return self.extract_text(block, parent)
+    return block.getText()

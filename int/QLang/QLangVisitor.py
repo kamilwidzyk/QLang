@@ -49,8 +49,88 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#statement.
-    def visitStatement(self, ctx:QLangParser.StatementContext):
+    # Visit a parse tree produced by QLangParser#stateDeclaration.
+    def visitStateDeclaration(self, ctx:QLangParser.StateDeclarationContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#obsDeclaration.
+    def visitObsDeclaration(self, ctx:QLangParser.ObsDeclarationContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#receiveDeclaration.
+    def visitReceiveDeclaration(self, ctx:QLangParser.ReceiveDeclarationContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#sendStatement.
+    def visitSendStatement(self, ctx:QLangParser.SendStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#gateStatement.
+    def visitGateStatement(self, ctx:QLangParser.GateStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#measureStatement.
+    def visitMeasureStatement(self, ctx:QLangParser.MeasureStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#assignmentStatement.
+    def visitAssignmentStatement(self, ctx:QLangParser.AssignmentStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#functionCallStatement.
+    def visitFunctionCallStatement(self, ctx:QLangParser.FunctionCallStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#ifStatement.
+    def visitIfStatement(self, ctx:QLangParser.IfStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#forStatement.
+    def visitForStatement(self, ctx:QLangParser.ForStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#whileStatement.
+    def visitWhileStatement(self, ctx:QLangParser.WhileStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#ioStatement.
+    def visitIoStatement(self, ctx:QLangParser.IoStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#breakStatement.
+    def visitBreakStatement(self, ctx:QLangParser.BreakStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#continueStatement.
+    def visitContinueStatement(self, ctx:QLangParser.ContinueStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#returnStatement.
+    def visitReturnStatement(self, ctx:QLangParser.ReturnStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#blockStatement.
+    def visitBlockStatement(self, ctx:QLangParser.BlockStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#semicolonStatement.
+    def visitSemicolonStatement(self, ctx:QLangParser.SemicolonStatementContext):
         return self.visitChildren(ctx)
 
 

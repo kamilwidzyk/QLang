@@ -8,29 +8,20 @@ if TYPE_CHECKING:
 
 def handle_rel_comp(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr ('<' | '>' | '<=' | '>=') expr
-
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "RelExprContext: missing 'children' key or no children")
-        exit()
-
-    children = block["children"]
-
-    if len(children) != 3:
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "RelExprContext: 3 children required")
-        exit()
-
-    val1 = self.handle_block(children[0], parent=block)
-    val2 = self.handle_block(children[2], parent=block)
+    children = [x for x in block.getChildren()]
+    left = self.handle_block(children[0], block)
+    operation = children[1].getText()
+    right = self.handle_block(children[2], block)
 
     result = None
 
-    if self.is_terminal(children[1], text='<', parent=block):
-        result = val1 < val2
-    elif self.is_terminal(children[1], text='>', parent=block):
-        result = val1 > val2
-    elif self.is_terminal(children[1], text='<=', parent=block):
-        result = val1 <= val2
-    elif self.is_terminal(children[1], text='>=', parent=block):
-        result = val1 >= val2
+    if operation == '<':
+        result = left < right
+    elif operation == '>':
+        result = left > right
+    elif operation == '<=':
+        result = left <= right
+    elif operation == '>=':
+        result = left >= right
 
     return 1 if result else 0

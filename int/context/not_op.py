@@ -8,21 +8,6 @@ if TYPE_CHECKING:
 
 def handle_not(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # '!' expr
-
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "NotExprContext: missing 'children' key or no children")
-        exit()
-
-    children = block["children"]
-
-    if len(children) != 2:
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "NotExprContext: 2 children expected")
-        exit()
-
-    if not self.is_terminal(children[0], text='!', parent=block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "NotExprContext: child index 0, expected '!'")
-        exit()
-
-    val = self.handle_block(children[1], parent=block)
+    val = self.handle_block(block.expr(), block)
 
     return 1 if val == 0 else 0

@@ -21,7 +21,6 @@ placeMember
     | statement
     ;
 
-/** Definicja funkcji - parametry rejestrowe muszą mieć sztywny rozmiar */
 functionDecl: FUNCTION ID '(' paramList? ')' block;
 
 paramList: param (',' param)*;
@@ -31,23 +30,23 @@ param: (STATE | OBS) ID ('[' NUMBER ']')?;
 block: '{' statement* '}';
 
 statement
-    : stateDecl ';'
-    | obsDecl ';'
-    | receiveDecl ';'
-    | sendStmt ';'
-    | gateStmt ';'
-    | measureStmt ';'
-    | assignStmt ';'
-    | functionCallStmt ';'
-    | ifStmt
-    | forStmt
-    | whileStmt
-    | ioStmt ';'
-    | BREAK ';'
-    | CONTINUE ';'
-    | RETURN expr? ';'
-    | block
-    | ';'
+    : stateDecl ';'    # stateDeclaration
+    | obsDecl ';'      # obsDeclaration
+    | receiveDecl ';'  # receiveDeclaration
+    | sendStmt ';'     # sendStatement
+    | gateStmt ';'     # gateStatement
+    | measureStmt ';'  # measureStatement
+    | assignStmt ';'   # assignmentStatement
+    | functionCallStmt ';' # functionCallStatement
+    | ifStmt           # ifStatement
+    | forStmt          # forStatement
+    | whileStmt        # whileStatement
+    | ioStmt ';'       # ioStatement
+    | BREAK ';'        # breakStatement
+    | CONTINUE ';'     # continueStatement
+    | RETURN expr? ';' # returnStatement
+    | block            # blockStatement
+    | ';'              # semicolonStatement
     ;
 
 // --- DEKLARACJE ---
@@ -228,6 +227,6 @@ fragment DEC_NUMBER: [0-9]+;
 ID: [\p{L}_][\p{L}\p{N}_]*;
 
 // Ignorowane
-WS: [ \t\r\n]+ -> skip;
+WS: [ \t\r\n]+ -> channel(HIDDEN);
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 BLOCK_COMMENT: '/*' .*? '*/' -> skip;

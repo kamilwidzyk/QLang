@@ -9,25 +9,17 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    if "children" not in block:
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "statementContext 'children' key missing")
-        exit()
-
-    children = block["children"]
-    if len(children) == 0:
-        return None
-
-    # return stmt: RETURN expr? ';'
-    if self.is_terminal(children[0], text='return', parent=block):
-        return_val = None
-        if len(children) > 1 and not self.is_terminal(children[1], text=';', parent=block):
-            return_val = self.handle_block(children[1], parent=block)
+    def is_return(block) -> bool:
+        if not isinstance(block, TerminalCtx):
+            return False
+        if block.getText() != "return":
+            return False
+        return True
+    
+    if is_return(block.getChild(0)):
+        return_val = self.handle_block(block.getChild(1))
         raise FunctionReturn(return_val)
 
-    # execute any other statement normally and ignore return values from children
-    for child in children:
-        if self.is_terminal(child, text=';', parent=block):
-            continue
-        self.handle_block(child, parent=block)
+    self.handle_block(block.getChild(0), parent=block)
 
     return None

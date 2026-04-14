@@ -35,236 +35,106 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
     # [2] [3] [5]           -> (<val>)
     # [2] [3] [4a] [4b] [5] -> (<val>, <format>)
 
-
-
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: 'children' key missing or no children")
-        exit()
-    
-    ioOperation = self.extract_text(block["children"][0], parent=block)
-
-    if ioOperation in ["print", "println"]:
-        
-        add_new_line = ioOperation == "println"
-        format_specified = False
+    def handle_print(add_newline: bool = False):
+        nonlocal block
         format = None
-        to_print = None
-        is_string = False
 
-        children = block["children"][1:]
-
-        for child_index in range(len(children)):
-            child = children[child_index]
-            if child_index == 0: # must be '('
-                if not self.is_terminal(child, text="(", parent=block):
-                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 1, expected '('")
-                    exit()
-            elif child_index == 1: # must be VarExprContext or ')'
-                if self.is_terminal(child, text=')', parent=block):
-                    to_print = ""
-                    is_string = True
-                    break
-
-
-                if self.is_type(child, type=STR_EXPR_CONTEXT, parent=block):
-                    is_string = True
-                
-                to_print = self.handle_block(child, parent=block)
-                
-            elif child_index == 2: # ')' or ','
-                if self.is_terminal(child, text=",", parent=block):
-                    format_specified = True
-                elif not self.is_terminal(child, text=")", parent=block):
-                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 3, unexpected terminal")
-                    exit()
-            elif child_index == 3:
-                if not format_specified:
-                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 4, unexpected block")
-                    exit()
-                
-                if not self.is_type(child, type=FORMAT_CONTEXT, parent=block):
-                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 4, expected 'FormatContext' block")
-                    exit()
-
-                format = self.handle_block(child, parent=block)
-            elif child_index == 4: # must be ')'
-                if not format_specified:
-                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 5, unexpected block")
-                    exit()
-
-                if not self.is_terminal(child, text=")", parent=block):
-                    self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: child index 5, expected ')'")
-                    exit()
-            else:
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext, child index > 5, unexpected block")
-                exit()
+        # no expr -> print a newline if enabled
+        if block.expr() is None and add_newline:
+            self.console.write("\n")
+            return
         
-        #print("IoStmtContext, parsed 'print'")
-        #print("To print: " + str(to_print))
-        #print("Format: " + (str(format) if format_specified else "DEC")) 
+        # Get format string if specified
+        if block.format_():
+            format = self.handle_block(block.format_(), block)
 
-        print_text = to_print
+        # evaluate value to print
+        print_text = self.handle_block(block.expr(), block)
 
-        if not is_string:
+        # format the
+        if format is not None:
+            # when format is used, formated value cannot be a string
+            if isinstance(print_text, str):
+                self.script_errors.showError(
+                    pos=pos,
+                    error_type="RUNTIME ERROR",
+                    title="String can't be a number",
+                    msg="Try using digits next time. Just a suggestion."
+                )
+                exit()
 
-            if format_specified:
-                if format == "BIN":
-                    print_text = f"0b{to_print:b}"
-                elif format == "HEX":
-                    print_text = f"0x{to_print:X}"
-            else:
-                print_text = str(to_print)
-        if add_new_line:
+            # format the number as BIN or HEX, decimal is the default
+            if format == "BIN":
+                print_text = f"0b{print_text:b}"
+            elif format == "HEX":
+                print_text = f"0x{print_text:X}"
+        else:
+            print_text = str(print_text)
+
+        # add a newline if the command was println
+        if add_newline:
             self.console.write(print_text + "\n")
         else:
             self.console.write(print_text)
 
-    elif ioOperation == "input":
-        children = block["children"][1:]
-
-        format_specified = False
-        format = None
-        index_specified = False
-        var_index = None
-        var_name = None
-        constraint_specified = False
-        constraint_min = None
-        constraint_max = None
-
-
+    def handle_input():
+        nonlocal block
         # INPUT '(' ID ('[' expr ']')? (',' format)? (',' constraint)? ')'
         
+        # variable name(ID) is required
+        var_name = block.ID().getText()
 
-        # 1. Terminal '('
-        # 2. Terminal <obs_name>
-        # If index specified:
-        #   3a. Terminal '['
-        #   3b. index -> handle block to get value
-        #   3c. Terminal ']'
-        # If format specified:
-        #   4a. Terminal ','
-        #   4b. Terminal <format> = BIN or HEX
-        # If constraint specified:
-        #   5a. Terminal ','
-        #   5b. Block ConstraintContext -> returns as (min, max)
-        # 6. Terminal ')'
+        # variable index is optional
+        index = None
+        if block.expr():
+            index = self.handle_block(block.expr(), block)
 
-        #            (CHILD INDEX)
-        # (0) (1) (2)  (3)  (4)  (5)  (6)  (7)  (8)  (9)
-        # [1] [2] [6]                                    -> (<obs>)
-        # [1] [2] [3a] [3b] [3c] [6]                     -> (<obs>[<index>])
-        # [1] [2] [4a] [4b] [6]                          -> (<obs>, format)
-        # [1] [2] [3a] [3b] [3c] [4a] [4b] [6]           -> (<obs>[<index>], format)
-        # (0) (1) (2)  (3)  (4)  (5)  (6)  (7)  (8)  (9)
-        # [1] [2] [5a] [5b] [6]                          -> (<obs>, constraint)
-        # [1] [2] [3a] [3b] [3c] [5a] [5b] [6]           -> (<obs>[<index>], constraint)
-        # [1] [2] [4a] [4b] [5a] [5b] [6]                -> (<obs>, format, constraint)
-        # [1] [2] [3a] [3b] [3c] [4a] [4b] [5a] [5b] [6] -> (<obs>[<index>], format, constraint)
-
-        args = []
-
-        arg = []
-        for child in children:
-            if self.is_terminal(child, text=',', parent=block):
-                args.append(arg)
-                arg = []
-            elif not self.is_terminal(child, text='(', parent=block) and not self.is_terminal(child, text=')', parent=block):
-                arg.append(child)
-        args.append(arg)
-
-        if len(args) < 1:
-            self.script_errors.showError(pos, "RUNTIME ERROR", "You Error", "No arguments. Where should I put the data?")
-            exit()
-
-        var_arg = args[0]
-
-        # <obs>[<index>]?
-        for child_index in range(len(var_arg)):
-            child = var_arg[child_index]
-
-            if child_index == 0: # Terminal <var_name>
-                var_name = self.extract_text(child, parent=block)
-            elif child_index == 1: # Terminal '[' -> index specified
-                if self.is_terminal(child, text='[', parent=block):
-                    index_specified = True
-            elif child_index == 2: # index expr
-                if not index_specified:
-                    self.script_errors.showError(pos, "SYNTAX ERROR", "Unexpected thing", "There should not be anything more")
-                    exit()
-                var_index = self.handle_block(child, block)
-            elif child_index == 3:
-                if not index_specified:
-                    self.script_errors.showError(pos, "SYNTAX ERROR", "Unexpected thing", "There should not be anything more")
-                    exit()
-                if not self.is_terminal(child, text=']', parent=block):
-                    self.script_errors.showError(pos, "SYNTAX ERROR", "Expected ']'", "Close the index, please")
-                    exit()
+        # format is optional(BIN, HEX)
+        format = None
+        if block.format_():
+            format = self.handle_block(block.format_(), block)
         
-        # check the second arg(format or constraint) if it exists
-        if len(args) > 1:
-            second_arg = args[1]
-            # format or constraint
+        # constraint is optional(value range: min..max or range(min, max))
+        constraint_min = None
+        constraint_max = None
+        if block.constraint():
+            constraint_min, constraint_max = self.handle_block(block.constraint(), block)
 
-            for child_index in range(len(second_arg)):
-                child = second_arg[child_index]
-
-                if child_index == 0:
-                    if self.is_type(child, type=FORMAT_CONTEXT, parent=block):
-                        format_specified = True
-                        format = self.handle_block(child, parent=block)
-                    elif self.is_type(child, type=CONSTRAINT_CONTEXT, parent=block):
-                        constraint_specified = True
-                        constraint_min, constraint_max = self.handle_block(child, parent=block)
-                    else:
-                        print(child["type"])
-                        print(child["text"])
-                        self.script_errors.showError(pos, "SYNTAX ERROR", "Unexpected block", "There can only be a format or a constraint")
-                        exit()
-                else:
-                    self.script_errors.showError(pos, "SYNTAX ERROR", "Unexpected block", "There can only be a format or a constraint")
-                    exit()
-            
-        # check the third arg(constraint) if it exists
-        if len(args) > 2:
-            third_arg = args[2]
-            # constraint only
-
-            for child_index in range(len(second_arg)):
-                child = second_arg[child_index]
-
-                if child_index == 0:
-                    if self.is_type(child, type=CONSTRAINT_CONTEXT, parent=block):
-                        constraint_specified = True
-                        constraint_min, constraint_max = self.handle_block(child, parent=block)
-                    else:
-                        self.script_errors.showError(pos, "SYNTAX ERROR", "Unexpected block", "There can only be a constraint")
-                        exit()
-                else:
-                    self.script_errors.showError(pos, "SYNTAX ERROR", "Unexpected block", "There can only be a constraint")
-                    exit()
-
-        #print("IO operation: input")
-        #print("var_name: " + str(var_name))
-        #print("var_index: " + str(var_index))
-        #print("format: " + str(format))
-        #print("Min: " + str(constraint_min))
-        #print("Max: " + str(constraint_max))
-
+        # check if variable exists
         if not self.scopes.exists(var_name):
             parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "You Error", "No variable. You forgot to make it, input lost to the void.")
+            self.script_errors.showError(
+                pos=parent_pos, 
+                error_type="RUNTIME ERROR", 
+                title="You Error", 
+                msg="No variable. You forgot to make it, input lost to the void."
+            )
             exit()
 
+        # TODO: Those lines will have to be changed when numerical variable will be added
+        # currently it only expects Obs or ObsRegister
         variable: Obs | ObsRegister = self.scopes.get(var_name)
 
+        # check if the variable is of correct type
         if variable.type not in ["Obs", "ObsRegister"]:
             parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Type Error", "Not how this works. I need an observation(s).")
+            self.script_errors.showError(
+                pos=parent_pos, 
+                error_type="RUNTIME ERROR", 
+                title="Type Error", 
+                msg="Not how this works. I need an observation(s)."
+            )
             exit()
 
-        if var_index is not None and variable.type == "Obs":
+        # check if variable can be indexed
+        if index is not None and variable.type == "Obs":
             parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Index Error", "You are looking too deep into something that can only be 0 or 1.")
+            self.script_errors.showError(
+                pos=parent_pos, 
+                error_type="RUNTIME ERROR", 
+                title="Index Error", 
+                msg="You are looking too deep into something that can only be 0 or 1."
+            )
             exit()
         
         # default value constraint is 0 to variable max val
@@ -272,24 +142,24 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         min_val = 0
 
         # update to given constraint if possible
-        if constraint_specified:
-            if constraint_min is not None:
-                min_val = constraint_min
-            if constraint_max is not None:
-                max_val = constraint_max
-
+        if constraint_min is not None:
+            min_val = constraint_min
+        if constraint_max is not None:
+            max_val = constraint_max
 
         value = None
 
+        # Try forever to get a value from the user
         while True:
-            
+            # read a line from the console window(not the terminal)
             log(IN_OUT, DEBUG, f"{self.name}: Waiting for console input...")
             console_in = self.console.read("")
             log(IN_OUT, DEBUG, f"{self.name}: Console input: {console_in}")
 
             if console_in is None:
                 continue
-                
+            
+            # check formatting
             if format is not None:
                 if format == "BIN" and console_in.startswith("0b"):
                     try:
@@ -313,6 +183,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 except:
                     pass # not a number
             
+            # user input is invalid, show a message what is expected on the input
             format_str = {None: "decimal", "BIN": "binary", "HEX": "hexadecimal"}[format]
             invalid = [
                 "That's not gonna work.", "What even is that input.", "Try again, but correctly.",
@@ -325,12 +196,19 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
 
             self.console.write(f"[{random.sample(invalid, 1)[0]} I need a number in range {min_val}-{max_val} in {format_str} format] ")
 
-        #print("Parsed console input: " + str(value))
-
+        # set value to the variable and update variable in the scope
         variable.set(value)
         self.scopes.set(var_name, variable)
 
 
-    else:
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "IoStmtContext: operation " + ioOperation + " unknown or not implemented")
-        exit()
+    stmt_type = block.getChild(0).getText()
+
+    if stmt_type == "print":
+        handle_print()
+    elif stmt_type == "println":
+        handle_print(add_newline=True)
+    elif stmt_type == "debug":
+        pass
+    elif stmt_type == "input":
+        handle_input()
+        

@@ -5,6 +5,14 @@ Dorobić więcej błędów składniowych
 
 
 
+# Nie patrzeć niżej
+```
+Teraz program uruchamia się:
+
+.\new_run.bat <ścieżka do pliku .ql>
+
+```
+
 # Aktualny sposób uruchomienia programu
 ```
 Uruchomienie tylko generowania JSON i interpretera(bez niepetrzebnych normalnie rzeczy)

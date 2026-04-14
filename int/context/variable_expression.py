@@ -9,76 +9,68 @@ if TYPE_CHECKING:
 def handle_variable_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # ID ('[' expr ']')? 
 
-    # 1. Terminal <variable_name>
-    # If index specified:
-    #   2a. Terminal '['
-    #   2b. expression block -> handle to get index
-    #   2c. Terminal ']'
-
-    if not self.has_children(block):
-        self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "VarExprContext: 'children' key missing or not children")
-        exit()
-
-    children = block["children"]
-
-    var_name = None
+    var_name = block.ID().getText()
     index = None
-    index_specified = False
-
-    for child_index in range(len(children)):
-        child = children[child_index]
-        if child_index == 0:
-            var_name = self.extract_text(child, parent=block)
-        elif child_index == 1: 
-            if not self.is_terminal(child, text="[", parent=block):
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "VarExprContext: child index 1, expected '['")
-                exit()
-            index_specified = True
-        elif child_index == 2:
-            if not index_specified:
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "VarExprContext: child index 2, unexpected block")
-                exit()
-            index = self.handle_block(child, block)
-        elif child_index == 3:
-            if not index_specified:
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "VarExprContext: child index 3, unexpected block")
-                exit()
-            if not self.is_terminal(child, text="]", parent=block):
-                self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "VarExprContext: child index 3, expected ']'")
-                exit()
-        else:
-            self.script_errors.showError(pos, "DEEP ERROR", "Malformed AST", "VarExprContext: child index > 3, unexpected block")
-            exit()
-    
-    #print("VarExprContext parsed")
-    #print("Name: " + str(var_name))
-    #print("Index: " + str(index))
+    if block.expr():
+        index = self.handle_block(block.expr(), block)
 
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
 
+    # Check if variable exists
     if not self.scopes.exists(var_name):
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Name Error", "VarExprContext: variable '" + str(var_name) + "' does not exist")
+        self.script_errors.showError(
+            pos=parent_pos, 
+            error_type="RUNTIME ERROR", 
+            title="ExistenceError", 
+            msg=f"I can't find '{var_name}' in this universe, does it even exist?")
         exit()
 
+    # Get the variable
     variable = self.scopes.get(var_name)
 
     if type(variable) == int:
         return variable
 
+    # Check if it can be read
     if variable.type in ["StateRegister", "State"]:
-        self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Type Error", "VarExprContext: attempted reading of quantum state")
+        self.script_errors.showError(
+            pos=parent_pos, 
+            error_type="RUNTIME ERROR", 
+            title="Access Denied", 
+            msg="You can't access a quantum state like that. Try measuring it first.")
         exit()
 
-    if index_specified:
-        if int(index) != index or index < 0:
-            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Value Error", "VarExprContext: index is not int or < 0")
+    if index is not None:
+        # Check if variable supports index
+        if variable.type != "ObsRegister":
+            self.script_errors.showError(
+                pos=parent_pos, 
+                error_type="RUNTIME ERROR", 
+                title="Access denied", 
+                msg="There is nothing more, just a 0 or 1.")
             exit()
 
-        if variable.type != "ObsRegister":
-            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Type Error", "VarExprContext: attempted accesing index of non index obs")
+        # Check if index is int
+        if int(index) != index:
+            self.script_errors.showError(
+                pos=parent_pos, 
+                error_type="RUNTIME ERROR", 
+                title="QuantizationError", 
+                msg="Try looking at the bits, not between them.")
+            exit()
+            
+        # Check if index is >= 0
+        if index < 0:
+            self.script_errors.showError(
+                pos=parent_pos, 
+                error_type="RUNTIME ERROR", 
+                title="BoundaryBreach", 
+                msg=f"You attempted to access index {index}. Aren't you scared of going into the unknown.")
             exit()
         
+        # Return the value as 0/1 (not bool)
         return 1 if variable[index] else 0
+    
     
     if variable.type == "Obs":
         return 1 if variable.get() else 0
@@ -86,5 +78,9 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
     if variable.type == "ObsRegister":
         return variable.get() 
     
-    self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Type Error", "varExprContext: incorrect variable type: " + variable.type)
+    self.script_errors.showError(
+        pos=parent_pos, 
+        error_type="RUNTIME ERROR", 
+        title="Type Error", 
+        msg=f"What is this variable of type '{variable.type}' doing here?")
     exit()
