@@ -1,5 +1,5 @@
 TODO:
-Dodać floaty(z notacją naukową)
+✅ Dodać floaty(z notacją naukową) ✅ (Ale nie przebudowalem programu)
 Dodać przebieg listenera za pierwszym razem
 Dorobić więcej błędów składniowych
 
