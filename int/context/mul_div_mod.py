@@ -17,8 +17,14 @@ def handle_mul_div_mod(self: Place, block: Any, parent: Any, pos: ScriptErrors.P
 
     if operation == '*':
         return left * right
-    
+
     if operation == '/':
+        if right == 0:
+            self.script_errors.showError(pos, "RUNTIME ERROR", "Math Error","I don't do division by zero. Nobody does.")
+            exit()
+        return left / right
+
+    if operation == '//':
         if right == 0:
             self.script_errors.showError(pos, "RUNTIME ERROR", "Math Error", "I don't do division by zero. Nobody does.")
             exit()

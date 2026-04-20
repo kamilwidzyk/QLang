@@ -38,7 +38,7 @@ def main():
     # Split script into places that will run in parrael
     scriptErrors = ScriptErrors(script)
 
-    places = divideIntoPlaces(antlr_tree, scriptErrors, network) # <------- Zamiast json_tree przekazujemy antlr_tree
+    places = divideIntoPlaces(antlr_tree, scriptErrors, network, parser) # <------- Zamiast json_tree przekazujemy antlr_tree
 
     # Start every place in separate processes
     places.run()

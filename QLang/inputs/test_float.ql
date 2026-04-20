@@ -23,4 +23,19 @@ place test_float {
     num poteg = 2.0 ** 3.0;
     print("Wynik potegowania to: ");
     println(poteg);
+    num odej2 = 5.0 - 2.5;
+    print("Wynik odejmowania 2 to: ");
+    println(odej2);
+
+    num f = 0;
+    num f2 = 0;
+    for i from 1 to 100 step 1 {
+        f = f + 1;
+        f2 = 10 / f;
+    }
+    print("Wartosc f: ");
+    println(f);
+    print("Wartosc f2: ");
+    println(f2);
+
 }
