@@ -35,7 +35,6 @@ place test_float {
 
     num f1 = 0;
     num f2 = 0.0;
-    num i;
     for i from 1 to 100 step 1 {
         println(i);
         f1 = f1 + 0.1;
@@ -59,4 +58,5 @@ place test_float {
     println(wynik2);
     print("Wynik dzielenia floata przez inta: ");
     println(wynik3);
+
 }

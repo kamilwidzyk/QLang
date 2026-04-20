@@ -17,7 +17,6 @@ def handle_num_declaration(self: 'Place', block: Any, parent: Any, pos: ScriptEr
         exit()
 
     expressions = [x for x in block.expr()]
-
     array_size = None
     initial_val = 0.0
 
@@ -36,10 +35,10 @@ def handle_num_declaration(self: 'Place', block: Any, parent: Any, pos: ScriptEr
 
 
     if array_size is not None:
-        if int(array_size) != array_size or array_size <= 0:
+        if not isinstance(array_size, (int, float)) or int(array_size) != array_size or array_size <= 0:
             self.script_errors.showError(
                 pos=pos, error_type="RUNTIME ERROR", title="Invalid Array Size",
-                msg="Array size must be a positive integer."
+                msg=f"Array size must be a positive integer. Got: {array_size}"
             )
             exit()
 
@@ -54,5 +53,14 @@ def handle_num_declaration(self: 'Place', block: Any, parent: Any, pos: ScriptEr
         self.scopes.create(var_name, array_var)
 
     else:
-        num_var = NumVar(initial_val)
-        self.scopes.create(var_name, num_var)
+        try:
+            num_var = NumVar(initial_val)
+            self.scopes.create(var_name, num_var)
+        except (ValueError, TypeError):
+            self.script_errors.showError(
+                pos=pos,
+                error_type="RUNTIME ERROR",
+                title="Type Mismatch",
+                msg=f"The variable '{var_name}' is defined as 'num' (numeric), "
+            )
+            exit()
