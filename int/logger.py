@@ -72,6 +72,7 @@ QNET =    "Q NET" # Quantum Network
 OBS =     " OBS " # Observation
 STATE =   "STATE" # Quantum state
 IN_OUT =  "INOUT" # Console input output
+TEST =    "--- TEST ---" # DO NOT USE IN NORMAL CODE 
 
 # Types, do not add more, this is enough
 # NOTHING is used only for disabling the entire logging
@@ -96,11 +97,25 @@ STYLE_DEBUG_CYAN = colorama.Fore.CYAN + colorama.Back.RESET + colorama.Style.NOR
 STYLE_DEBUG_YELLOW = colorama.Fore.YELLOW + colorama.Back.RESET + colorama.Style.NORMAL
 STYLE_DEBUG_MAGENTA = colorama.Fore.MAGENTA + colorama.Back.RESET + colorama.Style.NORMAL
 
-
+TEST_MODE = False
 
 
 # Default log level, show everything
 LOG_LEVEL = DEBUG
+
+def log_test(msg: str):
+    global TEST_MODE
+    if TEST_MODE:
+        log(TEST, DEBUG, msg)
+
+def enable_test_mode():
+    global TEST_MODE
+    TEST_MODE = True
+
+def test_mode_enabled() -> bool:
+    global TEST_MODE
+    return TEST_MODE
+
 
 def log_level(level: Tuple[str, str, str, str, int]) -> None:
     """

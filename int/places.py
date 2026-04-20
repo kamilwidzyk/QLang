@@ -104,7 +104,7 @@ def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, n
             # Add everything else to 'global' place
             elif isinstance(top_level, FunctionDeclCtx) or \
                 isinstance(top_level, StatementCtx):
-                places.add_code("global", top_level.getText())
+                places.add_code("global", get_original_text(top_level))
 
 
     log(PLACE, SUCCESS, "OK", only_msg=True)
@@ -118,6 +118,10 @@ class Places:
     Represents all places with assigned names and code within them
     """
     places: Dict[str, Place] = {}
+    test_mode: bool = False
+
+    def enable_test_mode(self):
+        self.test_mode = True
 
     def create_place(self, name: str, script_errors: ScriptErrors, 
                      declared_at: ScriptErrors, network: QuantumNetwork):
@@ -163,6 +167,8 @@ class Places:
         Starts execution of all places at once
         """
         for place in self.places.values():
+            if(self.test_mode):
+                place.enable_test_mode()
             place.run()
         log(PLACE, SUCCESS, "All places running")
 

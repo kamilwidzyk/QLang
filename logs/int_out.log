@@ -1,0 +1,13 @@
+     >----- Interpreter starting -----<     
+[INIT ](W) Running in TEST MODE!
+[--- TEST ---](D) SYS_ARGV=['C:\\Users\\widzy\\Desktop\\Kompilatory git\\Kompilatory 3\\Kompilatory\\int\\run.py', 'tests\\math\\add.ql', 'TEST_MODE']
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\int\run.py", line 157, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\int\run.py", line 80, in main
+    input_text = str(open(input_filename, encoding='utf-8').read())
+                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'tests\\math\\add.ql'

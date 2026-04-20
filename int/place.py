@@ -66,6 +66,7 @@ class Place:
     declared_at: ScriptErrors.Position
     scopes: ScopeManager
     console: Console
+    test_mode: bool = False
 
 
     def __init__(self, name: str, script_errors: ScriptErrors, 
@@ -85,6 +86,8 @@ class Place:
         self.declared_at = declared_at
         self.scopes = ScopeManager()
         
+    def enable_test_mode(self):
+        self.test_mode = True
 
     def add_code(self, code: Any):
         """
@@ -183,6 +186,8 @@ class Place:
 
         # Open console with title that includes place's name
         self.console = Console("Place: " + self.name)
+        if(self.test_mode):
+            self.console.enable_test_mode()
         self.console.launch()
 
         # For some unknown reason not global place ends up in a double list

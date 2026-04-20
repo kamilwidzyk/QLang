@@ -59,6 +59,11 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#numDeclaration.
+    def visitNumDeclaration(self, ctx:QLangParser.NumDeclarationContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#receiveDeclaration.
     def visitReceiveDeclaration(self, ctx:QLangParser.ReceiveDeclarationContext):
         return self.visitChildren(ctx)
@@ -151,6 +156,11 @@ class QLangVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by QLangParser#obsDef.
     def visitObsDef(self, ctx:QLangParser.ObsDefContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#numDecl.
+    def visitNumDecl(self, ctx:QLangParser.NumDeclContext):
         return self.visitChildren(ctx)
 
 

@@ -98,6 +98,15 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#numDeclaration.
+    def enterNumDeclaration(self, ctx:QLangParser.NumDeclarationContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#numDeclaration.
+    def exitNumDeclaration(self, ctx:QLangParser.NumDeclarationContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#receiveDeclaration.
     def enterReceiveDeclaration(self, ctx:QLangParser.ReceiveDeclarationContext):
         pass
@@ -266,6 +275,15 @@ class QLangListener(ParseTreeListener):
 
     # Exit a parse tree produced by QLangParser#obsDef.
     def exitObsDef(self, ctx:QLangParser.ObsDefContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#numDecl.
+    def enterNumDecl(self, ctx:QLangParser.NumDeclContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#numDecl.
+    def exitNumDecl(self, ctx:QLangParser.NumDeclContext):
         pass
 
 

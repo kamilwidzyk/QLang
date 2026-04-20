@@ -6,7 +6,7 @@ from antlr4.error.ErrorListener import ErrorListener
 from .QLang.QLangLexer import QLangLexer
 from .QLang.QLangParser import QLangParser
 
-from .logger import init_log, log, log_level 
+from .logger import init_log, log, log_level, log_test, enable_test_mode
 from .logger import INIT, PLACE
 from .logger import FATAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, NOTHING
 
@@ -55,10 +55,11 @@ class QLangErrorListener(ErrorListener):
         return len(self.errors) > 0
     
 
-
+TEST_MODE = False 
 
 
 def main():
+    global TEST_MODE
     # Start terminal logger
     log_level(DEBUG)
     init_log()
@@ -67,9 +68,19 @@ def main():
     input_filename = sys.argv[1]
     input_name = ("".join(input_filename.split(".")[:-1])).split("\\")[-1]
 
+    # Check the second arg for 'TEST_MODE'
+    if len(sys.argv) > 2 and sys.argv[2] == "TEST_MODE":
+        TEST_MODE = True
+        log(INIT, WARNING, "Running in TEST MODE!")
+        enable_test_mode()
+
+    log_test("SYS_ARGV=" + str(sys.argv))
+
     # Open file, read it(text is needed later)
     input_text = str(open(input_filename, encoding='utf-8').read())
     input_stream = InputStream(input_text)
+
+    log_test("INPUT_TEXT=" + input_text)
 
     # Create error listener for lexer and parser
     error_listener = QLangErrorListener()
@@ -96,10 +107,17 @@ def main():
     if error_listener.has_errors():
         print("------ SYNTAX ERRORS FOUND -----------")
         # TODO: There will be the script errors class called
-        for err in error_listener.errors:
+        log_test("SYNTAX_ERRORS=1")
+
+        for i, err in enumerate(error_listener.errors):
             print(f"Error at Line {err['line']}, Col {err['start_col']}-{err['end_col']}: {err['message']}")
+            log_test(f"SYNTAX_ERROR_LINE[{i}]={err['line']}")
+            log_test(f"SYNTAX_ERROR_COL_START[{i}]={err['start_col']}")
+            log_test(f"SYNTAX_ERROR_COL_END[{i}]={err['end_col']}")
+            log_test(f"SYNTAX_ERROR_MESSAGE[{i}]={err['message']}")
         return
     
+    log_test("SYNTAX_ERRORS=0")
     print("No errors found")
 
     # Prepare for interpreter start
@@ -109,12 +127,22 @@ def main():
 
     # Scan the tree and divide the code into multiple places that will run in parrael
     places = divideIntoPlaces(tree, scriptErrors, network, parser)
+    for place in places.places:
+        log_test(f"PLACE_NAME={place}")
+        log_test(f"PLACE_CODE={places.places[place].block}")
+    log_test("PLACE_END")
 
     # Start every place in separate process
+    if(TEST_MODE):
+        places.enable_test_mode()
     places.run()
+
+    log_test("ALL_PLACES_STARTED")
 
     # Wait for all places to finish execution
     places.wait_for_end()
+
+    log_test("ALL_PLACES_FINISHED")
 
 
 
