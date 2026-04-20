@@ -3,6 +3,7 @@ from typing import Any, TYPE_CHECKING
 from ..script_errors import ScriptErrors
 from ..consts import *
 from ..obs import Obs, ObsRegister
+from ..num import NumVar, NumArray
 
 import random
 from ..logger import log, DEBUG, IN_OUT
@@ -111,12 +112,10 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             )
             exit()
 
-        # TODO: Those lines will have to be changed when numerical variable will be added
-        # currently it only expects Obs or ObsRegister
-        variable: Obs | ObsRegister = self.scopes.get(var_name)
+        variable: Obs | ObsRegister | Num = self.scopes.get(var_name)
 
         # check if the variable is of correct type
-        if variable.type not in ["Obs", "ObsRegister"]:
+        if variable.type not in ["Obs", "ObsRegister", "Num"]:
             parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
             self.script_errors.showError(
                 pos=parent_pos, 
@@ -137,9 +136,6 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             )
             exit()
         
-        # default value constraint is 0 to variable max val
-        max_val = variable.max_val()
-        min_val = 0
 
         # update to given constraint if possible
         if constraint_min is not None:
@@ -147,6 +143,12 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         if constraint_max is not None:
             max_val = constraint_max
 
+        if variable.type == "Num":
+            max_val = float('inf') if constraint_max is None else max_val
+            min_val = float('-inf') if constraint_min is None else min_val
+        else:
+            max_val = variable.max_val() if constraint_max is None else max_val
+            min_val = 0 if constraint_min is None else min_val
         value = None
 
         # Try forever to get a value from the user
@@ -177,7 +179,11 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                         pass # not a number
             else:
                 try:
-                    value = int(console_in)
+                    if variable.type == "Num":
+                        value = float(console_in)
+                    else:
+                        value = int(console_in)
+
                     if value >= min_val and value <= max_val:
                         break # valid value received -> end of loop
                 except:

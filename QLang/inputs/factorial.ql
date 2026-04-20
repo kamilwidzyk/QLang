@@ -6,11 +6,11 @@ place calculatingFactorial {
         return n*factorial(n-1);
     }
     
-    obs num[32];
+    obs numb[32];
     print("Enter a number 0-1000: ");
-    input(num, 0..1000);
+    input(numb, 0 ..1000);
     
-    print(num);
+    print(numb);
     print("! = ");
-    println(factorial(num));
+    println(factorial(numb));
 }

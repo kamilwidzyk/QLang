@@ -32,6 +32,7 @@ block: '{' statement* '}';
 statement
     : stateDecl ';'    # stateDeclaration
     | obsDecl ';'      # obsDeclaration
+    | numDecl ';'      # numDeclaration
     | receiveDecl ';'  # receiveDeclaration
     | sendStmt ';'     # sendStatement
     | gateStmt ';'     # gateStatement
@@ -64,6 +65,10 @@ obsDecl
     ;
 
 obsDef: ID ('[' expr ']')?;
+
+numDecl
+    : NUM ID ('[' expr ']')? ('=' expr)?
+    ;
 
 // --- KOMUNIKACJA ---
 
@@ -152,6 +157,7 @@ expr
 STATE: 'state';
 OBS: 'obs';
 SUPERPOSED: 'superposed';
+NUM: 'num'; // Do float
 
 H: 'H';
 SUPERPOSE: 'superpose';
@@ -218,13 +224,14 @@ HAT:      '^';
 STRING     : '"' (~["\r\n])* '"' ;
 
 NUMBER: FLOAT_NUMBER | HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
-fragment HEX_NUMBER: '0x' [0-9a-fA-F]+;
-fragment BIN_NUMBER: '0b' [01]+;
-fragment DEC_NUMBER: [0-9]+;
 fragment FLOAT_NUMBER: [0-9]+ '.' [0-9]* ([eE] [+-]? [0-9]+)?
 | '.' [0-9]+ ([eE] [+-]? [0-9]+)?
 | [0-9]+ [eE] [+-]? [0-9]+
 ;
+fragment HEX_NUMBER: '0x' [0-9a-fA-F]+;
+fragment BIN_NUMBER: '0b' [01]+;
+fragment DEC_NUMBER: [0-9]+;
+
 
 
 

@@ -15,13 +15,17 @@ def handle_add_sub(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posit
 
     result = None
 
-    if operation == '+':
-        result = left + right
-    elif operation == '-':
-        result = left - right
+    try:
+        if operation == '+':
+            result = left + right
+        elif operation == '-':
+            result = left - right
+    except TypeError:
+        self.script_errors.showError(
+            pos=pos, error_type="RUNTIME ERROR", title="Type Error",
+            msg=f"Cannot apply operator '{operation}' to types {type(left).__name__} and {type(right).__name__}."
+        )
+        exit()
 
-    # TODO: Negative values will be allowed only for num type
-    if result < 0:
-        result = 0
 
     return result

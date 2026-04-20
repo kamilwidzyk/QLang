@@ -51,6 +51,7 @@ from .context.parentheses            import handle_parentheses
 from .context.terminal               import handle_terminal
 from .context.constraint             import handle_constraint
 from .context.assigment              import handle_assigment
+from .context.num_declaration        import handle_num_declaration
 
 class Place:
     """
@@ -159,6 +160,7 @@ class Place:
             ParenExprCtx:           handle_parentheses,
             ConstraintCtx:          handle_constraint,
             AssigmentStmtCtx:       handle_assigment,
+            QLangParser.NumDeclContext: handle_num_declaration,
         }
         pos = ScriptErrors.Position.extract(block)
 

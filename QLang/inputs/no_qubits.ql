@@ -18,7 +18,7 @@ place ClassicalSystem {
 
     obs repeatTimes[8];
     print("Podaj liczbę 1-10: ");
-    input(repeatTimes, 1..10);
+    input(repeatTimes, 1 ..10);
     println();
 
     print("Podałeś liczbę: ");

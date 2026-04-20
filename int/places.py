@@ -21,7 +21,7 @@ PlaceDeclCtx = QLangParser.PlaceDeclContext
 FunctionDeclCtx = QLangParser.FunctionDeclContext
 StatementCtx = QLangParser.StatementContext
 
-def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, network: QuantumNetwork, parser: Any) -> Places:
+def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, network: QuantumNetwork) -> Places:
     """ 
     Divides original tree into places. 
     Code not in any place ends up in 'global' place.
