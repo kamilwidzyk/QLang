@@ -217,10 +217,14 @@ HAT:      '^';
 
 STRING     : '"' (~["\r\n])* '"' ;
 
-NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
+NUMBER: FLOAT_NUMBER | HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
 fragment HEX_NUMBER: '0x' [0-9a-fA-F]+;
 fragment BIN_NUMBER: '0b' [01]+;
 fragment DEC_NUMBER: [0-9]+;
+fragment FLOAT_NUMBER: [0-9]+ '.' [0-9]* ([eE] [+-]? [0-9]+)?
+| '.' [0-9]+ ([eE] [+-]? [0-9]+)?
+| [0-9]+ [eE] [+-]? [0-9]+
+;
 
 
 
