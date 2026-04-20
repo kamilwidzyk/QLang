@@ -3,7 +3,13 @@ place test_float {
     num pi = 3.1415;
     num promien = 2.01;
     num nauk = 1e-5;
-    println("Wartosc pi: ");
+    num a = 1.1;
+    num b = a;
+    print("Wartosc a: ");
+    println(a);
+    print("Wartosc b: ");
+    println(b);
+    println("Wartosc pi: ") ;
     println(pi);
     println("Promien: ");
     println(promien);
@@ -27,15 +33,28 @@ place test_float {
     print("Wynik odejmowania 2 to: ");
     println(odej2);
 
-    num f = 0;
-    num f2 = 0;
-    for i from 1 to 100 step 1 {
-        f = f + 1;
-        f2 = 10 / f;
+    num f1 = 0;
+    num f2 = 0.0;
+    for i  from 1 to 100 step 1 {
+        f1 = f1 + 0.1;
+        f2 = 10 / f1;
     }
-    print("Wartosc f: ");
-    println(f);
+    print("Wartosc f1: ");
+    println(f1);
     print("Wartosc f2: ");
     println(f2);
 
+    println(")--- ROZPOZNANIE TYPOW ---");
+    num integ = 5;
+    num flt = 3.14;
+    num dwa = 2;
+    num wynik1 = integ / flt;
+    num wynik2 = integ / dwa;
+    num wynik3 = flt / dwa;
+    print("Wynik dzielenia inta przez float: ");
+    println(wynik1);
+    print("Wynik dzielenia inta przez inta: ");
+    println(wynik2);
+    print("Wynik dzielenia floata przez inta: ");
+    println(wynik3);
 }
