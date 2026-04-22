@@ -47,8 +47,12 @@ statement
     | CONTINUE ';'     # continueStatement
     | RETURN expr? ';' # returnStatement
     | block            # blockStatement
+    | expr ';'         # exprStatement 
+    | equation ';'     # equationStatement
     | ';'              # semicolonStatement
     ;
+
+equation: expr '===' expr;
 
 // --- DEKLARACJE ---
 
@@ -134,6 +138,20 @@ argList: expr (',' expr)*;
 
 expr
     : '!' expr                           # NotExpr
+    | '-' expr                           # MinusExpr
+    | '+' expr                           # PlusExpr
+    | '++' expr                          # PreIncrementExpr
+    | '--' expr                          # PreDecrementExpr
+    | expr '++'                          # PostIncrementExpr
+    | expr '--'                          # PostDecrementExpr
+    | expr '+=' expr                     # PlusEqExpr
+    | expr '-=' expr                     # MinusEqExpr
+    | expr '*=' expr                     # MulEqExpr
+    | expr '/=' expr                     # DivEqExpr
+    | expr '%=' expr                     # ModEqExpr
+    | expr '**=' expr                    # PowEqExpr
+    | expr '&=' expr                     # AndEqExpr
+    | expr '|=' expr                     # OrEqExpr    
     | expr '**' expr                     # PowExpr
     | expr ('*' | '/' | '%') expr        # MulDivModExpr
     | expr ('+' | '-') expr              # AddSubExpr

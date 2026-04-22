@@ -3,6 +3,10 @@ import os
 import importlib.util
 import sys
 
+import colorama
+
+SYNTAX_ERRORS = "[--- TEST ---](D) SYNTAX_ERRORS=1"
+
 def path_from_root(rel_path: str) -> str:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
@@ -71,7 +75,7 @@ def run_tests_in_directory(root_dir):
 
         for filename in filenames:
             if filename.endswith(".py"):
-                print(f"Running tests in {filename}...")
+                print(f"{colorama.Fore.BLUE}Running tests in {filename}...{colorama.Style.RESET_ALL}")
                 file_path = os.path.join(dirpath, filename)
 
                 module_name = filename[:-3]
@@ -87,7 +91,7 @@ def run_tests_in_directory(root_dir):
                     #print(f"  Checking {attr_name}...")
                     if attr_name.startswith("test_"):
                         func = getattr(module, attr_name)
-                        print(f"    Running {attr_name}...")
+                        print(f"{colorama.Fore.GREEN}     >>>>> Running {attr_name} <<<<<{colorama.Style.RESET_ALL}")
 
                         if callable(func):
                             test_name = attr_name[len("test_"):]
@@ -101,6 +105,8 @@ def run_tests_in_directory(root_dir):
                                 results[key] = bool(result)
                             except Exception:
                                 results[key] = False
+                        
+                        print(f"{colorama.Fore.YELLOW}     >>>>> Finished {attr_name} <<<<<{colorama.Style.RESET_ALL}")
 
     return results
 
@@ -116,11 +122,11 @@ if __name__ == "__main__":
 
     failed_passed = run_tests_in_directory(subdir)
 
-    print("\n\nTest results:")
+    print(f"{colorama.Fore.BLACK}\n\n{colorama.Back.GREEN}          #####>-- Test results: --<#####          {colorama.Style.RESET_ALL}\n")
     passed_count = sum(1 for result in failed_passed.values() if result)
     total_count = len(failed_passed)
 
     for key, value in failed_passed.items():
-        print(f"  {key}: {'PASSED' if value else 'FAILED'}")
+        print(f"  {key}: {f'{colorama.Fore.GREEN}PASSED{colorama.Style.RESET_ALL}' if value else f'{colorama.Fore.RED}FAILED{colorama.Style.RESET_ALL}'}")
 
-    print(f"Summary: {passed_count}/{total_count} tests passed.")
+    print(f"\n{colorama.Fore.WHITE}{colorama.Style.BRIGHT}Summary: {passed_count}/{total_count} tests passed.\n{colorama.Style.RESET_ALL}")

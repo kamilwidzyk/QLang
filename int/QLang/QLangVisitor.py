@@ -134,8 +134,23 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#exprStatement.
+    def visitExprStatement(self, ctx:QLangParser.ExprStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#equationStatement.
+    def visitEquationStatement(self, ctx:QLangParser.EquationStatementContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#semicolonStatement.
     def visitSemicolonStatement(self, ctx:QLangParser.SemicolonStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#equation.
+    def visitEquation(self, ctx:QLangParser.EquationContext):
         return self.visitChildren(ctx)
 
 
@@ -254,33 +269,43 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#RelExpr.
-    def visitRelExpr(self, ctx:QLangParser.RelExprContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by QLangParser#PowExpr.
     def visitPowExpr(self, ctx:QLangParser.PowExprContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#OrExpr.
-    def visitOrExpr(self, ctx:QLangParser.OrExprContext):
+    # Visit a parse tree produced by QLangParser#PostIncrementExpr.
+    def visitPostIncrementExpr(self, ctx:QLangParser.PostIncrementExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#MinusEqExpr.
+    def visitMinusEqExpr(self, ctx:QLangParser.MinusEqExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#PreIncrementExpr.
+    def visitPreIncrementExpr(self, ctx:QLangParser.PreIncrementExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#DivEqExpr.
+    def visitDivEqExpr(self, ctx:QLangParser.DivEqExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#PlusExpr.
+    def visitPlusExpr(self, ctx:QLangParser.PlusExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#PostDecrementExpr.
+    def visitPostDecrementExpr(self, ctx:QLangParser.PostDecrementExprContext):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by QLangParser#NumExpr.
     def visitNumExpr(self, ctx:QLangParser.NumExprContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#MulDivModExpr.
-    def visitMulDivModExpr(self, ctx:QLangParser.MulDivModExprContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#EqExpr.
-    def visitEqExpr(self, ctx:QLangParser.EqExprContext):
         return self.visitChildren(ctx)
 
 
@@ -299,8 +324,68 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#PlusEqExpr.
+    def visitPlusEqExpr(self, ctx:QLangParser.PlusEqExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#MinusExpr.
+    def visitMinusExpr(self, ctx:QLangParser.MinusExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#FuncCallExpr.
+    def visitFuncCallExpr(self, ctx:QLangParser.FuncCallExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#RelExpr.
+    def visitRelExpr(self, ctx:QLangParser.RelExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#PreDecrementExpr.
+    def visitPreDecrementExpr(self, ctx:QLangParser.PreDecrementExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#OrExpr.
+    def visitOrExpr(self, ctx:QLangParser.OrExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#AndEqExpr.
+    def visitAndEqExpr(self, ctx:QLangParser.AndEqExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#MulEqExpr.
+    def visitMulEqExpr(self, ctx:QLangParser.MulEqExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#MulDivModExpr.
+    def visitMulDivModExpr(self, ctx:QLangParser.MulDivModExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#EqExpr.
+    def visitEqExpr(self, ctx:QLangParser.EqExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#PowEqExpr.
+    def visitPowEqExpr(self, ctx:QLangParser.PowEqExprContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#ParenExpr.
     def visitParenExpr(self, ctx:QLangParser.ParenExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#ModEqExpr.
+    def visitModEqExpr(self, ctx:QLangParser.ModEqExprContext):
         return self.visitChildren(ctx)
 
 
@@ -309,8 +394,8 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#FuncCallExpr.
-    def visitFuncCallExpr(self, ctx:QLangParser.FuncCallExprContext):
+    # Visit a parse tree produced by QLangParser#OrEqExpr.
+    def visitOrEqExpr(self, ctx:QLangParser.OrEqExprContext):
         return self.visitChildren(ctx)
 
 

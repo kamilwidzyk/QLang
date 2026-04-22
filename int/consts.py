@@ -39,3 +39,4 @@ BoolExprCtx = QLangParser.BoolExprContext
 ParenExprCtx = QLangParser.ParenExprContext
 ConstraintCtx = QLangParser.ConstraintContext
 AssigmentStmtCtx = QLangParser.AssignStmtContext
+MinusExprCtx = QLangParser.MinusExprContext

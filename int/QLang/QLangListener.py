@@ -233,12 +233,39 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#exprStatement.
+    def enterExprStatement(self, ctx:QLangParser.ExprStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#exprStatement.
+    def exitExprStatement(self, ctx:QLangParser.ExprStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#equationStatement.
+    def enterEquationStatement(self, ctx:QLangParser.EquationStatementContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#equationStatement.
+    def exitEquationStatement(self, ctx:QLangParser.EquationStatementContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#semicolonStatement.
     def enterSemicolonStatement(self, ctx:QLangParser.SemicolonStatementContext):
         pass
 
     # Exit a parse tree produced by QLangParser#semicolonStatement.
     def exitSemicolonStatement(self, ctx:QLangParser.SemicolonStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#equation.
+    def enterEquation(self, ctx:QLangParser.EquationContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#equation.
+    def exitEquation(self, ctx:QLangParser.EquationContext):
         pass
 
 
@@ -449,15 +476,6 @@ class QLangListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#RelExpr.
-    def enterRelExpr(self, ctx:QLangParser.RelExprContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#RelExpr.
-    def exitRelExpr(self, ctx:QLangParser.RelExprContext):
-        pass
-
-
     # Enter a parse tree produced by QLangParser#PowExpr.
     def enterPowExpr(self, ctx:QLangParser.PowExprContext):
         pass
@@ -467,12 +485,57 @@ class QLangListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#OrExpr.
-    def enterOrExpr(self, ctx:QLangParser.OrExprContext):
+    # Enter a parse tree produced by QLangParser#PostIncrementExpr.
+    def enterPostIncrementExpr(self, ctx:QLangParser.PostIncrementExprContext):
         pass
 
-    # Exit a parse tree produced by QLangParser#OrExpr.
-    def exitOrExpr(self, ctx:QLangParser.OrExprContext):
+    # Exit a parse tree produced by QLangParser#PostIncrementExpr.
+    def exitPostIncrementExpr(self, ctx:QLangParser.PostIncrementExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#MinusEqExpr.
+    def enterMinusEqExpr(self, ctx:QLangParser.MinusEqExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#MinusEqExpr.
+    def exitMinusEqExpr(self, ctx:QLangParser.MinusEqExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#PreIncrementExpr.
+    def enterPreIncrementExpr(self, ctx:QLangParser.PreIncrementExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#PreIncrementExpr.
+    def exitPreIncrementExpr(self, ctx:QLangParser.PreIncrementExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#DivEqExpr.
+    def enterDivEqExpr(self, ctx:QLangParser.DivEqExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#DivEqExpr.
+    def exitDivEqExpr(self, ctx:QLangParser.DivEqExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#PlusExpr.
+    def enterPlusExpr(self, ctx:QLangParser.PlusExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#PlusExpr.
+    def exitPlusExpr(self, ctx:QLangParser.PlusExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#PostDecrementExpr.
+    def enterPostDecrementExpr(self, ctx:QLangParser.PostDecrementExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#PostDecrementExpr.
+    def exitPostDecrementExpr(self, ctx:QLangParser.PostDecrementExprContext):
         pass
 
 
@@ -482,24 +545,6 @@ class QLangListener(ParseTreeListener):
 
     # Exit a parse tree produced by QLangParser#NumExpr.
     def exitNumExpr(self, ctx:QLangParser.NumExprContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#MulDivModExpr.
-    def enterMulDivModExpr(self, ctx:QLangParser.MulDivModExprContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#MulDivModExpr.
-    def exitMulDivModExpr(self, ctx:QLangParser.MulDivModExprContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#EqExpr.
-    def enterEqExpr(self, ctx:QLangParser.EqExprContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#EqExpr.
-    def exitEqExpr(self, ctx:QLangParser.EqExprContext):
         pass
 
 
@@ -530,12 +575,120 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#PlusEqExpr.
+    def enterPlusEqExpr(self, ctx:QLangParser.PlusEqExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#PlusEqExpr.
+    def exitPlusEqExpr(self, ctx:QLangParser.PlusEqExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#MinusExpr.
+    def enterMinusExpr(self, ctx:QLangParser.MinusExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#MinusExpr.
+    def exitMinusExpr(self, ctx:QLangParser.MinusExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#FuncCallExpr.
+    def enterFuncCallExpr(self, ctx:QLangParser.FuncCallExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#FuncCallExpr.
+    def exitFuncCallExpr(self, ctx:QLangParser.FuncCallExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#RelExpr.
+    def enterRelExpr(self, ctx:QLangParser.RelExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#RelExpr.
+    def exitRelExpr(self, ctx:QLangParser.RelExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#PreDecrementExpr.
+    def enterPreDecrementExpr(self, ctx:QLangParser.PreDecrementExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#PreDecrementExpr.
+    def exitPreDecrementExpr(self, ctx:QLangParser.PreDecrementExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#OrExpr.
+    def enterOrExpr(self, ctx:QLangParser.OrExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#OrExpr.
+    def exitOrExpr(self, ctx:QLangParser.OrExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#AndEqExpr.
+    def enterAndEqExpr(self, ctx:QLangParser.AndEqExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#AndEqExpr.
+    def exitAndEqExpr(self, ctx:QLangParser.AndEqExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#MulEqExpr.
+    def enterMulEqExpr(self, ctx:QLangParser.MulEqExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#MulEqExpr.
+    def exitMulEqExpr(self, ctx:QLangParser.MulEqExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#MulDivModExpr.
+    def enterMulDivModExpr(self, ctx:QLangParser.MulDivModExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#MulDivModExpr.
+    def exitMulDivModExpr(self, ctx:QLangParser.MulDivModExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#EqExpr.
+    def enterEqExpr(self, ctx:QLangParser.EqExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#EqExpr.
+    def exitEqExpr(self, ctx:QLangParser.EqExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#PowEqExpr.
+    def enterPowEqExpr(self, ctx:QLangParser.PowEqExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#PowEqExpr.
+    def exitPowEqExpr(self, ctx:QLangParser.PowEqExprContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#ParenExpr.
     def enterParenExpr(self, ctx:QLangParser.ParenExprContext):
         pass
 
     # Exit a parse tree produced by QLangParser#ParenExpr.
     def exitParenExpr(self, ctx:QLangParser.ParenExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#ModEqExpr.
+    def enterModEqExpr(self, ctx:QLangParser.ModEqExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#ModEqExpr.
+    def exitModEqExpr(self, ctx:QLangParser.ModEqExprContext):
         pass
 
 
@@ -548,12 +701,12 @@ class QLangListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#FuncCallExpr.
-    def enterFuncCallExpr(self, ctx:QLangParser.FuncCallExprContext):
+    # Enter a parse tree produced by QLangParser#OrEqExpr.
+    def enterOrEqExpr(self, ctx:QLangParser.OrEqExprContext):
         pass
 
-    # Exit a parse tree produced by QLangParser#FuncCallExpr.
-    def exitFuncCallExpr(self, ctx:QLangParser.FuncCallExprContext):
+    # Exit a parse tree produced by QLangParser#OrEqExpr.
+    def exitOrEqExpr(self, ctx:QLangParser.OrEqExprContext):
         pass
 
 

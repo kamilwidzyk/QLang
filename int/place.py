@@ -52,6 +52,7 @@ from .context.terminal               import handle_terminal
 from .context.constraint             import handle_constraint
 from .context.assigment              import handle_assigment
 from .context.num_declaration        import handle_num_declaration
+from .context.minus_op               import handle_minus
 
 class Place:
     """
@@ -164,6 +165,7 @@ class Place:
             ConstraintCtx:          handle_constraint,
             AssigmentStmtCtx:       handle_assigment,
             QLangParser.NumDeclContext: handle_num_declaration,
+            MinusExprCtx:           handle_minus,
         }
         pos = ScriptErrors.Position.extract(block)
 
