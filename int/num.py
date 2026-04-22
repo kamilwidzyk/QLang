@@ -5,6 +5,7 @@ class NumVar:
     Represents a variable that can hold an integer value. It is used to store the value of variables in the program. It is not limited to a specific number of bits, but it can be used to represent any integer value.
     """
     type: str = "Num"
+    name: str = None
     def __init__(self,initial_value: float = 0.0):
         self.value = float(initial_value)
 
@@ -23,6 +24,7 @@ class NumArray:
         Represents an array of classical numerical variables.
         """
     type: str = "NumArray"
+    name: str = None
 
     def __init__(self, size: int):
         self.size = size

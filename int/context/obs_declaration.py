@@ -68,6 +68,7 @@ def handle_obs_declaration(self: Place, block: Any, parent: Any, pos: ScriptErro
         
         # Create variable instance
         obs = ObsRegister(obs_size)
+        obs.name = obs_name
 
         # Set value of specified
         if obs_value is not None: 
@@ -106,6 +107,7 @@ def handle_obs_declaration(self: Place, block: Any, parent: Any, pos: ScriptErro
             obs.set(obs_value) # set value
     else: # one bit obs
         obs = Obs()
+        obs.name = obs_name
         # Check if the value is 0 or 1
         if obs_value != 0 and obs_value != 1:
             parent_pos = ScriptErrors.Position.extract(parent) if parent else pos

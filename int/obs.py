@@ -14,6 +14,7 @@ class ObsRegister:
     obs: List[Obs]
     size: int
     type: str = "ObsRegister"
+    name: str = None
 
     def __init__(self, size: int):
         """
@@ -82,6 +83,7 @@ class Obs:
     """
     state: int = 0 
     type: str = "Obs"
+    name: str = None
 
     def set(self, new_value: int | bool):
         """

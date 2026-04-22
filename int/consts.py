@@ -30,7 +30,6 @@ FormatCtx = QLangParser.FormatContext
 IfStmtCtx = QLangParser.IfStmtContext
 RelExprContext = QLangParser.RelExprContext
 AddSubExprContext = QLangParser.AddSubExprContext
-NotExprContext = QLangParser.NotExprContext
 MulDivModExprCtx = QLangParser.MulDivModExprContext
 EqExprCtx = QLangParser.EqExprContext
 AndExprCtx = QLangParser.AndExprContext
@@ -39,4 +38,22 @@ BoolExprCtx = QLangParser.BoolExprContext
 ParenExprCtx = QLangParser.ParenExprContext
 ConstraintCtx = QLangParser.ConstraintContext
 AssigmentStmtCtx = QLangParser.AssignStmtContext
+
+
+#################### Operators ####################
+
+# Not 
+NotExprContext = QLangParser.NotExprContext
+
+# Minus
 MinusExprCtx = QLangParser.MinusExprContext
+
+# Plus
+PlusExprCtx = QLangParser.PlusExprContext
+
+# Pre-post increment and decrement
+PreIncrementCtx = QLangParser.PreIncrementExprContext
+PostIncrementCtx = QLangParser.PostIncrementExprContext
+PreDecrementCtx = QLangParser.PreDecrementExprContext
+PostDecrementCtx = QLangParser.PostDecrementExprContext
+

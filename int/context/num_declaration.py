@@ -50,11 +50,13 @@ def handle_num_declaration(self: 'Place', block: Any, parent: Any, pos: ScriptEr
             exit()
 
         array_var = NumArray(int(array_size))
+        array_var.name = var_name
         self.scopes.create(var_name, array_var)
 
     else:
         try:
             num_var = NumVar(initial_val)
+            num_var.name = var_name
             self.scopes.create(var_name, num_var)
         except (ValueError, TypeError):
             self.script_errors.showError(

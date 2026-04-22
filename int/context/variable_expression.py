@@ -6,7 +6,7 @@ from ..consts import *
 if TYPE_CHECKING:
     from place import Place
 
-def handle_variable_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+def handle_variable_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position, return_variable=False):
     # ID ('[' expr ']')? 
 
     var_name = block.ID().getText()
@@ -27,6 +27,9 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
     # Get the variable
     variable = self.scopes.get(var_name)
+
+    if return_variable:
+        return variable
 
     if type(variable) == int:
         return variable

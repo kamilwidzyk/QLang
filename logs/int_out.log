@@ -1,25 +1,23 @@
      >----- Interpreter starting -----<     
 [INIT ](W) Running in TEST MODE!
-[--- TEST ---](D) SYS_ARGV=['C:\\Users\\widzy\\Desktop\\Kompilatory git\\Kompilatory 3\\Kompilatory\\int\\run.py', 'tests\\operators\\not\\not.ql', 'TEST_MODE']
-[--- TEST ---](D) INPUT_TEXT=// !x =
-// x != 0 -> 0
-// x = 0  -> 1
-// not is the same as 'x == 0'
+[--- TEST ---](D) SYS_ARGV=['C:\\Users\\widzy\\Desktop\\Kompilatory git\\Kompilatory 3\\Kompilatory\\int\\run.py', 'tests\\operators\\pre_post_increment_decrement\\pre_increment.ql', 'TEST_MODE']
+[--- TEST ---](D) INPUT_TEXT=// pre increment: ++expr
+// increment, then return value
 
-print("!0 = ");
-println(!0); // 1
 
-print("!1 = ");
-println(!1); // 0
+println(++1); // 2
+println(++0); // 1
+println(++(-1)); // 0
 
-print("!2 = ");
-println(!2); // 0
+num x = 2;
+println(x); // 2
+println(++x); // 3, x is now 3
+println(x); // 3
+println(++x); // 4, x is now 4
+println(x); // 4
 
-print("!-1 = ");
-println(!-1); // 0
+// expected output: 2\n1\n0\n2\n3\n3\n4\n4\n
 
-print("!(-1) = ");
-println(!(-1)); // 0
 
 
 Parsing started
@@ -29,7 +27,7 @@ No errors found
 [PLACE](I) Dividing into places...OK
 [PLACE](D) Got places: global
 [--- TEST ---](D) PLACE_NAME=global
-[--- TEST ---](D) PLACE_CODE=['print("!0 = ");', 'println(!0);', 'print("!1 = ");', 'println(!1);', 'print("!2 = ");', 'println(!2);', 'print("!-1 = ");', 'println(!-1);', 'print("!(-1) = ");', 'println(!(-1));']
+[--- TEST ---](D) PLACE_CODE=['println(++1);', 'println(++0);', 'println(++(-1));', 'num x = 2;', 'println(x);', 'println(++x);', 'println(x);', 'println(++x);', 'println(x);']
 [--- TEST ---](D) PLACE_END
 [PLACE](I) Place global started
 [PLACE](S) All places running

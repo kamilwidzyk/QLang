@@ -53,6 +53,9 @@ from .context.constraint             import handle_constraint
 from .context.assigment              import handle_assigment
 from .context.num_declaration        import handle_num_declaration
 from .context.minus_op               import handle_minus
+from .context.pre_post               import handle_pre_decrement, handle_post_decrement
+from .context.pre_post               import handle_pre_increment, handle_post_increment
+from .context.plus_op                import handle_plus
 
 class Place:
     """
@@ -155,7 +158,7 @@ class Place:
             IfStmtCtx:              handle_if,
             RelExprContext:         handle_rel_comp,
             AddSubExprContext:      handle_add_sub,
-            NotExprContext:         handle_not,
+            
             MulDivModExprCtx:       handle_mul_div_mod,
             EqExprCtx:              handle_eq_comp,
             AndExprCtx:             handle_and,
@@ -165,7 +168,22 @@ class Place:
             ConstraintCtx:          handle_constraint,
             AssigmentStmtCtx:       handle_assigment,
             QLangParser.NumDeclContext: handle_num_declaration,
+            
+            #################### Operators ####################
+            # Not
+            NotExprContext:         handle_not,
+            # Minus
             MinusExprCtx:           handle_minus,
+            # Plus
+            PlusExprCtx:            handle_plus,    
+            # Pre-post increment and decrement
+            PreDecrementCtx:        handle_pre_decrement,
+            PostDecrementCtx:       handle_post_decrement,
+            PreIncrementCtx:        handle_pre_increment,
+            PostIncrementCtx:       handle_post_increment
+
+
+
         }
         pos = ScriptErrors.Position.extract(block)
 
