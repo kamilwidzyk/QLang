@@ -56,6 +56,13 @@ from .context.minus_op               import handle_minus
 from .context.pre_post               import handle_pre_decrement, handle_post_decrement
 from .context.pre_post               import handle_pre_increment, handle_post_increment
 from .context.plus_op                import handle_plus
+from .context.assignment_expr        import handle_assignment_expr
+from .context.plus_eq_op             import handle_plus_eq_op
+from .context.minus_eq_op            import handle_minus_eq_op
+from .context.mul_eq_op              import handle_mul_eq_op
+from .context.div_eq_expr            import handle_div_eq_op
+from .context.mod_eq_op            import handle_mod_eq_op
+from .context.pow_eq_op            import handle_pow_eq_op
 
 class Place:
     """
@@ -180,7 +187,21 @@ class Place:
             PreDecrementCtx:        handle_pre_decrement,
             PostDecrementCtx:       handle_post_decrement,
             PreIncrementCtx:        handle_pre_increment,
-            PostIncrementCtx:       handle_post_increment
+            PostIncrementCtx:       handle_post_increment,
+            # Assignment expr
+            AssignExprCtx:          handle_assignment_expr,
+            # Plus equal
+            PlusEqExprCtx:          handle_plus_eq_op,
+            # Minus equal
+            MinusEqExprCtx:         handle_minus_eq_op,
+            # Mul equal
+            MulEqExprCtx:           handle_mul_eq_op,
+            # Div equal
+            DivEqExprCtx:           handle_div_eq_op,
+            # Mod equal
+            ModEqExprCtx:           handle_mod_eq_op,
+            # Pow equal
+            PowEqExprCtx:           handle_pow_eq_op,
 
 
 

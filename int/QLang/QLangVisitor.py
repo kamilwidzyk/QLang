@@ -349,6 +349,11 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#AssignmentExpr.
+    def visitAssignmentExpr(self, ctx:QLangParser.AssignmentExprContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#OrExpr.
     def visitOrExpr(self, ctx:QLangParser.OrExprContext):
         return self.visitChildren(ctx)

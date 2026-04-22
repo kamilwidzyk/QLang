@@ -1,25 +1,25 @@
      >----- Interpreter starting -----<     
 [INIT ](W) Running in TEST MODE!
-[--- TEST ---](D) SYS_ARGV=['C:\\Users\\widzy\\Desktop\\Kompilatory git\\Kompilatory 3\\Kompilatory\\int\\run.py', 'tests\\operators\\pre_post_increment_decrement\\pre_increment.ql', 'TEST_MODE']
-[--- TEST ---](D) INPUT_TEXT=// pre increment: ++expr
-// increment, then return value
+[--- TEST ---](D) SYS_ARGV=['C:\\Users\\widzy\\Desktop\\Kompilatory git\\Kompilatory 3\\Kompilatory\\int\\run.py', 'tests\\operators\\something_equal\\pow_eq.ql', 'TEST_MODE']
+[--- TEST ---](D) INPUT_TEXT=// pow equal operator: expr **= expr
+// left is variable -> assign variable ** right, return variable ** right
+// left is not variable -> return left ** right, no assignment
 
+// left is variable
+num x = 10;
+println(x); // 10
+println(x **= 2); // 100
+println(x); // 100
 
-println(++1); // 2
-println(++0); // 1
-println(++(-1)); // 0
+x = 10;
+println(x); // 10
+x **= 2;
+println(x); // 100
 
-num x = 2;
-println(x); // 2
-println(++x); // 3, x is now 3
-println(x); // 3
-println(++x); // 4, x is now 4
-println(x); // 4
+// left is not variable
+println(10 **= 2); // 100
 
-// expected output: 2\n1\n0\n2\n3\n3\n4\n4\n
-
-
-
+// expected output: 10\n100\n100\n10\n100\n100\n
 Parsing started
 [--- TEST ---](D) SYNTAX_ERRORS=0
 No errors found
@@ -27,7 +27,7 @@ No errors found
 [PLACE](I) Dividing into places...OK
 [PLACE](D) Got places: global
 [--- TEST ---](D) PLACE_NAME=global
-[--- TEST ---](D) PLACE_CODE=['println(++1);', 'println(++0);', 'println(++(-1));', 'num x = 2;', 'println(x);', 'println(++x);', 'println(x);', 'println(++x);', 'println(x);']
+[--- TEST ---](D) PLACE_CODE=['num x = 10;', 'println(x);', 'println(x **= 2);', 'println(x);', 'x = 10;', 'println(x);', 'x **= 2;', 'println(x);', 'println(10 **= 2);']
 [--- TEST ---](D) PLACE_END
 [PLACE](I) Place global started
 [PLACE](S) All places running

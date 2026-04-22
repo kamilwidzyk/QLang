@@ -620,6 +620,15 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#AssignmentExpr.
+    def enterAssignmentExpr(self, ctx:QLangParser.AssignmentExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#AssignmentExpr.
+    def exitAssignmentExpr(self, ctx:QLangParser.AssignmentExprContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#OrExpr.
     def enterOrExpr(self, ctx:QLangParser.OrExprContext):
         pass

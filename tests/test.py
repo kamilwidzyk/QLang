@@ -12,6 +12,23 @@ def path_from_root(rel_path: str) -> str:
     parent_dir = os.path.dirname(current_dir)
     return os.path.join(parent_dir, rel_path)
 
+def prepare_test_run():
+    """ Runs preparation for running in test mode"""
+
+    bat_file = "prepare_test.bat"
+
+    bat_path = path_from_root(bat_file)
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+
+    # Run it as if executed from its own directory
+    subprocess.run(
+        [bat_path],
+        cwd=parent_dir,
+        shell=True
+    )
+
 def run_in_test_mode(ql_path: str):
     """ Runs the interpreter in test mode with a given .ql file, logs are in logs dir"""
 
@@ -112,6 +129,7 @@ def run_tests_in_directory(root_dir):
 
 if __name__ == "__main__":
     # Default: run all tests
+    prepare_test_run()
     subdir = "tests"
 
     # If argument provided → run only that subdirectory
@@ -127,6 +145,6 @@ if __name__ == "__main__":
     total_count = len(failed_passed)
 
     for key, value in failed_passed.items():
-        print(f"  {key}: {f'{colorama.Fore.GREEN}PASSED{colorama.Style.RESET_ALL}' if value else f'{colorama.Fore.RED}FAILED{colorama.Style.RESET_ALL}'}")
+        print(f"  {f'{colorama.Fore.GREEN}PASSED{colorama.Style.RESET_ALL}' if value else f'{colorama.Fore.RED}FAILED{colorama.Style.RESET_ALL}'} | {key}")
 
     print(f"\n{colorama.Fore.WHITE}{colorama.Style.BRIGHT}Summary: {passed_count}/{total_count} tests passed.\n{colorama.Style.RESET_ALL}")

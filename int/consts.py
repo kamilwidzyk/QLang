@@ -57,3 +57,25 @@ PostIncrementCtx = QLangParser.PostIncrementExprContext
 PreDecrementCtx = QLangParser.PreDecrementExprContext
 PostDecrementCtx = QLangParser.PostDecrementExprContext
 
+# Assignment expr
+AssignExprCtx = QLangParser.AssignmentExprContext
+
+# Plus equal
+PlusEqExprCtx = QLangParser.PlusEqExprContext
+
+# Minus equal
+MinusEqExprCtx = QLangParser.MinusEqExprContext
+
+# Mul equal
+MulEqExprCtx = QLangParser.MulEqExprContext
+
+# Div equal
+DivEqExprCtx = QLangParser.DivEqExprContext
+
+# Mod equal
+ModEqExprCtx = QLangParser.ModEqExprContext
+
+# Pow equal
+PowEqExprCtx = QLangParser.PowEqExprContext
+
+

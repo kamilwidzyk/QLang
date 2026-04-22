@@ -144,6 +144,7 @@ expr
     | '--' expr                          # PreDecrementExpr
     | expr '++'                          # PostIncrementExpr
     | expr '--'                          # PostDecrementExpr
+    | expr '=' expr                      # AssignmentExpr
     | expr '+=' expr                     # PlusEqExpr
     | expr '-=' expr                     # MinusEqExpr
     | expr '*=' expr                     # MulEqExpr
