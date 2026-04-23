@@ -64,8 +64,10 @@ from .context.plus_eq_op             import handle_plus_eq_op
 from .context.minus_eq_op            import handle_minus_eq_op
 from .context.mul_eq_op              import handle_mul_eq_op
 from .context.div_eq_expr            import handle_div_eq_op
-from .context.mod_eq_op            import handle_mod_eq_op
-from .context.pow_eq_op            import handle_pow_eq_op
+from .context.mod_eq_op              import handle_mod_eq_op
+from .context.pow_eq_op              import handle_pow_eq_op
+from .context.and_eq_op              import handle_and_eq_op
+from .context.or_eq_op               import handle_or_eq_op
 
 class Place:
     """
@@ -205,6 +207,10 @@ class Place:
             ModEqExprCtx:           handle_mod_eq_op,
             # Pow equal
             PowEqExprCtx:           handle_pow_eq_op,
+            # And equal
+            AndEqExprCtx:           handle_and_eq_op,
+            # Or equal
+            OrEqExprCtx:            handle_or_eq_op
 
 
 

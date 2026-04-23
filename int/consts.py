@@ -80,4 +80,10 @@ ModEqExprCtx = QLangParser.ModEqExprContext
 # Pow equal
 PowEqExprCtx = QLangParser.PowEqExprContext
 
+# And equal
+AndEqExprCtx = QLangParser.AndEqExprContext
+
+# Or equal
+OrEqExprCtx = QLangParser.OrEqExprContext
+
 

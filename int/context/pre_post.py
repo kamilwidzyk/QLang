@@ -7,6 +7,11 @@ from ..QLang.QLangParser import QLangParser
 
 from ..exception.assignment_to_expression import AssignmentToExpressionException
 
+from ..operations.variables import do_variable_pre_decrement
+from ..operations.variables import do_variable_post_decrement
+from ..operations.variables import do_variable_pre_increment
+from ..operations.variables import do_variable_post_increment
+
 if TYPE_CHECKING:
     from place import Place
 
@@ -23,12 +28,8 @@ def handle_pre_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    var_name = variable.name
-    var_value = variable.get()
-    var_value -= 1
-    variable.set(var_value)
-    self.scopes.set(var_name, variable)
-    return var_value
+    return do_variable_pre_decrement(self, variable)
+
 
 def handle_post_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr '--'
@@ -39,11 +40,8 @@ def handle_post_decrement(self: Place, block: Any, parent: Any, pos: ScriptError
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    var_name = variable.name
-    orig_value = variable.get()
-    variable.set(orig_value - 1)
-    self.scopes.set(var_name, variable)
-    return orig_value
+    return do_variable_post_decrement(self, variable)
+    
 
 def handle_pre_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # '++' expr
@@ -54,12 +52,8 @@ def handle_pre_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    var_name = variable.name
-    var_value = variable.get()
-    var_value += 1
-    variable.set(var_value)
-    self.scopes.set(var_name, variable)
-    return var_value
+    return do_variable_pre_increment(self, variable)
+    
 
 def handle_post_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr '++'
@@ -70,8 +64,6 @@ def handle_post_increment(self: Place, block: Any, parent: Any, pos: ScriptError
     
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    var_name = variable.name
-    orig_value = variable.get()
-    variable.set(orig_value + 1)
-    self.scopes.set(var_name, variable)
-    return orig_value
+    return do_variable_post_increment(self, variable)
+
+    
