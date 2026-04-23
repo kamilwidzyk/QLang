@@ -5,6 +5,8 @@ from ..consts import *
 from .variable_expression import handle_variable_expression
 from ..QLang.QLangParser import QLangParser
 
+from ..exception.assignment_to_expression import AssignmentToExpressionException
+
 if TYPE_CHECKING:
     from place import Place
 
@@ -16,80 +18,60 @@ def handle_pre_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors
     # '--' expr
     expression = block.expr()
 
-    variable = None
-    value = None
-    if is_variable(expression):
-        variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
-    else:
-        value = self.handle_block(expression, block)
+    if not is_variable(expression):
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression))
 
-    if variable is not None:
-        var_name = variable.name
-        var_value = variable.get()
-        var_value -= 1
-        variable.set(var_value)
-        self.scopes.set(var_name, variable)
-        return var_value
-    else:
-        return value - 1
+    variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
+
+    var_name = variable.name
+    var_value = variable.get()
+    var_value -= 1
+    variable.set(var_value)
+    self.scopes.set(var_name, variable)
+    return var_value
 
 def handle_post_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr '--'
     expression = block.expr()
 
-    variable = None
-    value = None
-    if is_variable(expression):
-        variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
-    else:
-        value = self.handle_block(expression, block)
+    if not is_variable(expression):
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression))
 
-    if variable is not None:
-        var_name = variable.name
-        orig_value = variable.get()
-        variable.set(orig_value - 1)
-        self.scopes.set(var_name, variable)
-        return orig_value
-    else:
-        return value
+    variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
+
+    var_name = variable.name
+    orig_value = variable.get()
+    variable.set(orig_value - 1)
+    self.scopes.set(var_name, variable)
+    return orig_value
 
 def handle_pre_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # '++' expr
     expression = block.expr()
 
-    variable = None
-    value = None
-    if is_variable(expression):
-        variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
-    else:
-        value = self.handle_block(expression, block)
+    if not is_variable(expression):
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression))
 
-    if variable is not None:
-        var_name = variable.name
-        var_value = variable.get()
-        var_value += 1
-        variable.set(var_value)
-        self.scopes.set(var_name, variable)
-        return var_value
-    else:
-        return value + 1
+    variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
+
+    var_name = variable.name
+    var_value = variable.get()
+    var_value += 1
+    variable.set(var_value)
+    self.scopes.set(var_name, variable)
+    return var_value
 
 def handle_post_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr '++'
     expression = block.expr()
 
-    variable = None
-    value = None
-    if is_variable(expression):
-        variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
-    else:
-        value = self.handle_block(expression, block)
+    if not is_variable(expression):
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression))
+    
+    variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    if variable is not None:
-        var_name = variable.name
-        orig_value = variable.get()
-        variable.set(orig_value + 1)
-        self.scopes.set(var_name, variable)
-        return orig_value
-    else:
-        return value
+    var_name = variable.name
+    orig_value = variable.get()
+    variable.set(orig_value + 1)
+    self.scopes.set(var_name, variable)
+    return orig_value

@@ -16,7 +16,7 @@ def test_operator_post_decrement() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "1\n0\n-1\n2\n2\n1\n1\n0\n"
+    expected_output = "2\n2\n1\n1\n0\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
@@ -39,7 +39,7 @@ def test_operator_post_increment() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "1\n0\n-1\n2\n2\n3\n3\n4\n"
+    expected_output = "2\n2\n3\n3\n4\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
@@ -63,7 +63,7 @@ def test_operator_pre_increment() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "2\n1\n0\n2\n3\n3\n4\n4\n"
+    expected_output = "2\n3\n3\n4\n4\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
@@ -86,7 +86,7 @@ def test_operator_pre_decrement() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "0\n-1\n-2\n2\n1\n1\n0\n0\n"
+    expected_output = "2\n1\n1\n0\n0\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))

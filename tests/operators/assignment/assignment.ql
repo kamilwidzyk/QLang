@@ -8,7 +8,6 @@ println(x); // 10
 println(x = 15); // 15
 println(x); // 15
 
-// left is not variable
-println(10 = 15); // 15
+10 = 15;
 
-// expected output: 10\n15\n15\n15\n
+// expected output: 10\n15\n15\n

@@ -3,7 +3,6 @@
 [--- TEST ---](D) SYS_ARGV=['C:\\Users\\widzy\\Desktop\\Kompilatory git\\Kompilatory 3\\Kompilatory\\int\\run.py', 'tests\\operators\\something_equal\\pow_eq.ql', 'TEST_MODE']
 [--- TEST ---](D) INPUT_TEXT=// pow equal operator: expr **= expr
 // left is variable -> assign variable ** right, return variable ** right
-// left is not variable -> return left ** right, no assignment
 
 // left is variable
 num x = 10;
@@ -16,10 +15,7 @@ println(x); // 10
 x **= 2;
 println(x); // 100
 
-// left is not variable
-println(10 **= 2); // 100
-
-// expected output: 10\n100\n100\n10\n100\n100\n
+// expected output: 10\n100\n100\n10\n100\n
 Parsing started
 [--- TEST ---](D) SYNTAX_ERRORS=0
 No errors found
@@ -27,7 +23,7 @@ No errors found
 [PLACE](I) Dividing into places...OK
 [PLACE](D) Got places: global
 [--- TEST ---](D) PLACE_NAME=global
-[--- TEST ---](D) PLACE_CODE=['num x = 10;', 'println(x);', 'println(x **= 2);', 'println(x);', 'x = 10;', 'println(x);', 'x **= 2;', 'println(x);', 'println(10 **= 2);']
+[--- TEST ---](D) PLACE_CODE=['num x = 10;', 'println(x);', 'println(x **= 2);', 'println(x);', 'x = 10;', 'println(x);', 'x **= 2;', 'println(x);']
 [--- TEST ---](D) PLACE_END
 [PLACE](I) Place global started
 [PLACE](S) All places running

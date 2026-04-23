@@ -16,7 +16,7 @@ def test_operator_assignment() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "10\n15\n15\n15\n"
+    expected_output = "10\n15\n15\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))

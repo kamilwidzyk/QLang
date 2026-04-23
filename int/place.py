@@ -18,7 +18,10 @@ from antlr4.tree.Tree import TerminalNode
 from .QLang.QLangLexer import QLangLexer
 from .QLang.QLangParser import QLangParser
 
-
+######################## EXCEPTIONS #############################
+from .exception.assignment_to_expression import AssignmentToExpressionException
+from .exception.divide_by_zero import DivideByZeroException
+from .exception.modulo_over_zero import ModuloOverZeroException
 
 ######################## CONTEXT HANDLERS #############################
 from .context.statement              import handle_statement
@@ -209,11 +212,21 @@ class Place:
         pos = ScriptErrors.Position.extract(block)
 
         # scan handlers for given block instance
-        for type in HANDLERS.keys():
-            if isinstance(block, type):
-                # Handler found, send the block to it
-                handle_args = (self, block, parent, pos)
-                return HANDLERS[type](*handle_args)
+        try:
+            for type in HANDLERS.keys():
+                if isinstance(block, type):
+                    # Handler found, send the block to it
+                    handle_args = (self, block, parent, pos)
+                    return HANDLERS[type](*handle_args)
+        except AssignmentToExpressionException as e:
+            e.show(self.script_errors)
+            exit()
+        except DivideByZeroException as e:
+            e.show(self.script_errors)
+            exit()
+        except ModuloOverZeroException as e:
+            e.show(self.script_errors)
+            exit()
 
         # Handler not found show error and exit
         log(PLACE, FATAL, "Handler for block not found, type: " + block.__class__.__name__)
@@ -224,6 +237,7 @@ class Place:
         Place execution entry point
         """
         sys.setrecursionlimit(4_000_000)
+        sys.stdout.reconfigure(encoding='utf-8')
 
         # Open console with title that includes place's name
         self.console = Console("Place: " + self.name)

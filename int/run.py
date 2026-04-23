@@ -60,6 +60,7 @@ TEST_MODE = False
 
 def main():
     global TEST_MODE
+    sys.stdout.reconfigure(encoding='utf-8')
     # Start terminal logger
     log_level(DEBUG)
     init_log()

@@ -16,7 +16,7 @@ def test_operator_plus_eq() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "10\n25\n25\n10\n25\n25\n"
+    expected_output = "10\n25\n25\n10\n25\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
@@ -40,7 +40,7 @@ def test_operator_minus_eq() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "10\n-5\n-5\n10\n-5\n-5\n"
+    expected_output = "10\n-5\n-5\n10\n-5\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
@@ -63,7 +63,7 @@ def test_operator_div_eq() -> bool:
     
     print(place_log["global"])
 
-    expected_lines = [10, 5, 5, 10, 5, 5]
+    expected_lines = [10, 5, 5, 10, 5]
 
     passed = True
     for line in place_log["global"].splitlines():
@@ -93,7 +93,7 @@ def test_operator_mul_eq() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "10\n20\n20\n10\n20\n20\n"
+    expected_output = "10\n20\n20\n10\n20\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
@@ -116,7 +116,7 @@ def test_operator_pow_eq() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "10\n100\n100\n10\n100\n100\n"
+    expected_output = "10\n100\n100\n10\n100\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
@@ -139,7 +139,7 @@ def test_operator_mod_eq() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "10\n0\n0\n10\n0\n0\n"
+    expected_output = "10\n0\n0\n10\n0\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
