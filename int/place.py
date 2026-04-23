@@ -22,6 +22,7 @@ from .QLang.QLangParser import QLangParser
 from .exception.assignment_to_expression import AssignmentToExpressionException
 from .exception.divide_by_zero import DivideByZeroException
 from .exception.modulo_over_zero import ModuloOverZeroException
+from .exception.operator_type_mismatch import OperatorTypeMismatchException
 
 ######################## CONTEXT HANDLERS #############################
 from .context.statement              import handle_statement
@@ -231,6 +232,9 @@ class Place:
             e.show(self.script_errors)
             exit()
         except ModuloOverZeroException as e:
+            e.show(self.script_errors)
+            exit()
+        except OperatorTypeMismatchException as e:
             e.show(self.script_errors)
             exit()
 

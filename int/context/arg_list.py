@@ -9,4 +9,7 @@ if TYPE_CHECKING:
 def handle_arg_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # argList: expr (',' expr)*;
     
-    return [self.handle_block(expr, block) for expr in block.expr()]
+    return [
+        self.handle_block(expr, block) 
+        for expr in block.expr()
+    ]

@@ -3,6 +3,10 @@ from typing import Any, TYPE_CHECKING
 from ..script_errors import ScriptErrors
 from ..consts import *
 
+from ..operations.operators import do_operation_add, do_operation_sub
+
+from ..exception.operator_type_mismatch import OperatorTypeMismatchException
+
 if TYPE_CHECKING:
     from place import Place
 
@@ -17,15 +21,18 @@ def handle_add_sub(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posit
 
     try:
         if operation == '+':
-            result = left + right
+            result = do_operation_add(left, right)
         elif operation == '-':
-            result = left - right
+            result = do_operation_sub(left, right)
     except TypeError:
-        self.script_errors.showError(
-            pos=pos, error_type="RUNTIME ERROR", title="Type Error",
-            msg=f"Cannot apply operator '{operation}' to types {type(left).__name__} and {type(right).__name__}."
+        raise OperatorTypeMismatchException(
+            pos=ScriptErrors.Position.extract(block),
+            left_type=type(left).__name__,
+            right_type=type(right).__name__,
+            operator=operation,
+            operator_worded=
+                {'+': "adding", "-": "substracting"}.get(operation)
         )
-        exit()
 
 
     return result

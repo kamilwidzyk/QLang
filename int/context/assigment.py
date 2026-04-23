@@ -3,12 +3,18 @@ from typing import Any, TYPE_CHECKING
 from ..script_errors import ScriptErrors
 from ..consts import *
 
+from ..exception.cant_find_variable import CantFindVariableException
+from ..exception.information_leak import InformationLeakException
+
 if TYPE_CHECKING:
     from place import Place
 
 def handle_assigment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # assignStmt: ID ('[' expr ']')? '=' expr;
     var_name = block.ID().getText()
+
+    if not self.scopes.exists(var_name):
+        raise CantFindVariableException(var_name)
 
     variable = self.scopes.get(var_name)
 
@@ -29,13 +35,12 @@ def handle_assigment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
             variable.set(new_value)
 
     except OverflowError:
-        self.script_errors.showError(
-            pos=pos,
-            error_type="RUNTIME ERROR",
-            title="Spillover",
-            msg=f"Information from '{var_name}' started leaking. {new_value} will not fit in {variable.size} bits."
+        raise InformationLeakException(
+            pos=ScriptErrors.Position.extract(block),
+            var_name=var_name,
+            new_value=new_value,
+            bits=variable.size
         )
-        exit()
     except IndexError:
         self.script_errors.showError(
             pos=pos,
