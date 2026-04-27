@@ -8,71 +8,215 @@ program: topLevelItem* EOF;
 
 /** Elementy najwyższego rzędu */
 topLevelItem
-    : placeDecl
-    | functionDecl
-    | statement
+    : placeDecl         /** Deklaracja Place */
+    | functionDecl      /** Deklaracja funkcji w global Place */
+    | statement         /** Dowolne wyrażenie w global Place */
     ;
 
-/** Miejsce (Place) - może zawierać funkcje i instrukcje */
+/** Deklaracja miejsca - Place */
 placeDecl: PLACE ID '{' placeMember* '}';
 
 placeMember
-    : functionDecl 
-    | statement
+    : functionDecl  /** Deklaracja funkcji w tym place */
+    | statement     /** Dowolne wyrażenie w tym place */
     ;
 
-functionDecl: FUNCTION ID '(' paramList? ')' block;
-
-paramList: param (',' param)*;
-param: (STATE | OBS) ID ('[' NUMBER ']')?;
-
-/** Bloki kodu */
+/** Blok kodu */
 block: '{' statement* '}';
 
+
+
+// -------------------- STAŁE  --------------------
+
+// Stała jest wartością, może być używana jak zmienna ale nie może być modyfikowana
+constDecl: CONST ID '=' expr;
+
+
+// -------------------- UŻYCIE ZMIENNYCH --------------------
+// Zmienne umożliwiają tworzenie tablic o dowolnie wielu wymiarach
+// obs x[5][10] -> 5 wartości po 10 bitów
+// num a[10][10] -> 10 tablic po 10 wartości
+//
+
+// Możliwe typy zmiennych: obs i num
+varType: OBS | NUM;
+
+// Do deklaracji zmiennej z możliwym przypisaniem
+sizeVar: '[' expr ']';               /** Rozmiar mogący zawierać zmienną */
+varAssign: ID sizeVar* ('=' expr)?;  /** Deklaracja zmiennej z możliwym rozmiarem i przypisaniem */
+
+// Do deklaracji zmiennej z brakiem możliwości przypisania (np. w deklaracji stanu kwantowego)
+varNoAssign: ID sizeVar*;            /** Deklaracja zmiennej z możliwym rozmiarem bez przypisania */
+
+// Do parametrów funkcji przy deklaracji
+sizeConst: '[' NUMBER ']';           /** Stały rozmiar */
+varParam: ID sizeConst?;             /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym rozmiarem */
+varParamDefault: ID sizeConst* ('=' expr)?; /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym rozmiarem i przypisaniem wartości domyślnej */
+
+// Do użycia zmiennej w wyrażeniach
+index: '[' expr ']';                 /** Indeks obliczony z dowolnego wyrażenia */
+var: ID index*;                      /** Użycie zmiennej z możliwym indeksem */
+
+sizeGetter: '#' ID;                  /** Pobranie rozmiaru zmiennej/listy argumentów */
+
+// -------------------- INSTRUKCJE --------------------
 statement
-    : stateDecl ';'    # stateDeclaration
-    | obsDecl ';'      # obsDeclaration
-    | numDecl ';'      # numDeclaration
-    | receiveDecl ';'  # receiveDeclaration
-    | sendStmt ';'     # sendStatement
-    | gateStmt ';'     # gateStatement
-    | measureStmt ';'  # measureStatement
-    | assignStmt ';'   # assignmentStatement
+    : stateDecl ';'        # stateDeclaration
+    | constDecl ';'        # constDeclaration
+    | varDecl ';'          # varDeclaration
+    | receiveDecl ';'      # receiveDeclaration
+    | sendStmt ';'         # sendStatement
+    | gateStmt ';'         # gateStatement
+    | measureStmt ';'      # measureStatement
+    | assignStmt ';'       # assignmentStatement
     | functionCallStmt ';' # functionCallStatement
-    | ifStmt           # ifStatement
-    | forStmt          # forStatement
-    | whileStmt        # whileStatement
-    | ioStmt ';'       # ioStatement
-    | BREAK ';'        # breakStatement
-    | CONTINUE ';'     # continueStatement
-    | RETURN expr? ';' # returnStatement
-    | block            # blockStatement
-    | expr ';'         # exprStatement 
-    | equation ';'     # equationStatement
-    | ';'              # semicolonStatement
+    | ifStmt               # ifStatement
+    | forStmt              # forStatement
+    | whileStmt            # whileStatement
+    | ioStmt ';'           # ioStatement
+    | BREAK ';'            # breakStatement
+    | CONTINUE ';'         # continueStatement
+    | RETURN expr? ';'     # returnStatement
+    | block                # blockStatement
+    | expr ';'             # exprStatement 
+    | equation ';'         # equationStatement
+    | ';'                  # semicolonStatement
     ;
 
+// maybe TODO: równania z obliczaniem zmiennej niewiadomej
+// np. 5 + (2 + ?x?) * z === 20
+// do zmiennej 'x' będzie przypisana wartość, która spełnia to równanie
 equation: expr '===' expr;
+varUnknown: '?' var '?';
 
-// --- DEKLARACJE ---
+// -------------------- DEKLARACJE --------------------
 
+// Wielokrotna deklaracja stanu kwantowego lub stanu w superpozycji
 stateDecl
-    : STATE stateDef (',' stateDef)*
-    | STATE ID '=' SUPERPOSED
+: STATE varNoAssign (',' varNoAssign)*  # multipleStateDecl
+| STATE ID '=' SUPERPOSED               # superposedStateDecl
+;
+
+// Deklaracja zmiennej OBS lub NUM, możliwia wielokrotna deklaracja z przypisaniem
+// Przypisanie może być tylko przy niektórych deklaracjach
+varDecl: varType varAssign (',' varAssign)*;
+
+// -------------------- PRZYPISANIE --------------------
+
+assignStmt: var '=' expr;
+
+// -------------------- FUNKCJE --------------------
+
+// Deklaracja funkcji
+functionDecl: FUNCTION ID '(' paramList? ')' block;
+
+// Lista parametrów funkcji
+paramList: param (',' param)* multipleParam?;
+param: varType varParamDefault;
+// Parametr wielokrotny przyjmujący dowolną liczbę argumentów,
+// dostępnym potem w funkcji jako tablica o nazwie ID
+multipleParam: ',' '...' ID;
+
+// Wywołanie funkcji
+functionCallStmt:  ID '(' argList? ')';
+argList: standardArgList | namedArgList;
+
+// Zwykła lista argumentów bez nazwanych argumentów
+standardArgList: expr (',' expr)*;
+
+// Lista argumentów z nazwanymi argumentami
+namedArgList: (ID '=' expr) (',' (ID '=' expr))*;
+
+
+
+// -------------------- KONTROLA PRZEPŁYWU --------------------
+
+shortIfStmt: expr '?' (block | statement) (':' (block | statement))?; 
+ifStmt: IF '(' expr ')' block ((ELSE_IF | ELIF) '(' expr ')' block)* (ELSE block)?;
+forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
+whileStmt: WHILE '(' expr ')' block;
+
+// -------------------- WEJŚCIE / WYJŚCIE --------------------
+
+// Te funkcje prawdopodobnie będą usunięte i sprawdzane nazwami podczas wywołania
+// funkcji, lub przed startem programu zdefiniowane zostaną jako wbudowane funkcje
+
+ioStmt
+    : PRINT '(' expr (',' format)? ')'
+    | PRINTLN '(' (expr (',' format)?)? ')' // println() lub println(x) lub println(x, BIN)
+    | DEBUG '(' ID ('[' expr ']')? ')'
+    | INPUT '(' ID ('[' expr ']')? (',' format)? (',' constraint)? ')'
     ;
 
-stateDef: ID ('[' expr ']')?;
-
-obsDecl
-    : OBS obsDef (',' obsDef)*
-    | OBS ID ('[' expr ']')? '=' expr
+// Zakres przyjmowanych wartości do input
+constraint
+    : expr '..' expr
+    | 'range' '(' expr ',' expr ')'
     ;
 
-obsDef: ID ('[' expr ']')?;
+format: BIN | HEX;
 
-numDecl
-    : NUM ID ('[' expr ']')? ('=' expr)?
+
+// --- WYRAŻENIA (Z PRIORYTETAMI) ---
+
+expr
+    : '!' expr                           # NotExpr
+    | '-' expr                           # MinusExpr
+    | '+' expr                           # PlusExpr
+    | '++' expr                          # PreIncrementExpr
+    | '--' expr                          # PreDecrementExpr
+    | expr '++'                          # PostIncrementExpr
+    | expr '--'                          # PostDecrementExpr
+    | expr '=' expr                      # AssignmentExpr
+    | expr '+=' expr                     # PlusEqExpr
+    | expr '-=' expr                     # MinusEqExpr
+    | expr '*=' expr                     # MulEqExpr
+    | expr '/=' expr                     # DivEqExpr
+    | expr '%=' expr                     # ModEqExpr
+    | expr '**=' expr                    # PowEqExpr
+    | expr '&=' expr                     # AndEqExpr
+    | expr '|=' expr                     # OrEqExpr    
+    | expr '**' expr                     # PowExpr
+    | expr ('*' | '/' | '%') expr        # MulDivModExpr
+    | expr ('+' | '-') expr              # AddSubExpr
+    | expr ('<' | '>' | '<=' | '>=') expr# RelExpr
+    | expr ('==' | '!=') expr            # EqExpr
+    | expr '&&' expr                     # AndExpr
+    | expr '||' expr                     # OrExpr
+    | list                               # ListExpr
+    | varUnknown                         # VarUnknownExpr
+    | sizeGetter                         # SizeGetterExpr
+    | ID '(' argList? ')'                # FuncCallExpr
+    | ID ('[' expr ']')*                 # VarExpr
+    | INT_NUMBER                         # IntNumExpr
+    | NUMBER                             # NumExpr
+    | BOOL_VAL                           # BoolExpr
+    | STRING                             # StrExpr
+    | '(' expr ')'                       # ParenExpr
     ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // --- KOMUNIKACJA ---
 
@@ -104,69 +248,14 @@ measureStmt
     : ID ('[' expr ']')? '=' (MEASURE | MEASUREX) ID ('[' expr ']')?
     ;
 
-// --- PRZYPISANIA I FUNKCJE ---
 
-assignStmt: ID ('[' expr ']')? '=' expr;
+// -------------------- LISTA --------------------
 
-functionCallStmt: ID '(' argList? ')';
-
-// --- KONTROLA PRZEPŁYWU ---
-
-ifStmt: IF '(' expr ')' block (ELSE block)?;
-forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
-whileStmt: WHILE '(' expr ')' block;
-
-// --- WEJŚCIE / WYJŚCIE (I/O) ---
-
-ioStmt
-    : PRINT '(' expr (',' format)? ')'
-    | PRINTLN '(' (expr (',' format)?)? ')' // println() lub println(x) lub println(x, BIN)
-    | DEBUG '(' ID ('[' expr ']')? ')'
-    | INPUT '(' ID ('[' expr ']')? (',' format)? (',' constraint)? ')'
+list 
+    : '[' ']'                  # emptyList
+    | '[' expr (',' expr)* ']' # nonEmptyList
     ;
 
-// Zakres przyjmowanych wartości do input
-constraint
-    : expr '..' expr
-    | 'range' '(' expr ',' expr ')'
-    ;
-
-format: BIN | HEX;
-argList: expr (',' expr)*;
-
-// --- WYRAŻENIA (Z PRIORYTETAMI) ---
-
-expr
-    : '!' expr                           # NotExpr
-    | '-' expr                           # MinusExpr
-    | '+' expr                           # PlusExpr
-    | '++' expr                          # PreIncrementExpr
-    | '--' expr                          # PreDecrementExpr
-    | expr '++'                          # PostIncrementExpr
-    | expr '--'                          # PostDecrementExpr
-    | expr '=' expr                      # AssignmentExpr
-    | expr '+=' expr                     # PlusEqExpr
-    | expr '-=' expr                     # MinusEqExpr
-    | expr '*=' expr                     # MulEqExpr
-    | expr '/=' expr                     # DivEqExpr
-    | expr '%=' expr                     # ModEqExpr
-    | expr '**=' expr                    # PowEqExpr
-    | expr '&=' expr                     # AndEqExpr
-    | expr '|=' expr                     # OrEqExpr    
-    | expr '**' expr                     # PowExpr
-    | expr ('*' | '/' | '%') expr        # MulDivModExpr
-    | expr ('+' | '-') expr              # AddSubExpr
-    | expr ('<' | '>' | '<=' | '>=') expr# RelExpr
-    | expr ('==' | '!=') expr            # EqExpr
-    | expr '&&' expr                     # AndExpr
-    | expr '||' expr                     # OrExpr
-    | ID '(' argList? ')'                # FuncCallExpr
-    | ID ('[' expr ']')?                 # VarExpr
-    | NUMBER                             # NumExpr
-    | BOOL_VAL                           # BoolExpr
-    | STRING                             # StrExpr
-    | '(' expr ')'                       # ParenExpr
-    ;
 
 // ==========================================
 // LEXER RULES
@@ -197,8 +286,12 @@ SWAP: 'swap';
 MEASURE: 'measure';
 MEASUREX: 'measureX';
 
+CONST: 'const';
+
 IF: 'if';
 ELSE: 'else';
+ELIF: 'elif';
+ELSE_IF: 'else if';
 FUNCTION: 'function';
 RETURN: 'return';
 FOR: 'for';
@@ -242,6 +335,7 @@ HAT:      '^';
 
 STRING     : '"' (~["\r\n])* '"' ;
 
+INT_NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
 NUMBER: FLOAT_NUMBER | HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
 fragment FLOAT_NUMBER: [0-9]+ '.' [0-9]* ([eE] [+-]? [0-9]+)?
 | '.' [0-9]+ ([eE] [+-]? [0-9]+)?

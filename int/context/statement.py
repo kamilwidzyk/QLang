@@ -3,7 +3,7 @@ from typing import Any, TYPE_CHECKING
 
 from ..script_errors import ScriptErrors
 from ..consts import * 
-from .function_call import FunctionReturn
+from .function.function_call import FunctionReturn
 from ..QLang.QLangParser import QLangParser
 
 if TYPE_CHECKING:

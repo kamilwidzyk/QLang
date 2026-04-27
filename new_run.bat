@@ -15,6 +15,9 @@ cd int
 java -jar ..\antlr-4.13.2-complete.jar -Dlanguage=Python3 ..\QLang\QLang.g4 -o ..\int\generated -visitor 
 cd ..
 
+REM -- Parsowanie do JSON (bez przechwytywania błędów) --
+python int\parse.py %INPUT_FILE%
+
 REM -- Wymuszenie odświeżenia cache Pythona --
 set PYTHONDONTWRITEBYTECODE=1
 

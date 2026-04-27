@@ -44,39 +44,111 @@ class QLangListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#functionDecl.
-    def enterFunctionDecl(self, ctx:QLangParser.FunctionDeclContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#functionDecl.
-    def exitFunctionDecl(self, ctx:QLangParser.FunctionDeclContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#paramList.
-    def enterParamList(self, ctx:QLangParser.ParamListContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#paramList.
-    def exitParamList(self, ctx:QLangParser.ParamListContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#param.
-    def enterParam(self, ctx:QLangParser.ParamContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#param.
-    def exitParam(self, ctx:QLangParser.ParamContext):
-        pass
-
-
     # Enter a parse tree produced by QLangParser#block.
     def enterBlock(self, ctx:QLangParser.BlockContext):
         pass
 
     # Exit a parse tree produced by QLangParser#block.
     def exitBlock(self, ctx:QLangParser.BlockContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#constDecl.
+    def enterConstDecl(self, ctx:QLangParser.ConstDeclContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#constDecl.
+    def exitConstDecl(self, ctx:QLangParser.ConstDeclContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#varType.
+    def enterVarType(self, ctx:QLangParser.VarTypeContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#varType.
+    def exitVarType(self, ctx:QLangParser.VarTypeContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#sizeVar.
+    def enterSizeVar(self, ctx:QLangParser.SizeVarContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#sizeVar.
+    def exitSizeVar(self, ctx:QLangParser.SizeVarContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#varAssign.
+    def enterVarAssign(self, ctx:QLangParser.VarAssignContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#varAssign.
+    def exitVarAssign(self, ctx:QLangParser.VarAssignContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#varNoAssign.
+    def enterVarNoAssign(self, ctx:QLangParser.VarNoAssignContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#varNoAssign.
+    def exitVarNoAssign(self, ctx:QLangParser.VarNoAssignContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#sizeConst.
+    def enterSizeConst(self, ctx:QLangParser.SizeConstContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#sizeConst.
+    def exitSizeConst(self, ctx:QLangParser.SizeConstContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#varParam.
+    def enterVarParam(self, ctx:QLangParser.VarParamContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#varParam.
+    def exitVarParam(self, ctx:QLangParser.VarParamContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#varParamDefault.
+    def enterVarParamDefault(self, ctx:QLangParser.VarParamDefaultContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#varParamDefault.
+    def exitVarParamDefault(self, ctx:QLangParser.VarParamDefaultContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#index.
+    def enterIndex(self, ctx:QLangParser.IndexContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#index.
+    def exitIndex(self, ctx:QLangParser.IndexContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#var.
+    def enterVar(self, ctx:QLangParser.VarContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#var.
+    def exitVar(self, ctx:QLangParser.VarContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#sizeGetter.
+    def enterSizeGetter(self, ctx:QLangParser.SizeGetterContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#sizeGetter.
+    def exitSizeGetter(self, ctx:QLangParser.SizeGetterContext):
         pass
 
 
@@ -89,21 +161,21 @@ class QLangListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#obsDeclaration.
-    def enterObsDeclaration(self, ctx:QLangParser.ObsDeclarationContext):
+    # Enter a parse tree produced by QLangParser#constDeclaration.
+    def enterConstDeclaration(self, ctx:QLangParser.ConstDeclarationContext):
         pass
 
-    # Exit a parse tree produced by QLangParser#obsDeclaration.
-    def exitObsDeclaration(self, ctx:QLangParser.ObsDeclarationContext):
+    # Exit a parse tree produced by QLangParser#constDeclaration.
+    def exitConstDeclaration(self, ctx:QLangParser.ConstDeclarationContext):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#numDeclaration.
-    def enterNumDeclaration(self, ctx:QLangParser.NumDeclarationContext):
+    # Enter a parse tree produced by QLangParser#varDeclaration.
+    def enterVarDeclaration(self, ctx:QLangParser.VarDeclarationContext):
         pass
 
-    # Exit a parse tree produced by QLangParser#numDeclaration.
-    def exitNumDeclaration(self, ctx:QLangParser.NumDeclarationContext):
+    # Exit a parse tree produced by QLangParser#varDeclaration.
+    def exitVarDeclaration(self, ctx:QLangParser.VarDeclarationContext):
         pass
 
 
@@ -269,111 +341,39 @@ class QLangListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#stateDecl.
-    def enterStateDecl(self, ctx:QLangParser.StateDeclContext):
+    # Enter a parse tree produced by QLangParser#varUnknown.
+    def enterVarUnknown(self, ctx:QLangParser.VarUnknownContext):
         pass
 
-    # Exit a parse tree produced by QLangParser#stateDecl.
-    def exitStateDecl(self, ctx:QLangParser.StateDeclContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#stateDef.
-    def enterStateDef(self, ctx:QLangParser.StateDefContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#stateDef.
-    def exitStateDef(self, ctx:QLangParser.StateDefContext):
+    # Exit a parse tree produced by QLangParser#varUnknown.
+    def exitVarUnknown(self, ctx:QLangParser.VarUnknownContext):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#obsDecl.
-    def enterObsDecl(self, ctx:QLangParser.ObsDeclContext):
+    # Enter a parse tree produced by QLangParser#multipleStateDecl.
+    def enterMultipleStateDecl(self, ctx:QLangParser.MultipleStateDeclContext):
         pass
 
-    # Exit a parse tree produced by QLangParser#obsDecl.
-    def exitObsDecl(self, ctx:QLangParser.ObsDeclContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#obsDef.
-    def enterObsDef(self, ctx:QLangParser.ObsDefContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#obsDef.
-    def exitObsDef(self, ctx:QLangParser.ObsDefContext):
+    # Exit a parse tree produced by QLangParser#multipleStateDecl.
+    def exitMultipleStateDecl(self, ctx:QLangParser.MultipleStateDeclContext):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#numDecl.
-    def enterNumDecl(self, ctx:QLangParser.NumDeclContext):
+    # Enter a parse tree produced by QLangParser#superposedStateDecl.
+    def enterSuperposedStateDecl(self, ctx:QLangParser.SuperposedStateDeclContext):
         pass
 
-    # Exit a parse tree produced by QLangParser#numDecl.
-    def exitNumDecl(self, ctx:QLangParser.NumDeclContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#receiveDecl.
-    def enterReceiveDecl(self, ctx:QLangParser.ReceiveDeclContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#receiveDecl.
-    def exitReceiveDecl(self, ctx:QLangParser.ReceiveDeclContext):
+    # Exit a parse tree produced by QLangParser#superposedStateDecl.
+    def exitSuperposedStateDecl(self, ctx:QLangParser.SuperposedStateDeclContext):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#receiveOpt.
-    def enterReceiveOpt(self, ctx:QLangParser.ReceiveOptContext):
+    # Enter a parse tree produced by QLangParser#varDecl.
+    def enterVarDecl(self, ctx:QLangParser.VarDeclContext):
         pass
 
-    # Exit a parse tree produced by QLangParser#receiveOpt.
-    def exitReceiveOpt(self, ctx:QLangParser.ReceiveOptContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#sendStmt.
-    def enterSendStmt(self, ctx:QLangParser.SendStmtContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#sendStmt.
-    def exitSendStmt(self, ctx:QLangParser.SendStmtContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#gateStmt.
-    def enterGateStmt(self, ctx:QLangParser.GateStmtContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#gateStmt.
-    def exitGateStmt(self, ctx:QLangParser.GateStmtContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#singleQubitGate.
-    def enterSingleQubitGate(self, ctx:QLangParser.SingleQubitGateContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#singleQubitGate.
-    def exitSingleQubitGate(self, ctx:QLangParser.SingleQubitGateContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#multiQubitGate.
-    def enterMultiQubitGate(self, ctx:QLangParser.MultiQubitGateContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#multiQubitGate.
-    def exitMultiQubitGate(self, ctx:QLangParser.MultiQubitGateContext):
-        pass
-
-
-    # Enter a parse tree produced by QLangParser#measureStmt.
-    def enterMeasureStmt(self, ctx:QLangParser.MeasureStmtContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#measureStmt.
-    def exitMeasureStmt(self, ctx:QLangParser.MeasureStmtContext):
+    # Exit a parse tree produced by QLangParser#varDecl.
+    def exitVarDecl(self, ctx:QLangParser.VarDeclContext):
         pass
 
 
@@ -386,12 +386,84 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#functionDecl.
+    def enterFunctionDecl(self, ctx:QLangParser.FunctionDeclContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#functionDecl.
+    def exitFunctionDecl(self, ctx:QLangParser.FunctionDeclContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#paramList.
+    def enterParamList(self, ctx:QLangParser.ParamListContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#paramList.
+    def exitParamList(self, ctx:QLangParser.ParamListContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#param.
+    def enterParam(self, ctx:QLangParser.ParamContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#param.
+    def exitParam(self, ctx:QLangParser.ParamContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#multipleParam.
+    def enterMultipleParam(self, ctx:QLangParser.MultipleParamContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#multipleParam.
+    def exitMultipleParam(self, ctx:QLangParser.MultipleParamContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#functionCallStmt.
     def enterFunctionCallStmt(self, ctx:QLangParser.FunctionCallStmtContext):
         pass
 
     # Exit a parse tree produced by QLangParser#functionCallStmt.
     def exitFunctionCallStmt(self, ctx:QLangParser.FunctionCallStmtContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#argList.
+    def enterArgList(self, ctx:QLangParser.ArgListContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#argList.
+    def exitArgList(self, ctx:QLangParser.ArgListContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#standardArgList.
+    def enterStandardArgList(self, ctx:QLangParser.StandardArgListContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#standardArgList.
+    def exitStandardArgList(self, ctx:QLangParser.StandardArgListContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#namedArgList.
+    def enterNamedArgList(self, ctx:QLangParser.NamedArgListContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#namedArgList.
+    def exitNamedArgList(self, ctx:QLangParser.NamedArgListContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#shortIfStmt.
+    def enterShortIfStmt(self, ctx:QLangParser.ShortIfStmtContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#shortIfStmt.
+    def exitShortIfStmt(self, ctx:QLangParser.ShortIfStmtContext):
         pass
 
 
@@ -449,15 +521,6 @@ class QLangListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#argList.
-    def enterArgList(self, ctx:QLangParser.ArgListContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#argList.
-    def exitArgList(self, ctx:QLangParser.ArgListContext):
-        pass
-
-
     # Enter a parse tree produced by QLangParser#AndExpr.
     def enterAndExpr(self, ctx:QLangParser.AndExprContext):
         pass
@@ -473,6 +536,15 @@ class QLangListener(ParseTreeListener):
 
     # Exit a parse tree produced by QLangParser#BoolExpr.
     def exitBoolExpr(self, ctx:QLangParser.BoolExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#IntNumExpr.
+    def enterIntNumExpr(self, ctx:QLangParser.IntNumExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#IntNumExpr.
+    def exitIntNumExpr(self, ctx:QLangParser.IntNumExprContext):
         pass
 
 
@@ -575,6 +647,15 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#ListExpr.
+    def enterListExpr(self, ctx:QLangParser.ListExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#ListExpr.
+    def exitListExpr(self, ctx:QLangParser.ListExprContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#PlusEqExpr.
     def enterPlusEqExpr(self, ctx:QLangParser.PlusEqExprContext):
         pass
@@ -602,6 +683,15 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#SizeGetterExpr.
+    def enterSizeGetterExpr(self, ctx:QLangParser.SizeGetterExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#SizeGetterExpr.
+    def exitSizeGetterExpr(self, ctx:QLangParser.SizeGetterExprContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#RelExpr.
     def enterRelExpr(self, ctx:QLangParser.RelExprContext):
         pass
@@ -617,6 +707,15 @@ class QLangListener(ParseTreeListener):
 
     # Exit a parse tree produced by QLangParser#PreDecrementExpr.
     def exitPreDecrementExpr(self, ctx:QLangParser.PreDecrementExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#VarUnknownExpr.
+    def enterVarUnknownExpr(self, ctx:QLangParser.VarUnknownExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#VarUnknownExpr.
+    def exitVarUnknownExpr(self, ctx:QLangParser.VarUnknownExprContext):
         pass
 
 
@@ -716,6 +815,87 @@ class QLangListener(ParseTreeListener):
 
     # Exit a parse tree produced by QLangParser#OrEqExpr.
     def exitOrEqExpr(self, ctx:QLangParser.OrEqExprContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#receiveDecl.
+    def enterReceiveDecl(self, ctx:QLangParser.ReceiveDeclContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#receiveDecl.
+    def exitReceiveDecl(self, ctx:QLangParser.ReceiveDeclContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#receiveOpt.
+    def enterReceiveOpt(self, ctx:QLangParser.ReceiveOptContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#receiveOpt.
+    def exitReceiveOpt(self, ctx:QLangParser.ReceiveOptContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#sendStmt.
+    def enterSendStmt(self, ctx:QLangParser.SendStmtContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#sendStmt.
+    def exitSendStmt(self, ctx:QLangParser.SendStmtContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#gateStmt.
+    def enterGateStmt(self, ctx:QLangParser.GateStmtContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#gateStmt.
+    def exitGateStmt(self, ctx:QLangParser.GateStmtContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#singleQubitGate.
+    def enterSingleQubitGate(self, ctx:QLangParser.SingleQubitGateContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#singleQubitGate.
+    def exitSingleQubitGate(self, ctx:QLangParser.SingleQubitGateContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#multiQubitGate.
+    def enterMultiQubitGate(self, ctx:QLangParser.MultiQubitGateContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#multiQubitGate.
+    def exitMultiQubitGate(self, ctx:QLangParser.MultiQubitGateContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#measureStmt.
+    def enterMeasureStmt(self, ctx:QLangParser.MeasureStmtContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#measureStmt.
+    def exitMeasureStmt(self, ctx:QLangParser.MeasureStmtContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#emptyList.
+    def enterEmptyList(self, ctx:QLangParser.EmptyListContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#emptyList.
+    def exitEmptyList(self, ctx:QLangParser.EmptyListContext):
+        pass
+
+
+    # Enter a parse tree produced by QLangParser#nonEmptyList.
+    def enterNonEmptyList(self, ctx:QLangParser.NonEmptyListContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#nonEmptyList.
+    def exitNonEmptyList(self, ctx:QLangParser.NonEmptyListContext):
         pass
 
 

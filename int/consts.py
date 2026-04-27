@@ -8,12 +8,26 @@ from .QLang.QLangLexer import QLangLexer
 from .QLang.QLangParser import QLangParser
 
 
-
-
 TerminalCtx = TerminalNode
 StatementCtx = QLangParser.StatementContext
-ObsDeclCtx = QLangParser.ObsDeclContext
+
+#################### VARIABLES ####################
+VarDeclCtx = QLangParser.VarDeclContext
+SizeGetterExprCtx = QLangParser.SizeGetterExprContext
+SizeGetterCtx = QLangParser.SizeGetterContext
+
+#################### LIST ####################
+ListExprCtx = QLangParser.ListExprContext
+ListCtx = QLangParser.ListContext
+EmptyListCtx = QLangParser.EmptyListContext
+NonEmptyListCtx = QLangParser.NonEmptyListContext
+
+#################### NUMBERS ####################
 NumExprCtx = QLangParser.NumExprContext
+IntNumExprCtx = QLangParser.IntNumExprContext
+
+
+
 IoStmtCtx = QLangParser.IoStmtContext
 VarExprCtx = QLangParser.VarExprContext
 PlaceMemberCtx = QLangParser.PlaceMemberContext
@@ -21,7 +35,6 @@ FunctionDeclCtx = QLangParser.FunctionDeclContext
 ParamListCtx = QLangParser.ParamListContext
 ParamCtx = QLangParser.ParamContext
 BlockCtx = QLangParser.BlockContext
-ObsDefCtx = QLangParser.ObsDefContext
 StrExprCtx = QLangParser.StrExprContext
 FunctionCallStmtCtx = QLangParser.FunctionCallStmtContext
 FunctionCallExprCtx = QLangParser.FuncCallExprContext

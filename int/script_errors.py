@@ -139,36 +139,45 @@ class ScriptErrors:
             Tries to extract position from a given node
             Returns a point with the extracted position
             """
+
+            try:
             
-            end_line = None
-            end_col = None
+                end_line = None
+                end_col = None
 
-            start_token = node.symbol if hasattr(node, 'symbol') else node.start
-            end_token = node.symbol if hasattr(node, 'symbol') else node.stop
+                start_token = node.symbol if hasattr(node, 'symbol') else node.start
+                end_token = node.symbol if hasattr(node, 'symbol') else node.stop
 
-            start_line = start_token.line
-            start_col = start_token.column
+                start_line = start_token.line
+                start_col = start_token.column
 
-            # Only start position is known
-            if end_token is None:
+                # Only start position is known
+                if end_token is None:
+                    return cls(
+                        start_line=start_line,
+                        start_col=start_col,
+                        end_line=start_line,
+                        end_col=start_col
+                    )
+                
+                # Try to extract the text length
+                end_line = end_token.line
+                token_text = end_token.text if end_token.text else ""
+                end_col = end_token.column + len(token_text)
+
                 return cls(
                     start_line=start_line,
                     start_col=start_col,
-                    end_line=start_line,
-                    end_col=start_col
+                    end_line=end_line,
+                    end_col=end_col
                 )
-            
-            # Try to extract the text length
-            end_line = end_token.line
-            token_text = end_token.text if end_token.text else ""
-            end_col = end_token.column + len(token_text)
-
-            return cls(
-                start_line=start_line,
-                start_col=start_col,
-                end_line=end_line,
-                end_col=end_col
-            )
+            except:
+                return cls(
+                    start_line=-1,
+                    start_col=-1,
+                    end_line=-1,
+                    end_col=-1
+                )
 
 
         def width(self) -> int:

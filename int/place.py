@@ -23,52 +23,71 @@ from .exception.assignment_to_expression import AssignmentToExpressionException
 from .exception.divide_by_zero import DivideByZeroException
 from .exception.modulo_over_zero import ModuloOverZeroException
 from .exception.operator_type_mismatch import OperatorTypeMismatchException
+from .exception.size_error import SizeErrorException
+from .exception.variable_redefinition import VariableRedefiniotionException
+from .exception.index_not_int import IndexNotIntException
 
 ######################## CONTEXT HANDLERS #############################
 from .context.statement              import handle_statement
-from .context.obs_declaration        import handle_obs_declaration
-from .context.number_expression      import handle_number_expression
-from .context.io_statement           import handle_io_statement
-from .context.variable_expression    import handle_variable_expression
+
+##### VARIABLES #####
+from .context.variable.declaration   import handle_variable_declaration
+from .context.expression.size_expr   import handle_expression_size_expr, \
+                                            handle_expression_size_getter
+
+##### LIST #####
+from .context.expression.list_expr import   handle_expression_list, \
+                                            handle_expression_list_empty, \
+                                            handle_expression_list_expr, \
+                                            handle_expression_list_non_empty
+
+##### NUMBERS #####
+from .context.expression.int_number  import handle_expression_int_number
+from .context.expression.number      import handle_expression_number
+
+
+
+from .context.io.io_statement           import handle_io_statement
+from .context.expression.variable_expression    import handle_variable_expression
 from .context.place_member           import handle_place_member
-from .context.function_declaration   import handle_function_declaration
-from .context.param_list             import handle_param_list
-from .context.param                  import handle_param
+from .context.function.function_declaration   import handle_function_declaration
+from .context.function.param_list             import handle_param_list
+from .context.function.param                  import handle_param
 from .context.block                  import handle_block_ctx
-from .context.obs_definition         import handle_obs_definition
+from .context.variable.obs_definition         import handle_obs_definition
 from .context.string                 import handle_string
-from .context.function_call          import handle_function_call
-from .context.arg_list               import handle_arg_list
-from .context.for_loop               import handle_for_loop
-from .context.power                  import handle_power
-from .context.format                 import handle_format
-from .context.if_condition           import handle_if
-from .context.rel_comp               import handle_rel_comp
-from .context.add_sub                import handle_add_sub
-from .context.not_op                 import handle_not
-from .context.mul_div_mod            import handle_mul_div_mod
-from .context.eq_comp                import handle_eq_comp
-from .context.and_op                 import handle_and
-from .context.or_op                  import handle_or
-from .context.bool_val               import handle_bool
-from .context.parentheses            import handle_parentheses
+from .context.function.function_call          import handle_function_call
+from .context.function.arg_list               import handle_arg_list
+from .context.control.for_loop               import handle_for_loop
+from .context.math.power                  import handle_power
+from .context.io.format                 import handle_format
+from .context.control.if_condition           import handle_if
+from .context.operator.rel_comp               import handle_rel_comp
+from .context.math.add_sub                import handle_add_sub
+from .context.operator.not_op                 import handle_not
+from .context.math.mul_div_mod            import handle_mul_div_mod
+from .context.operator.eq_comp                import handle_eq_comp
+from .context.math.logic.and_op                 import handle_and
+from .context.math.logic.or_op                  import handle_or
+from .context.expression.bool_val               import handle_bool
+from .context.expression.parentheses            import handle_parentheses
 from .context.terminal               import handle_terminal
-from .context.constraint             import handle_constraint
-from .context.assigment              import handle_assigment
-from .context.num_declaration        import handle_num_declaration
-from .context.minus_op               import handle_minus
-from .context.pre_post               import handle_pre_decrement, handle_post_decrement
-from .context.pre_post               import handle_pre_increment, handle_post_increment
-from .context.plus_op                import handle_plus
-from .context.assignment_expr        import handle_assignment_expr
-from .context.plus_eq_op             import handle_plus_eq_op
-from .context.minus_eq_op            import handle_minus_eq_op
-from .context.mul_eq_op              import handle_mul_eq_op
-from .context.div_eq_expr            import handle_div_eq_op
-from .context.mod_eq_op              import handle_mod_eq_op
-from .context.pow_eq_op              import handle_pow_eq_op
-from .context.and_eq_op              import handle_and_eq_op
-from .context.or_eq_op               import handle_or_eq_op
+from .context.io.constraint             import handle_constraint
+from .context.variable.assigment              import handle_assigment
+from .context.variable.num_declaration        import handle_num_declaration
+from .context.math.minus_op               import handle_minus
+from .context.operator.pre_post               import handle_pre_decrement, handle_post_decrement
+from .context.operator.pre_post               import handle_pre_increment, handle_post_increment
+from .context.math.plus_op                import handle_plus
+from .context.variable.assignment_expr        import handle_assignment_expr
+from .context.math.plus_eq_op             import handle_plus_eq_op
+from .context.math.minus_eq_op            import handle_minus_eq_op
+from .context.math.mul_eq_op              import handle_mul_eq_op
+from .context.math.div_eq_expr            import handle_div_eq_op
+from .context.math.mod_eq_op              import handle_mod_eq_op
+from .context.math.pow_eq_op              import handle_pow_eq_op
+from .context.math.logic.and_eq_op              import handle_and_eq_op
+from .context.math.logic.or_eq_op               import handle_or_eq_op
 
 class Place:
     """
@@ -151,8 +170,24 @@ class Place:
         HANDLERS = {
             TerminalCtx:            handle_terminal,
             StatementCtx:           handle_statement,
-            ObsDeclCtx:             handle_obs_declaration,
-            NumExprCtx:             handle_number_expression,
+
+            ##### VARIABLES #####
+            VarDeclCtx:             handle_variable_declaration,
+            SizeGetterCtx:          handle_expression_size_getter,
+            SizeGetterExprCtx:      handle_expression_size_expr,
+
+            ##### LIST #####
+            ListExprCtx:            handle_expression_list_expr,
+            ListCtx:                handle_expression_list,
+            EmptyListCtx:           handle_expression_list_empty,
+            NonEmptyListCtx:        handle_expression_list_non_empty,
+
+            ##### NUMBERS #####
+            NumExprCtx:             handle_expression_number,
+            IntNumExprCtx:          handle_expression_int_number,
+
+
+
             IoStmtCtx:              handle_io_statement,
             VarExprCtx:             handle_variable_expression,
             PlaceMemberCtx:         handle_place_member,
@@ -160,7 +195,6 @@ class Place:
             ParamListCtx:           handle_param_list,
             ParamCtx:               handle_param,
             BlockCtx:               handle_block_ctx,
-            ObsDefCtx:              handle_obs_definition,
             StrExprCtx:             handle_string,
             FunctionCallStmtCtx:    handle_function_call,
             FunctionCallExprCtx:    handle_function_call,
@@ -180,7 +214,6 @@ class Place:
             ParenExprCtx:           handle_parentheses,
             ConstraintCtx:          handle_constraint,
             AssigmentStmtCtx:       handle_assigment,
-            QLangParser.NumDeclContext: handle_num_declaration,
             
             #################### Operators ####################
             # Not
@@ -223,6 +256,7 @@ class Place:
             for type in HANDLERS.keys():
                 if isinstance(block, type):
                     # Handler found, send the block to it
+                    print(type)
                     handle_args = (self, block, parent, pos)
                     return HANDLERS[type](*handle_args)
         except AssignmentToExpressionException as e:
@@ -237,7 +271,17 @@ class Place:
         except OperatorTypeMismatchException as e:
             e.show(self.script_errors)
             exit()
+        except SizeErrorException as e:
+            e.show(self.script_errors)
+            exit()
+        except VariableRedefiniotionException as e:
+            e.show(self.script_errors)
+            exit()
+        except IndexNotIntException as e:
+            e.show(self.script_errors)
+            exit()
 
+        print(block)
         # Handler not found show error and exit
         log(PLACE, FATAL, "Handler for block not found, type: " + block.__class__.__name__)
         exit()

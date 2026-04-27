@@ -1,8 +1,9 @@
 from __future__ import annotations
 from typing import List
 
-from .logger import log, OBS, WARNING
+from .logger import log, OBS, WARNING, FATAL
 
+from .expression import *
 
 class ObsRegister:
     """
@@ -13,7 +14,7 @@ class ObsRegister:
     """
     obs: List[Obs]
     size: int
-    type: str = "ObsRegister"
+    type: str = TYPE_OBS_REGISTER
     name: str = None
 
     def __init__(self, size: int):
@@ -82,23 +83,48 @@ class Obs:
     Represents one classical bit
     """
     state: int = 0 
-    type: str = "Obs"
+    type: str = TYPE_OBS
     name: str = None
 
-    def set(self, new_value: int | bool):
+    def set(self, new_value: int | bool | Expression):
         """
         Sets the new value 
         If the value is not valid, warning is logger and value is ignored
 
         Parameters:
-            new_value (int|bool): Value to set, 0/1 or True/False
+            new_value (int|bool|Expression): Value to set, 0/1 or True/False
         """
-        if new_value == 0 or new_value == False:
+        if isinstance(new_value, Expression):
+            if new_value.type == TYPE_BOOL:
+                if new_value.value == True:
+                    self.state = 1
+                else:
+                    self.state = 0
+            elif new_value.type in [TYPE_INT, TYPE_FLOAT]:
+                if new_value.value > 0:
+                    self.state = 1
+                else:
+                    self.state = 0
+            elif new_value.type == TYPE_STRING:
+                if len(new_value.value) > 0:
+                    self.state = 1
+                else:
+                    self.state = 0
+            elif new_value.type in [TYPE_NUM, TYPE_OBS]:
+                if new_value.get() > 0:
+                    self.state = 1
+                else:
+                    self.state = 0
+            else:
+                log(OBS, FATAL, "Attempted to set value " + str(new_value) + "as obs value")
+                exit()
+        elif new_value == 0 or new_value == False:
             self.state = 0
         elif new_value == 1 or new_value == True:
             self.state = 1
         else:
-            log(OBS, WARNING, "There was an attempt at setting " + str(new_value) + " as obs value")
+            log(OBS, FATAL, "There was an attempt at setting " + str(new_value) + " as obs value")
+            exit()
 
     def get(self) -> bool:
         """
@@ -108,7 +134,7 @@ class Obs:
             True: state is 1
             False: otherwise
         """
-        return self.state == 1
+        return Expression(TYPE_BOOL, self.state == 1)
     
     def max_val(self) -> int:
         return 1

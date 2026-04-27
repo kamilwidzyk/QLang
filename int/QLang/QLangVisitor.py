@@ -29,23 +29,63 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#functionDecl.
-    def visitFunctionDecl(self, ctx:QLangParser.FunctionDeclContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#paramList.
-    def visitParamList(self, ctx:QLangParser.ParamListContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#param.
-    def visitParam(self, ctx:QLangParser.ParamContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by QLangParser#block.
     def visitBlock(self, ctx:QLangParser.BlockContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#constDecl.
+    def visitConstDecl(self, ctx:QLangParser.ConstDeclContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#varType.
+    def visitVarType(self, ctx:QLangParser.VarTypeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#sizeVar.
+    def visitSizeVar(self, ctx:QLangParser.SizeVarContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#varAssign.
+    def visitVarAssign(self, ctx:QLangParser.VarAssignContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#varNoAssign.
+    def visitVarNoAssign(self, ctx:QLangParser.VarNoAssignContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#sizeConst.
+    def visitSizeConst(self, ctx:QLangParser.SizeConstContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#varParam.
+    def visitVarParam(self, ctx:QLangParser.VarParamContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#varParamDefault.
+    def visitVarParamDefault(self, ctx:QLangParser.VarParamDefaultContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#index.
+    def visitIndex(self, ctx:QLangParser.IndexContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#var.
+    def visitVar(self, ctx:QLangParser.VarContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#sizeGetter.
+    def visitSizeGetter(self, ctx:QLangParser.SizeGetterContext):
         return self.visitChildren(ctx)
 
 
@@ -54,13 +94,13 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#obsDeclaration.
-    def visitObsDeclaration(self, ctx:QLangParser.ObsDeclarationContext):
+    # Visit a parse tree produced by QLangParser#constDeclaration.
+    def visitConstDeclaration(self, ctx:QLangParser.ConstDeclarationContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#numDeclaration.
-    def visitNumDeclaration(self, ctx:QLangParser.NumDeclarationContext):
+    # Visit a parse tree produced by QLangParser#varDeclaration.
+    def visitVarDeclaration(self, ctx:QLangParser.VarDeclarationContext):
         return self.visitChildren(ctx)
 
 
@@ -154,63 +194,23 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#stateDecl.
-    def visitStateDecl(self, ctx:QLangParser.StateDeclContext):
+    # Visit a parse tree produced by QLangParser#varUnknown.
+    def visitVarUnknown(self, ctx:QLangParser.VarUnknownContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#stateDef.
-    def visitStateDef(self, ctx:QLangParser.StateDefContext):
+    # Visit a parse tree produced by QLangParser#multipleStateDecl.
+    def visitMultipleStateDecl(self, ctx:QLangParser.MultipleStateDeclContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#obsDecl.
-    def visitObsDecl(self, ctx:QLangParser.ObsDeclContext):
+    # Visit a parse tree produced by QLangParser#superposedStateDecl.
+    def visitSuperposedStateDecl(self, ctx:QLangParser.SuperposedStateDeclContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#obsDef.
-    def visitObsDef(self, ctx:QLangParser.ObsDefContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#numDecl.
-    def visitNumDecl(self, ctx:QLangParser.NumDeclContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#receiveDecl.
-    def visitReceiveDecl(self, ctx:QLangParser.ReceiveDeclContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#receiveOpt.
-    def visitReceiveOpt(self, ctx:QLangParser.ReceiveOptContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#sendStmt.
-    def visitSendStmt(self, ctx:QLangParser.SendStmtContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#gateStmt.
-    def visitGateStmt(self, ctx:QLangParser.GateStmtContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#singleQubitGate.
-    def visitSingleQubitGate(self, ctx:QLangParser.SingleQubitGateContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#multiQubitGate.
-    def visitMultiQubitGate(self, ctx:QLangParser.MultiQubitGateContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by QLangParser#measureStmt.
-    def visitMeasureStmt(self, ctx:QLangParser.MeasureStmtContext):
+    # Visit a parse tree produced by QLangParser#varDecl.
+    def visitVarDecl(self, ctx:QLangParser.VarDeclContext):
         return self.visitChildren(ctx)
 
 
@@ -219,8 +219,48 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#functionDecl.
+    def visitFunctionDecl(self, ctx:QLangParser.FunctionDeclContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#paramList.
+    def visitParamList(self, ctx:QLangParser.ParamListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#param.
+    def visitParam(self, ctx:QLangParser.ParamContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#multipleParam.
+    def visitMultipleParam(self, ctx:QLangParser.MultipleParamContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#functionCallStmt.
     def visitFunctionCallStmt(self, ctx:QLangParser.FunctionCallStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#argList.
+    def visitArgList(self, ctx:QLangParser.ArgListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#standardArgList.
+    def visitStandardArgList(self, ctx:QLangParser.StandardArgListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#namedArgList.
+    def visitNamedArgList(self, ctx:QLangParser.NamedArgListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#shortIfStmt.
+    def visitShortIfStmt(self, ctx:QLangParser.ShortIfStmtContext):
         return self.visitChildren(ctx)
 
 
@@ -254,11 +294,6 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#argList.
-    def visitArgList(self, ctx:QLangParser.ArgListContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by QLangParser#AndExpr.
     def visitAndExpr(self, ctx:QLangParser.AndExprContext):
         return self.visitChildren(ctx)
@@ -266,6 +301,11 @@ class QLangVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by QLangParser#BoolExpr.
     def visitBoolExpr(self, ctx:QLangParser.BoolExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#IntNumExpr.
+    def visitIntNumExpr(self, ctx:QLangParser.IntNumExprContext):
         return self.visitChildren(ctx)
 
 
@@ -324,6 +364,11 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#ListExpr.
+    def visitListExpr(self, ctx:QLangParser.ListExprContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#PlusEqExpr.
     def visitPlusEqExpr(self, ctx:QLangParser.PlusEqExprContext):
         return self.visitChildren(ctx)
@@ -339,6 +384,11 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#SizeGetterExpr.
+    def visitSizeGetterExpr(self, ctx:QLangParser.SizeGetterExprContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#RelExpr.
     def visitRelExpr(self, ctx:QLangParser.RelExprContext):
         return self.visitChildren(ctx)
@@ -346,6 +396,11 @@ class QLangVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by QLangParser#PreDecrementExpr.
     def visitPreDecrementExpr(self, ctx:QLangParser.PreDecrementExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#VarUnknownExpr.
+    def visitVarUnknownExpr(self, ctx:QLangParser.VarUnknownExprContext):
         return self.visitChildren(ctx)
 
 
@@ -401,6 +456,51 @@ class QLangVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by QLangParser#OrEqExpr.
     def visitOrEqExpr(self, ctx:QLangParser.OrEqExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#receiveDecl.
+    def visitReceiveDecl(self, ctx:QLangParser.ReceiveDeclContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#receiveOpt.
+    def visitReceiveOpt(self, ctx:QLangParser.ReceiveOptContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#sendStmt.
+    def visitSendStmt(self, ctx:QLangParser.SendStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#gateStmt.
+    def visitGateStmt(self, ctx:QLangParser.GateStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#singleQubitGate.
+    def visitSingleQubitGate(self, ctx:QLangParser.SingleQubitGateContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#multiQubitGate.
+    def visitMultiQubitGate(self, ctx:QLangParser.MultiQubitGateContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#measureStmt.
+    def visitMeasureStmt(self, ctx:QLangParser.MeasureStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#emptyList.
+    def visitEmptyList(self, ctx:QLangParser.EmptyListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by QLangParser#nonEmptyList.
+    def visitNonEmptyList(self, ctx:QLangParser.NonEmptyListContext):
         return self.visitChildren(ctx)
 
 
