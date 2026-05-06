@@ -6,16 +6,15 @@ class StateRegister:
     Represents a quantum register
     """
     states: List[State]
+    size: int
     type: str = "StateRegister"
     
     def __init__(self, size: int):
         """
         Creates a quantum register with given size
         """
+        self.size = size
         self.states = [State() for i in range(size)]
-
-    def size(self) -> int:
-        return len(self.states)
 
 class State:
     """

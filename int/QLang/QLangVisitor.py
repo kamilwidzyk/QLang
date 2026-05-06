@@ -34,6 +34,11 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#returnType.
+    def visitReturnType(self, ctx:QLangParser.ReturnTypeContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#paramList.
     def visitParamList(self, ctx:QLangParser.ParamListContext):
         return self.visitChildren(ctx)

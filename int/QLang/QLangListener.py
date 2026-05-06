@@ -53,6 +53,15 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#returnType.
+    def enterReturnType(self, ctx:QLangParser.ReturnTypeContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#returnType.
+    def exitReturnType(self, ctx:QLangParser.ReturnTypeContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#paramList.
     def enterParamList(self, ctx:QLangParser.ParamListContext):
         pass

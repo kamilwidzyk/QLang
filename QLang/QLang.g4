@@ -21,10 +21,12 @@ placeMember
     | statement
     ;
 
-functionDecl: FUNCTION ID '(' paramList? ')' block;
+functionDecl: FUNCTION returnType? ID '(' paramList? ')' block;
+
+returnType: NUM | STATE | OBS | VOID;
 
 paramList: param (',' param)*;
-param: (STATE | OBS) ID ('[' NUMBER ']')?;
+param: (STATE | OBS | NUM) ID ('[' NUMBER ']')?;
 
 /** Bloki kodu */
 block: '{' statement* '}';
@@ -200,6 +202,7 @@ MEASUREX: 'measureX';
 IF: 'if';
 ELSE: 'else';
 FUNCTION: 'function';
+VOID: 'void';
 RETURN: 'return';
 FOR: 'for';
 FROM: 'from';

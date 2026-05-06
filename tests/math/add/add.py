@@ -17,7 +17,7 @@ def test_addition() -> bool:
     print(place_log["global"])
 
 
-    if place_log["global"] != "4\n6\n":
+    if place_log["global"] != "4\n4.0\n4.1\n0.0\n-0.10000000000000009\n":
         return False
     
     return True

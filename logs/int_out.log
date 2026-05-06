@@ -1,6 +1,6 @@
      >----- Interpreter starting -----<     
 [INIT ](W) Running in TEST MODE!
-[--- TEST ---](D) SYS_ARGV=['C:\\Users\\widzy\\Desktop\\Kompilatory git\\Kompilatory 3\\Kompilatory\\int\\run.py', 'tests\\operators\\something_equal\\pow_eq.ql', 'TEST_MODE']
+[--- TEST ---](D) SYS_ARGV=['C:\\Users\\macie\\studia\\sem4\\tkk\\kompilatory 6.05\\Kompilatory\\int\\run.py', 'tests\\operators\\something_equal\\pow_eq.ql', 'TEST_MODE']
 [--- TEST ---](D) INPUT_TEXT=// pow equal operator: expr **= expr
 // left is variable -> assign variable ** right, return variable ** right
 

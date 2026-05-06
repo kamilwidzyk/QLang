@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # first child can be 'print', 'println' or 'input', 'debug'(TODO)
+    # first child can be 'print', 'println', 'input', or 'debug'
 
     # PRINT
     # print()                -> print nothing
@@ -206,6 +206,28 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         variable.set(value)
         self.scopes.set(var_name, variable)
 
+    def handle_debug():
+        nonlocal block
+        # DEBUG '(' ID ('[' expr ']')? ')'
+        
+        # Get variable name and optional index
+        var_expr = block.getChild(2)  # The variable expression after 'debug('
+        variable = self.handle_block(var_expr, block, return_variable=True)
+        
+        # Print debug information
+        debug_info = f"[DEBUG] {variable.name}"
+        if hasattr(variable, 'type'):
+            debug_info += f" (type: {variable.type})"
+        if hasattr(variable, 'value') and variable.type not in ["StateRegister", "State"]:
+            debug_info += f" = {variable.value}"
+        elif variable.type == "ObsRegister":
+            debug_info += f" = {variable.get_values()}"
+        elif variable.type == "StateRegister":
+            debug_info += f" (size: {variable.size})"
+        elif variable.type == "State":
+            debug_info += " (quantum state)"
+        
+        self.console.write(debug_info + "\n")
 
     stmt_type = block.getChild(0).getText()
 
@@ -214,7 +236,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
     elif stmt_type == "println":
         handle_print(add_newline=True)
     elif stmt_type == "debug":
-        pass
+        handle_debug()
     elif stmt_type == "input":
         handle_input()
         
