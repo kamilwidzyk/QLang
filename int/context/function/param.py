@@ -7,30 +7,24 @@ from ...function import FunctionParam
 if TYPE_CHECKING:
     from place import Place
 
-def handle_param(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # param: (STATE | OBS) ID ('[' NUMBER ']')?;
 
-    # TODO: after numerical value is added, the list of possible types need to be updated
-
-    # Get param type
-    param_type = None
-    if block.STATE():
-        param_type = "STATE"
-    elif block.OBS():
-        param_type == "OBS"
-    
+def handle_param_varParamDefault(self: Place, block: Any, parent: Any, type: str):
+    # varParamDefault: ID ('[' INT_NUMBER ']')* ('=' expr)?; 
     param_name = block.ID().getText()
-    param_size = None
-    if block.NUMBER():
-        param_size = int(block.NUMBER().getText())
-        # check if the param size > 0
-        if param_size <= 0:
-            self.script_errors.showError(
-                pos=pos,
-                error_type="SYNTAX ERROR",
-                title="Negative size",
-                msg="I'm not capable of managing your imaginary, negative-sized arrays."
-            )
-            exit()
-    
-    return FunctionParam(name=param_name, type=param_type, size=param_size)
+    param_size = []
+    for size_num in block.INT_NUMBER():
+        param_size.append(self.handle_block(size_num, block))
+    param_default = None
+    if block.expr():
+        param_default = self.handle_block(block.expr(), block)
+
+    return FunctionParam(name=param_name, type=type, size=param_size, initial=param_default)
+
+
+def handle_param(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    # param: varType varParamDefault;
+
+    varType = block.varType().getText()
+    varParamDefault = block.varParamDefault()
+
+    return handle_param_varParamDefault(self, varParamDefault, block, varType)

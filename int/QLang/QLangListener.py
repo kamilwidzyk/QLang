@@ -98,15 +98,6 @@ class QLangListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by QLangParser#sizeConst.
-    def enterSizeConst(self, ctx:QLangParser.SizeConstContext):
-        pass
-
-    # Exit a parse tree produced by QLangParser#sizeConst.
-    def exitSizeConst(self, ctx:QLangParser.SizeConstContext):
-        pass
-
-
     # Enter a parse tree produced by QLangParser#varParam.
     def enterVarParam(self, ctx:QLangParser.VarParamContext):
         pass

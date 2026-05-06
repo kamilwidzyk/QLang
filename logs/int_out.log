@@ -1,44 +1,51 @@
      >----- Interpreter starting -----<     
 [INIT ](W) Running in TEST MODE!
-[--- TEST ---](D) SYS_ARGV=['C:\\Users\\widzy\\Desktop\\Kompilatory git\\Kompilatory 3\\Kompilatory\\int\\run.py', 'tests\\math\\sub\\sub.ql', 'TEST_MODE']
+[--- TEST ---](D) SYS_ARGV=['C:\\Users\\widzy\\Desktop\\Kompilatory git\\Kompilatory 3\\Kompilatory\\int\\run.py', 'tests\\function\\call\\call.ql', 'TEST_MODE']
 [--- TEST ---](D) INPUT_TEXT=
-// int - int = int
-println(5 - 3); // 2
-
-// float - int = float
-println(2.5 - 2); // 0.5
-
-// int - float = float
-println(3 - 2.5); // 0.5
-
-// float - float = float
-println(1.2 - 0.7); // 0.5
-
-// bool - bool
-println(T - T); // F
-println(T - F); // T
-println(F - T); // T
-println(F - F); // F
-
-// bool - int
-println(T - 5); // -4
-println(F - 5); // -5
-
-// int - bool
-println(5 - T); // 4
-println(5 - F); // 5
-
-// bool - float
-println(T - 5.5); // -4.5
-println(F - 5.5); // -5.5
-
-// float - bool
-println(5.5 - T); // 4.5
-println(5.5 - F); // 5.5
+function f1(){ // no arguments
+    println("F1");
+}
+f1(); // F1
 
 
-// expected output: 2\n0.5\n0.5\n0.5\nF\nT\nT\nF\n-4\n-5\n4\n5\n-4.5\n-5.5\n4.5\n5.5\n
+function f2(num x){ // one argument
+    print("F2 x=");
+    println(x);
+}
+f2(10); // F2 x=10
 
+
+function f3(num x, num y){ // two arguments
+    print("F3 x=");
+    print(x);
+    print(" y=");
+    println(y);
+}
+f3(5, 10); // F3 x=5 y=10
+
+function f4(num x, num y, num z){ // three arguments
+    print("F4 x=");
+    print(x);
+    print(" y=");
+    print(y);
+    print(" z=");
+    println(z);
+} 
+f4(5, 10, 15); // F4 x=5 y=10 z=15
+
+function f5(num x){ // one arg, return +1
+    return x + 1;
+}
+println(f5(9)); // 10
+
+function f6(){
+    println("F6");
+    return;
+    println("F6 Failed");
+}
+
+
+// expected output: F1\nF2 x=10\nF3 x=5 y=10\nF4 x=5 y=10 z=15\n10\nF6\n
 Parsing started
 [--- TEST ---](D) SYNTAX_ERRORS=0
 No errors found
@@ -46,92 +53,41 @@ No errors found
 [PLACE](I) Dividing into places...OK
 [PLACE](D) Got places: global
 [--- TEST ---](D) PLACE_NAME=global
-[--- TEST ---](D) PLACE_CODE=['println(5 - 3);', 'println(2.5 - 2);', 'println(3 - 2.5);', 'println(1.2 - 0.7);', 'println(T - T);', 'println(T - F);', 'println(F - T);', 'println(F - F);', 'println(T - 5);', 'println(F - 5);', 'println(5 - T);', 'println(5 - F);', 'println(T - 5.5);', 'println(F - 5.5);', 'println(5.5 - T);', 'println(5.5 - F);']
+[--- TEST ---](D) PLACE_CODE=['function f1(){ \n    println("F1");\n}', 'f1();', 'function f2(num x){ \n    print("F2 x=");\n    println(x);\n}', 'f2(10);', 'function f3(num x, num y){ \n    print("F3 x=");\n    print(x);\n    print(" y=");\n    println(y);\n}', 'f3(5, 10);', 'function f4(num x, num y, num z){ \n    print("F4 x=");\n    print(x);\n    print(" y=");\n    print(y);\n    print(" z=");\n    println(z);\n}', 'f4(5, 10, 15);', 'function f5(num x){ \n    return x + 1;\n}', 'println(f5(9));', 'function f6(){\n    println("F6");\n    return;\n    println("F6 Failed");\n}']
 [--- TEST ---](D) PLACE_END
 [PLACE](I) Place global started
 [PLACE](S) All places running
 [--- TEST ---](D) ALL_PLACES_STARTED
+Process Process-2:
+Traceback (most recent call last):
+  File "C:\Users\widzy\AppData\Local\Programs\Python\Python314\Lib\multiprocessing\process.py", line 320, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\widzy\AppData\Local\Programs\Python\Python314\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\int\place.py", line 323, in process_target
+    self.handle_block(member, None)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\int\place.py", line 261, in handle_block
+    return HANDLERS[type](*handle_args)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\int\context\statement.py", line 24, in handle_statement
+    self.handle_block(block.getChild(0), parent=block)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\int\place.py", line 261, in handle_block
+    return HANDLERS[type](*handle_args)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\int\context\function\function_call.py", line 62, in handle_function_call
+    if len(function_def.params) != len(args):
+                                   ~~~^^^^^^
+TypeError: object of type 'NoneType' has no len()
 [37m[49m[22m[[37m[49m[22mINOUT[37m[49m[22m]([37m[49m[22mD[37m[49m[22m) Log file for Place: global console created at logs\Place global.log[0m
+<class 'int.QLang.QLangParser.QLangParser.FunctionDeclContext'>
+<class 'int.QLang.QLangParser.QLangParser.ParamListContext'>
+<class 'int.QLang.QLangParser.QLangParser.BlockContext'>
 <class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.IntNumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.IntNumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.NumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.IntNumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.IntNumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.NumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.NumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.NumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.IntNumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.IntNumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.IntNumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.IntNumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.NumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.NumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.NumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.StatementContext'>
-<class 'int.QLang.QLangParser.QLangParser.IoStmtContext'>
-<class 'int.QLang.QLangParser.QLangParser.AddSubExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.NumExprContext'>
-<class 'int.QLang.QLangParser.QLangParser.BoolExprContext'>
+<class 'int.QLang.QLangParser.QLangParser.FunctionCallStmtContext'>
 [PLACE](I) Place global stopped
 [PLACE](I) All places stopped
 [--- TEST ---](D) ALL_PLACES_FINISHED

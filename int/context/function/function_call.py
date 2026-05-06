@@ -18,33 +18,56 @@ if TYPE_CHECKING:
 def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # functionCallStmt: ID '(' argList? ')';
 
+    # TODO: Add support for multiple arguments and names arguments
+
     func_name = block.ID().getText()
     args = None
     if block.argList():
         args = self.handle_block(block.argList(), block)
     
-    parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+    block_pos = ScriptErrors.Position.extract(block) 
     
     # Check if the function exists
     if not self.scopes.exists(func_name):
         self.script_errors.showError(
-            pos=parent_pos, 
+            pos=block_pos, 
             error_type="RUNTIME ERROR", 
-            title="You Error", 
+            title="ExecutionError", 
             msg="Tried calling that function: No one picked up.")
         exit()
 
     # Get the function
     function_def: Function = self.scopes.get(func_name)
 
-    # Check if it's a function(variable can is possible but not legal)
+    # Check if it's a function(variable call is possible but not legal)
     if not function_def.type == "Function":
         self.script_errors.showError(
-            pos=parent_pos, 
+            pos=block_pos, 
             error_type="RUNTIME ERROR", 
             title="ExecutionError", 
             msg=f"I tried to call '{func_name}' but a variable picked up.")
         exit()
+
+    # Check if call has the same number of arguments
+    # No arguments in definition and some in call:
+    if function_def.params is None and args is not None:
+        self.script_errors.showError(
+            pos=block_pos, 
+            error_type="RUNTIME ERROR", 
+            title="ExecutionError", 
+            msg=f"'{func_name}' does not take arguments.")
+        exit()
+    # arguments count does not match
+    if function_def.params is not None:
+        if len(function_def.params) != len(args):
+            self.script_errors.showError(
+                pos=block_pos, 
+                error_type="RUNTIME ERROR", 
+                title="ExecutionError", 
+                msg=f"'{func_name}' takes exaclty {len(function_def.params)} arguments. {len(args)} given.")
+            exit()
+
+
 
     # Create new scope for function
     new_scope = Scope(

@@ -19,7 +19,8 @@ class FunctionParam:
     """
     Represents one function parameter
     """
-    def __init__(self, name: str, type: str, size: int):
+    def __init__(self, name: str, type: str, size: list[int], initial: Any):
         self.name = name # param name
-        self.type = type # param type 'state' or 'obs'
+        self.type = type # param type 'state' or 'obs' or 'num'
         self.size = size # param size or None if not specified
+        self.initial_value = initial # default value

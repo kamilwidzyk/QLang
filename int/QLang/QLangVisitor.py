@@ -59,11 +59,6 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by QLangParser#sizeConst.
-    def visitSizeConst(self, ctx:QLangParser.SizeConstContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by QLangParser#varParam.
     def visitVarParam(self, ctx:QLangParser.VarParamContext):
         return self.visitChildren(ctx)

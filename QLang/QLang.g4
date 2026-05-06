@@ -38,8 +38,8 @@ constDecl: CONST ID '=' expr;
 // num a[10][10] -> 10 tablic po 10 wartości
 //
 
-// Możliwe typy zmiennych: obs i num
-varType: OBS | NUM;
+// Możliwe typy zmiennych: obs i num, state(jeszcze nie zrobione)
+varType: STATE | OBS | NUM;
 
 // Do deklaracji zmiennej z możliwym przypisaniem
 sizeVar: '[' expr ']';               /** Rozmiar mogący zawierać zmienną */
@@ -49,9 +49,8 @@ varAssign: ID sizeVar* ('=' expr)?;  /** Deklaracja zmiennej z możliwym rozmiar
 varNoAssign: ID sizeVar*;            /** Deklaracja zmiennej z możliwym rozmiarem bez przypisania */
 
 // Do parametrów funkcji przy deklaracji
-sizeConst: '[' NUMBER ']';           /** Stały rozmiar */
-varParam: ID sizeConst?;             /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym rozmiarem */
-varParamDefault: ID sizeConst* ('=' expr)?; /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym rozmiarem i przypisaniem wartości domyślnej */
+varParam: ID ('[' INT_NUMBER ']')?;             /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym rozmiarem */
+varParamDefault: ID ('[' INT_NUMBER ']')* ('=' expr)?; /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym rozmiarem i przypisaniem wartości domyślnej */
 
 // Do użycia zmiennej w wyrażeniach
 index: '[' expr ']';                 /** Indeks obliczony z dowolnego wyrażenia */
@@ -108,13 +107,13 @@ assignStmt: var '=' expr;
 // -------------------- FUNKCJE --------------------
 
 // Deklaracja funkcji
-functionDecl: FUNCTION ID '(' paramList? ')' block;
+functionDecl: FUNCTION ID '(' paramList ')' block;
 
 // Lista parametrów funkcji
-paramList: param (',' param)* multipleParam?;
+paramList: param? (',' param)* multipleParam?;
 param: varType varParamDefault;
 // Parametr wielokrotny przyjmujący dowolną liczbę argumentów,
-// dostępnym potem w funkcji jako tablica o nazwie ID
+// dostępny potem w funkcji jako tablica o nazwie ID
 multipleParam: ',' '...' ID;
 
 // Wywołanie funkcji
@@ -336,7 +335,7 @@ HAT:      '^';
 STRING     : '"' (~["\r\n])* '"' ;
 
 INT_NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
-NUMBER: FLOAT_NUMBER | HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
+NUMBER: FLOAT_NUMBER | INT_NUMBER;
 fragment FLOAT_NUMBER: [0-9]+ '.' [0-9]* ([eE] [+-]? [0-9]+)?
 | '.' [0-9]+ ([eE] [+-]? [0-9]+)?
 | [0-9]+ [eE] [+-]? [0-9]+
