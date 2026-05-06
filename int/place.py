@@ -40,6 +40,7 @@ from .context.string                 import handle_string
 from .context.function_call          import handle_function_call
 from .context.arg_list               import handle_arg_list
 from .context.for_loop               import handle_for_loop
+from .context.while_loop             import handle_while_loop
 from .context.power                  import handle_power
 from .context.format                 import handle_format
 from .context.if_condition           import handle_if
@@ -166,6 +167,7 @@ class Place:
             FunctionCallExprCtx:    handle_function_call,
             ArgListCtx:             handle_arg_list,
             ForStmtCtx:             handle_for_loop,
+            WhileStmtCtx:           handle_while_loop,
             PowExprCtx:             handle_power,
             FormatCtx:              handle_format,
             IfStmtCtx:              handle_if,
