@@ -34,7 +34,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
     var_name = block.ID().getText()
 
-    if self.scopes.exists(var_name):
+    if var_name in self.scopes.current.vars:
         raise VariableRedefiniotionException(ScriptErrors.Position.extract(block))
 
     dimensions = []
@@ -59,9 +59,18 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
     var = Variable(var_name, type, dimensions)
     if initial_value is not None:
-        var.set(initial_value)
+        try:
+            var.set(initial_value)
+        except (AttributeError, TypeError, ValueError):
+            self.script_errors.showError(
+                pos=ScriptErrors.Position.extract(block),
+                error_type="RUNTIME ERROR",
+                title="Type Mismatch",
+                msg=f"The variable '{var_name}' is defined as '{type}' (numeric)."
+            )
+            exit()
 
-    self.scopes.set(var_name, var)
+    self.scopes.create(var_name, var)
 
     
 

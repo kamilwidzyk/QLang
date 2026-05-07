@@ -40,6 +40,6 @@ function f6(){
     return;
     println("F6 Failed");
 }
-
+f6();
 
 // expected output: F1\nF2 x=10\nF3 x=5 y=10\nF4 x=5 y=10 z=15\n10\nF6\n

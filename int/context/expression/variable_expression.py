@@ -2,6 +2,7 @@ from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
 from ...consts import *
+from ...expression import Expression
 
 from ...exception.cant_find_variable import CantFindVariableException
 
@@ -32,9 +33,14 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
     if return_variable:
         return variable
-    
 
-    return variable.get()
+    if isinstance(variable, Expression):
+        return variable
+
+    if hasattr(variable, "get"):
+        return variable.get()
+
+    return variable
 
 
 

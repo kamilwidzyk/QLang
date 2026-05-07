@@ -59,7 +59,7 @@ def do_operation_div(left, right): # left / right
 
 # DIV INT
 def do_operation_div_int(left, right): # left // right
-    return Expression(TYPE_INT, left // right)
+    return Expression(TYPE_INT, left.value // right.value)
 
 # POW
 def do_operation_pow(left, right): # left ** right

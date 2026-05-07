@@ -65,9 +65,9 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             elif to_print.type == TYPE_BOOL:
                 to_print = 'T' if to_print.value else 'F'
             elif to_print.type == TYPE_OBS:
-                to_print = 'T' if to_print.get().value else 'F'
+                to_print = 'T' if to_print.get() else 'F'
             elif to_print.type == TYPE_OBS_REGISTER:
-                to_print = to_print.get().value
+                to_print = to_print.get()
             elif to_print.type == TYPE_NUM:
                 to_print = to_print.value
         
@@ -121,6 +121,16 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
     def handle_input():
         nonlocal block
         # INPUT '(' ID ('[' expr ']')? (',' format)? (',' constraint)? ')'
+
+        if self.console.test_mode:
+            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+            self.script_errors.showError(
+                pos=parent_pos,
+                error_type="RUNTIME ERROR",
+                title="Input not supported in TEST MODE",
+                msg="This program asks for input(), but TEST_MODE does not provide interactive console input.",
+            )
+            exit()
         
         # variable name(ID) is required
         var_name = block.ID().getText()
@@ -187,7 +197,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             max_val = float('inf') if constraint_max is None else max_val
             min_val = float('-inf') if constraint_min is None else min_val
         else:
-            max_val = variable.max_val() if constraint_max is None else max_val
+            max_val = variable.data.max_val() if constraint_max is None else max_val
             min_val = 0 if constraint_min is None else min_val
         value = None
 
@@ -243,7 +253,8 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             self.console.write(f"[{random.sample(invalid, 1)[0]} I need a number in range {min_val}-{max_val} in {format_str} format] ")
 
         # set value to the variable and update variable in the scope
-        variable.set(value)
+        value_type = TYPE_FLOAT if variable.type == "Num" else TYPE_INT
+        variable.set(Expression(value_type, value))
         self.scopes.set(var_name, variable)
 
 

@@ -7,6 +7,7 @@ from ...obs import ObsRegister
 from ...num import Num
 
 from ...expression import Expression, TYPE_INT
+from ..statement import BreakLoop, ContinueLoop
 
 if TYPE_CHECKING:
     from place import Place
@@ -58,10 +59,17 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
         while (start_val.value > end_val.value and counter.get().value > end_val.value) or \
               (start_val.value < end_val.value and counter.get().value < end_val.value):
             # Run code inside
-            for child in for_block:
-                self.handle_block(child, parent=block)
+            try:
+                for child in for_block:
+                    try:
+                        self.handle_block(child, parent=block)
+                    except ContinueLoop:
+                        # continue to next iteration of loop body
+                        break
+            except BreakLoop:
+                # break out of the while loop entirely
+                break
 
-            
             start_val, end_val, step_val = parse_expr(*expressions)
 
 

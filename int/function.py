@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+from typing import Any, List
 from .script_errors import ScriptErrors
 
 class Function:

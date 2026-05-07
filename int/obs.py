@@ -134,7 +134,7 @@ class Obs:
             True: state is 1
             False: otherwise
         """
-        return Expression(TYPE_BOOL, self.state == 1)
+        return self.state == 1
     
     def max_val(self) -> int:
         return 1
