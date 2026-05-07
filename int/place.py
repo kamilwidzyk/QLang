@@ -186,6 +186,7 @@ class Place:
             ##### NUMBERS #####
             NumExprCtx:             handle_expression_number,
             IntNumExprCtx:          handle_expression_int_number,
+            NumCastExprCtx:         handle_function_call,
 
 
 

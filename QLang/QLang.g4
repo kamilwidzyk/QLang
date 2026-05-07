@@ -185,6 +185,7 @@ expr
     | list                               # ListExpr
     | varUnknown                         # VarUnknownExpr
     | sizeGetter                         # SizeGetterExpr
+    | NUM '(' argList? ')'               # NumCastExpr
     | ID '(' argList? ')'                # FuncCallExpr
     | ID ('[' expr ']')*                 # VarExpr
     | INT_NUMBER                         # IntNumExpr

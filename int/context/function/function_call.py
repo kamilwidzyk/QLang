@@ -143,8 +143,71 @@ def _normalize_call_args(function_def: Function, call_args: Any, func_name: str)
 
     return ordered_values
 
+
+def _parse_num_cast_value(value: Any):
+    if isinstance(value, Expression):
+        if value.type in [TYPE_INT, TYPE_FLOAT]:
+            return value
+        if value.type == TYPE_NUM:
+            return value.get()
+        if value.type == TYPE_STRING:
+            return _parse_num_cast_value(value.value)
+
+    if isinstance(value, (int, float)):
+        if isinstance(value, int):
+            return Expression(TYPE_INT, value)
+        return Expression(TYPE_FLOAT, value)
+
+    if isinstance(value, str):
+        text = value.strip()
+
+        try:
+            if text.startswith("0x") or text.startswith("0X"):
+                return Expression(TYPE_INT, int(text, 16))
+            if text.startswith("0b") or text.startswith("0B"):
+                return Expression(TYPE_INT, int(text, 2))
+            if "." in text or "e" in text or "E" in text:
+                parsed_value = float(text)
+                if parsed_value.is_integer():
+                    return Expression(TYPE_INT, int(parsed_value))
+                return Expression(TYPE_FLOAT, parsed_value)
+
+            return Expression(TYPE_INT, int(text))
+        except ValueError:
+            return None
+
+    return None
+
 def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # functionCallStmt: ID '(' argList? ')';
+
+    if getattr(block, "NUM", None) is not None:
+        args = _collect_call_args(self, block)
+        block_pos = ScriptErrors.Position.extract(block)
+
+        if isinstance(args, dict):
+            args = list(args.values())
+
+        if not isinstance(args, list) or len(args) != 1:
+            self.script_errors.showError(
+                pos=block_pos,
+                error_type="RUNTIME ERROR",
+                title="ExecutionError",
+                msg="num() expects exactly one argument.",
+            )
+            exit()
+
+        cast_value = _parse_num_cast_value(args[0])
+        if cast_value is None:
+            self.script_errors.showError(
+                pos=block_pos,
+                error_type="RUNTIME ERROR",
+                title="Type Error",
+                msg="num() expects a number or a numeric string.",
+            )
+            exit()
+
+        return cast_value
 
     func_name = block.ID().getText()
     args = _collect_call_args(self, block)

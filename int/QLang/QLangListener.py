@@ -593,6 +593,15 @@ class QLangListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by QLangParser#NumCastExpr.
+    def enterNumCastExpr(self, ctx:QLangParser.NumCastExprContext):
+        pass
+
+    # Exit a parse tree produced by QLangParser#NumCastExpr.
+    def exitNumCastExpr(self, ctx:QLangParser.NumCastExprContext):
+        pass
+
+
     # Enter a parse tree produced by QLangParser#PostDecrementExpr.
     def enterPostDecrementExpr(self, ctx:QLangParser.PostDecrementExprContext):
         pass

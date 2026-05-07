@@ -25,6 +25,7 @@ NonEmptyListCtx = QLangParser.NonEmptyListContext
 #################### NUMBERS ####################
 NumExprCtx = QLangParser.NumExprContext
 IntNumExprCtx = QLangParser.IntNumExprContext
+NumCastExprCtx = QLangParser.NumCastExprContext
 
 
 

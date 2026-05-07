@@ -334,6 +334,11 @@ class QLangVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by QLangParser#NumCastExpr.
+    def visitNumCastExpr(self, ctx:QLangParser.NumCastExprContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by QLangParser#PostDecrementExpr.
     def visitPostDecrementExpr(self, ctx:QLangParser.PostDecrementExprContext):
         return self.visitChildren(ctx)
