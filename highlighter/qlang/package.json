@@ -1,0 +1,46 @@
+{
+  "name": "qlang",
+  "displayName": "QLang",
+  "description": "Syntax highlighting for QLang language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.118.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "qlang",
+      "aliases": ["QLang", "qlang"],
+      "extensions": [".ql"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "qlang",
+      "scopeName": "source.qlang",
+      "path": "./syntaxes/qlang.tmLanguage.json"
+    }],
+    "configuration": {
+      "type": "object",
+      "title": "QLang",
+      "properties": {
+        "qlang.server.path": {
+          "type": "string",
+          "default": "python",
+          "description": "Path to the Python executable"
+        },
+        "qlang.server.args": {
+          "type": "array",
+          "default": ["language_server.py"],
+          "description": "Arguments to pass to the language server"
+        }
+      }
+    }
+  },
+  "activationEvents": ["onLanguage:qlang"],
+  "main": "./client/extension.js",
+  "dependencies": {
+    "vscode-languageclient": "^8.1.0"
+  }
+}
