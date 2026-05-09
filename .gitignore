@@ -1,6 +1,5 @@
 ant_out/
 output/
-int/__pycache__
-int/context/__pycache__
-int/QLang/__pycache__
 int/QLang/
+logs/
+**/__pycache__/
