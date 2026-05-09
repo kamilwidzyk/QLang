@@ -62,7 +62,7 @@ from .context.control.for_loop               import handle_for_loop
 from .context.control.while_loop             import handle_while
 from .context.math.power                  import handle_power
 from .context.io.format                 import handle_format
-from .context.control.if_condition           import handle_if
+from .context.control.if_condition           import handle_if, handle_short_if
 from .context.operator.rel_comp               import handle_rel_comp
 from .context.math.add_sub                import handle_add_sub
 from .context.operator.not_op                 import handle_not
@@ -206,6 +206,7 @@ class Place:
             PowExprCtx:             handle_power,
             FormatCtx:              handle_format,
             IfStmtCtx:              handle_if,
+            ShortIfExprCtx:     handle_short_if,
             RelExprContext:         handle_rel_comp,
             AddSubExprContext:      handle_add_sub,
             

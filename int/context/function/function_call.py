@@ -14,7 +14,10 @@ from ...expression import (
     TYPE_NUM,
     TYPE_OBS,
     TYPE_OBS_REGISTER,
+    TYPE_LIST,
+    TYPE_STATE,
 )
+from ...variable import Variable
 
 class FunctionReturn(Exception):
     """Control flow exception raised when a function returns a value."""
@@ -51,22 +54,27 @@ def _is_arg_type_compatible(expected_type: str, value: Any) -> bool:
 def _collect_call_args(self: Place, block: Any):
     arg_list = block.argList()
     if arg_list is None:
-        return []
+        return [], {}
 
+    # For mixed positional and keyword args, we need to parse both
+    # Currently grammar only supports either all positional or all keyword
+    # We'll modify to support mixed by checking both
+    positional_args = []
+    keyword_args = {}
+    
+    # Check for standard args
+    standard = arg_list.standardArgList()
+    if standard is not None:
+        positional_args = [self.handle_block(expr, block) for expr in standard.expr()]
+    
+    # Check for named args
     named = arg_list.namedArgList()
     if named is not None:
         arg_names = [token.getText() for token in named.ID()]
         arg_values = [self.handle_block(expr, block) for expr in named.expr()]
-        return dict(zip(arg_names, arg_values))
-
-    standard = arg_list.standardArgList()
-    if standard is None:
-        return []
-
-    return [self.handle_block(expr, block) for expr in standard.expr()]
-
-
-def _resolve_parent_scope(current_scope: Scope, depth: int = 1):
+        keyword_args = dict(zip(arg_names, arg_values))
+    
+    return positional_args, keyword_args
     scope = current_scope
     for _ in range(depth):
         if scope.parent is None:
@@ -104,43 +112,55 @@ def _resolve_parent_value(self: Place, block: Any, args: Any, current_scope: Sco
     return None, "parent() argument must be a variable name like parent(x)."
 
 
-def _normalize_call_args(function_def: Function, call_args: Any, func_name: str):
+def _normalize_call_args(function_def: Function, positional_args: list, keyword_args: dict, func_name: str):
     params = function_def.params or []
-
-    if isinstance(call_args, dict):
-        ordered_values = []
-        used_names = set()
-
-        for param in params:
-            if param.name in call_args:
-                ordered_values.append(call_args[param.name])
-                used_names.add(param.name)
-            elif param.initial_value is not None:
-                ordered_values.append(param.initial_value)
-            else:
-                raise ValueError(f"'{func_name}' takes exactly {len(params)} arguments. {len(call_args)} given.")
-
-        unknown_args = [name for name in call_args.keys() if name not in used_names]
-        if unknown_args:
-            raise ValueError(f"'{func_name}' got unexpected argument(s): {', '.join(unknown_args)}.")
-
-        return ordered_values
-
-    if call_args is None:
-        call_args = []
-
-    if len(call_args) > len(params):
-        raise ValueError(f"'{func_name}' takes exactly {len(params)} arguments. {len(call_args)} given.")
-
+    
+    # Separate regular params from *args param
+    regular_params = []
+    varargs_param = None
+    for param in params:
+        if param.type == "varargs":
+            varargs_param = param
+        else:
+            regular_params.append(param)
+    
+    # Check for duplicate keyword args
+    if len(keyword_args) != len(set(keyword_args.keys())):
+        raise ValueError(f"'{func_name}' got multiple values for keyword argument")
+    
+    # Build the ordered values for regular params
     ordered_values = []
-    for index, param in enumerate(params):
-        if index < len(call_args):
-            ordered_values.append(call_args[index])
+    used_positional = 0
+    
+    for i, param in enumerate(regular_params):
+        if param.name in keyword_args:
+            # Keyword argument provided
+            ordered_values.append(keyword_args[param.name])
+        elif used_positional < len(positional_args):
+            # Positional argument
+            ordered_values.append(positional_args[used_positional])
+            used_positional += 1
         elif param.initial_value is not None:
+            # Default value
             ordered_values.append(param.initial_value)
         else:
-            raise ValueError(f"'{func_name}' takes exactly {len(params)} arguments. {len(call_args)} given.")
-
+            raise ValueError(f"'{func_name}' missing required argument: '{param.name}'")
+    
+    # Check for extra positional args if no *args
+    if used_positional < len(positional_args) and varargs_param is None:
+        raise ValueError(f"'{func_name}' takes {len(regular_params)} arguments but {len(positional_args) + len(keyword_args)} were given")
+    
+    # Handle *args
+    if varargs_param is not None:
+        remaining_positional = positional_args[used_positional:]
+        ordered_values.append(remaining_positional)
+    
+    # Check for unexpected keyword args
+    expected_names = {param.name for param in regular_params}
+    unexpected_kwargs = set(keyword_args.keys()) - expected_names
+    if unexpected_kwargs:
+        raise ValueError(f"'{func_name}' got unexpected keyword argument(s): {', '.join(unexpected_kwargs)}")
+    
     return ordered_values
 
 
@@ -182,13 +202,20 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     # functionCallStmt: ID '(' argList? ')';
 
     if getattr(block, "NUM", None) is not None:
-        args = _collect_call_args(self, block)
+        positional_args, keyword_args = _collect_call_args(self, block)
         block_pos = ScriptErrors.Position.extract(block)
 
-        if isinstance(args, dict):
-            args = list(args.values())
+        # num() doesn't support keyword args
+        if keyword_args:
+            self.script_errors.showError(
+                pos=block_pos,
+                error_type="RUNTIME ERROR",
+                title="ExecutionError",
+                msg="num() doesn't accept keyword arguments.",
+            )
+            exit()
 
-        if not isinstance(args, list) or len(args) != 1:
+        if len(positional_args) != 1:
             self.script_errors.showError(
                 pos=block_pos,
                 error_type="RUNTIME ERROR",
@@ -197,7 +224,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
             )
             exit()
 
-        cast_value = _parse_num_cast_value(args[0])
+        cast_value = _parse_num_cast_value(positional_args[0])
         if cast_value is None:
             self.script_errors.showError(
                 pos=block_pos,
@@ -210,12 +237,22 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
         return cast_value
 
     func_name = block.ID().getText()
-    args = _collect_call_args(self, block)
+    positional_args, keyword_args = _collect_call_args(self, block)
     
     block_pos = ScriptErrors.Position.extract(block) 
     
     if func_name == "parent":
-        value, error_message = _resolve_parent_value(self, block, args, self.scopes.current)
+        # parent() doesn't support keyword args
+        if keyword_args:
+            self.script_errors.showError(
+                pos=block_pos,
+                error_type="RUNTIME ERROR",
+                title="ExecutionError",
+                msg="parent() doesn't accept keyword arguments.",
+            )
+            exit()
+        
+        value, error_message = _resolve_parent_value(self, block, positional_args, self.scopes.current)
         if error_message is not None:
             self.script_errors.showError(
                 pos=block_pos,
@@ -249,7 +286,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
         exit()
 
     try:
-        ordered_args = _normalize_call_args(function_def, args, func_name)
+        ordered_args = _normalize_call_args(function_def, positional_args, keyword_args, func_name)
     except ValueError as error:
         self.script_errors.showError(
             pos=block_pos,
@@ -277,9 +314,35 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
         parent=function_def.closure_scope
     )
 
-    # Add names functions args to it
-    for param, param_value in zip(function_def.params or [], ordered_args):
-        new_scope.vars[param.name] = param_value
+    # Add function args as variables to the scope
+    param_index = 0
+    for param in function_def.params or []:
+        if param.type == "varargs":
+            # Handle *args - store as a list directly in scope
+            varargs_values = ordered_args[param_index] if param_index < len(ordered_args) else []
+            new_scope.vars[param.name] = varargs_values
+        else:
+            # Regular parameter - create variable of the appropriate type
+            param_value = ordered_args[param_index] if param_index < len(ordered_args) else param.initial_value
+            
+            # Convert type string to constant
+            type_const = {
+                "num": TYPE_NUM,
+                "obs": TYPE_OBS,
+                "state": TYPE_STATE
+            }.get(param.type, TYPE_NUM)
+            
+            # Handle dimensions
+            dimensions = param.size if param.size else [0]
+            if len(dimensions) == 1 and dimensions[0] == 0:
+                dimensions = [0]
+            
+            var = Variable(param.name, type_const, dimensions)
+            if param_value is not None:
+                var.set(param_value)
+            new_scope.vars[param.name] = var
+        
+        param_index += 1
     
     # Switch execution context
     old_scope = self.scopes.current

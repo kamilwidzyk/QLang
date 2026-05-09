@@ -130,7 +130,6 @@ namedArgList: (ID '=' expr) (',' (ID '=' expr))*;
 
 // -------------------- KONTROLA PRZEPŁYWU --------------------
 
-shortIfStmt: expr '?' (block | statement) (':' (block | statement))?; 
 ifStmt: IF '(' expr ')' block ((ELSE_IF | ELIF) '(' expr ')' block)* (ELSE block)?;
 forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
 whileStmt: WHILE '(' expr ')' block;
@@ -141,9 +140,9 @@ whileStmt: WHILE '(' expr ')' block;
 // funkcji, lub przed startem programu zdefiniowane zostaną jako wbudowane funkcje
 
 ioStmt
-    : PRINT '(' expr (',' format)? ')'
-    | PRINTLN '(' (expr (',' format)?)? ')' // println() lub println(x) lub println(x, BIN)
-    | DEBUG '(' ID ('[' expr ']')? ')'
+    : PRINT '(' (expr (',' expr)*)? ')'
+    | PRINTLN '(' (expr (',' expr)*)? ')' // println() lub println(x) lub println(x, BIN) or printf style
+    | DEBUG '(' ID ('[' expr ']')* ')'
     | INPUT '(' ID ('[' expr ']')? (',' format)? (',' constraint)? ')'
     ;
 
@@ -193,6 +192,7 @@ expr
     | BOOL_VAL                           # BoolExpr
     | STRING                             # StrExpr
     | '(' expr ')'                       # ParenExpr
+    | expr '?' expr ':' expr             # ShortIfExpr
     ;
 
 

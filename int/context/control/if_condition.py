@@ -46,3 +46,15 @@ def handle_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
             self.handle_block(item, parent=chosen_block)
     finally:
         self.scopes.pop()
+
+def handle_short_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    # shortIfStmt: expr '?' expr ':' expr;
+
+    expressions = [x for x in block.expr()]
+
+    
+    condition = self.handle_block(expressions[0], block)
+    if check_condition(condition):
+        return self.handle_block(expressions[1], block)
+    else:
+        return self.handle_block(expressions[2], block)

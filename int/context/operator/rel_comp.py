@@ -9,7 +9,17 @@ if TYPE_CHECKING:
 
 
 def _value_of(item):
-    return item.value if isinstance(item, Expression) else item
+    if isinstance(item, Expression):
+        return item.value
+    elif hasattr(item, 'value'):
+        return item.value
+    elif hasattr(item, 'get'):
+        get_result = item.get()
+        if isinstance(get_result, Expression):
+            return get_result.value
+        return get_result
+    else:
+        return item
 
 def handle_rel_comp(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr ('<' | '>' | '<=' | '>=') expr

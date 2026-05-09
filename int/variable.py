@@ -96,6 +96,23 @@ class Variable:
             data.set(values)
 
     def set(self, new_value: Expression):
+        if self.index is not None and len(self.index) > 0:
+            target = self.data
+            if len(self.index) > 1:
+                target = self.get_data_at_index(self.data, self.index[:-1])
+
+            last_index = self.index[-1]
+            element = target[last_index] if isinstance(target, list) else target
+
+            if isinstance(element, list):
+                if new_value.type != TYPE_LIST:
+                    log(VARIABLE, FATAL, "List expression required")
+                    exit()
+                self.assign_values(element, new_value.value)
+            else:
+                element.set(new_value.value)
+            return
+
         if self.is_list:
             if new_value.type != TYPE_LIST:
                 log(VARIABLE, FATAL, "List expression required")

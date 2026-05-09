@@ -10,107 +10,78 @@ from ...logger import log, DEBUG, IN_OUT
 
 from ...expression import *
 from ...variable import Variable
+from ...function import Function
 if TYPE_CHECKING:
     from place import Place
 
 def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # first child can be 'print', 'println' or 'input', 'debug'(TODO)
+    # first child can be 'print', 'println' or 'input', 'debug'
 
-    # PRINT
-    # print()                -> print nothing
-    # print(<val>)           -> print decimal
-    # print(<val>, <format>) -> print bin/hex 
-    # <val> = VarExprContext
-    # (same for println)
-
-    # 1. Terminal 'print'
-    # 2. Terminal '('
-    # 3. VarExprContext or StrExprContext
-    # If format defined:
-    #   4a. Terminal ','
-    #   4b. block 'format' HEX/BIN 
-    # 5. Terminal ')'
-
-    # Combinations
-    #       (CHILD INDEX)
-    # (0) (1) (2)  (3)  (4)
-    # [2] [5]               -> ()
-    # [2] [3] [5]           -> (<val>)
-    # [2] [3] [4a] [4b] [5] -> (<val>, <format>)
-
-    def handle_print(add_newline: bool = False):
+    def convert_value(value):
+        if isinstance(value, Num):
+            return value.get().value
+        if isinstance(value, Expression):
+            if value.type == TYPE_INT:
+                return int(value.value)
+            elif value.type == TYPE_FLOAT:
+                return float(value.value)
+            elif value.type == TYPE_BOOL:
+                return 'T' if value.value else 'F'
+            elif value.type == TYPE_OBS:
+                return 'T' if value.get() else 'F'
+            elif value.type == TYPE_OBS_REGISTER:
+                return value.get()
+            elif value.type == TYPE_NUM:
+                return value.value
+        if isinstance(value, str):
+            return value
+        if isinstance(value, list):
+            def map_list(data):
+                if isinstance(data, list):
+                    return [map_list(x) for x in data]
+                else:
+                    return convert_value(data)
+            return map_list(value)
+        return str(value)
+    
+    def handle_print(add_newline=False):
         nonlocal block
-        format = None
 
         # no expr -> print a newline if enabled
-        if block.expr() is None and add_newline:
-            self.console.write("\n")
+        if not block.expr():
+            if add_newline:
+                self.console.write("\n")
             return
         
-        # Get format string if specified
-        if block.format_():
-            format = self.handle_block(block.format_(), block)
+        # Get all expressions
+        exprs = []
+        for i in range(len(block.expr())):
+            exprs.append(self.handle_block(block.expr(i), block))
 
-        # evaluate value to print
-        to_print = self.handle_block(block.expr(), block)
-
-        if isinstance(to_print, Num):
-            to_print = to_print.get().value
-
-        if isinstance(to_print, Expression):
-            if to_print.type == TYPE_INT:
-                to_print = int(to_print.value)
-            elif to_print.type == TYPE_FLOAT:
-                to_print = float(to_print.value)
-            elif to_print.type == TYPE_BOOL:
-                to_print = 'T' if to_print.value else 'F'
-            elif to_print.type == TYPE_OBS:
-                to_print = 'T' if to_print.get() else 'F'
-            elif to_print.type == TYPE_OBS_REGISTER:
-                to_print = to_print.get()
-            elif to_print.type == TYPE_NUM:
-                to_print = to_print.value
-        
-
-        def map_list(data, func):
-            if isinstance(data, list):
-                return [map_list(x, func) for x in data]
-            else:
-                return func(data)
-
-        def convert_element(item):
-            return item.value
-
-        if isinstance(to_print, list):
-            to_print = map_list(to_print, convert_element)
-            
-            
-            
-
-
-
-        
-
-        print_text = to_print
-
-        if format is not None:
-            # when format is used, formated value cannot be a string
-            if isinstance(print_text, str):
+        # If first is string with %, treat as printf
+        if len(exprs) > 0 and isinstance(exprs[0], str) and '%' in exprs[0]:
+            format_str = exprs[0]
+            args = exprs[1:]
+            # Convert args to values
+            converted_args = []
+            for arg in args:
+                converted_args.append(convert_value(arg))
+            try:
+                print_text = format_str % tuple(converted_args)
+            except Exception as e:
                 self.script_errors.showError(
                     pos=pos,
                     error_type="RUNTIME ERROR",
-                    title="String can't be a number",
-                    msg="Try using digits next time. Just a suggestion."
+                    title="Printf format error",
+                    msg=str(e)
                 )
                 exit()
-
-            # format the number as BIN or HEX, decimal is the default
-            if format == "BIN":
-                print_text = f"0b{print_text:b}"
-            elif format == "HEX":
-                print_text = f"0x{print_text:X}"
         else:
-            print_text = str(print_text)
+            # Print all args separated by space
+            print_parts = []
+            for expr in exprs:
+                print_parts.append(str(convert_value(expr)))
+            print_text = ' '.join(print_parts)
 
         # add a newline if the command was println
         if add_newline:
@@ -257,6 +228,89 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         variable.set(Expression(value_type, value))
         self.scopes.set(var_name, variable)
 
+    def handle_debug():
+        nonlocal block
+        
+        # DEBUG '(' ID ('[' expr ']')* ')'
+        var_name = block.ID().getText()
+        
+        if not self.scopes.exists(var_name):
+            self.script_errors.showError(
+                pos=pos,
+                error_type="RUNTIME ERROR",
+                title="Debug Error",
+                msg=f"Variable '{var_name}' not found."
+            )
+            exit()
+        
+        variable = self.scopes.get(var_name)
+        
+        index = []
+        for expr in block.expr():
+            expr_value = self.handle_block(expr, block)
+            if hasattr(expr_value, 'value'):
+                index.append(expr_value.value)
+            else:
+                index.append(expr_value)
+        
+        debug_info = f"DEBUG {var_name}"
+        if len(index) > 0:
+            for i in index:
+                debug_info += f"[{i}]"
+        debug_info += ": "
+
+        # TODO: make the debug output more structured, not just everything in one line
+        # make it multiline and more readable
+
+        def format_variable_value(var):
+            if isinstance(var, Num):
+                return f"Num(value={var.value}, is_float={var.is_float})"
+            elif isinstance(var, Obs):
+                return f"Obs(value={var.get()})"
+            elif isinstance(var, ObsRegister):
+                return f"ObsRegister(value={var.get()})"
+            elif isinstance(var, list):
+                return f"[{', '.join(format_variable_value(x) for x in var)}]"
+            else:
+                return str(var)
+        
+        if isinstance(variable, Variable):
+            debug_info += f"Variable(type={variable.type}, dimensions={variable.dimensions}"
+            if len(index) == 0:
+                if variable.data is None:
+                    debug_info += ", data=None"
+                else:
+                    debug_info += f", data={format_variable_value(variable.data)}"
+                debug_info += ")"
+            else:
+                try:
+                    if variable.is_list:
+                        indexed_value = variable.data
+                        for idx in index if isinstance(index, list) else [index]:
+                            indexed_value = indexed_value[idx]
+                        debug_info += f", indexed_value={format_variable_value(indexed_value)})"
+                    else:
+                        debug_info += ", not a list, cannot index)"
+                except Exception as e:
+                    debug_info += f", error accessing index: {e})"
+        elif isinstance(variable, Function):
+            debug_info += f"Function(param_count={len(variable.params)}"
+            
+            for p in variable.params or []:
+                debug_info += f", param_{p.name}={{name: {p.name}, type: {p.type}, size: {p.size}, initial_value: {format_variable_value(p.initial_value)}}}"
+            
+            debug_info += f", body_length={len(variable.body)}"
+            # position in code
+            debug_info += f", pos={variable.pos})"
+
+
+            
+        else:
+            debug_info += f"Other(type={type(variable)}, value={variable})"
+        
+        self.console.write(debug_info + "\n")
+
+
 
     stmt_type = block.getChild(0).getText()
 
@@ -265,7 +319,8 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
     elif stmt_type == "println":
         handle_print(add_newline=True)
     elif stmt_type == "debug":
-        pass
+        handle_debug()
+
     elif stmt_type == "input":
         handle_input()
         

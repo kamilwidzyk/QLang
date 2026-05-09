@@ -101,4 +101,7 @@ AndEqExprCtx = QLangParser.AndEqExprContext
 # Or equal
 OrEqExprCtx = QLangParser.OrEqExprContext
 
+# Short if expr
+ShortIfExprCtx = QLangParser.ShortIfExprContext
+
 

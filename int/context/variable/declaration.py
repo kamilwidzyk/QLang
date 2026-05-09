@@ -4,12 +4,48 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 from ...obs import Obs, ObsRegister
 
-from ...expression import TYPE_INT, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER
+from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER
 from ...logger import log, VARIABLE, FATAL
 
 from ...exception.size_error import SizeErrorException
 from ...exception.variable_redefinition import VariableRedefiniotionException
 from ...variable import Variable
+
+
+def _list_shape(values: Any) -> list | None:
+    if not isinstance(values, list):
+        return []
+
+    if len(values) == 0:
+        return [0]
+
+    first_shape = _list_shape(values[0])
+    if first_shape is None:
+        return None
+
+    for element in values[1:]:
+        element_shape = _list_shape(element)
+        if element_shape != first_shape:
+            return None
+
+    return [len(values)] + first_shape
+
+
+def _normalize_list_values(values: Any) -> Any:
+    if isinstance(values, list):
+        return [_normalize_list_values(v) for v in values]
+
+    if isinstance(values, Expression):
+        return values
+
+    if hasattr(values, 'get') and not isinstance(values, Expression):
+        try:
+            return values.get()
+        except Exception:
+            pass
+
+    return values
+
 
 if TYPE_CHECKING:
     from place import Place
@@ -58,7 +94,38 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
 
     var = Variable(var_name, type, dimensions)
+    print(dimensions, initial_value)
     if initial_value is not None:
+        if isinstance(initial_value, list):
+            initial_value = _normalize_list_values(initial_value)
+            value_shape = _list_shape(initial_value)
+
+            if value_shape is None or (isinstance(value_shape, int) and value_shape != dimensions[0]) or (isinstance(value_shape, list) and value_shape != dimensions):
+                self.script_errors.showError(
+                    pos=ScriptErrors.Position.extract(block),
+                    error_type="RUNTIME ERROR",
+                    title="Array Shape Mismatch",
+                    msg=(
+                        f"Cannot initialize array '{var_name}' with shape {value_shape} "
+                        f"when declared size is {dimensions}."
+                    )
+                )
+                exit()
+
+            initial_value = Expression(TYPE_LIST, initial_value, shape=value_shape)
+        elif isinstance(initial_value, Expression) and initial_value.type == TYPE_LIST:
+            if initial_value.shape is None or (isinstance(initial_value.shape, int) and initial_value.shape != dimensions[0]) or (isinstance(initial_value.shape, list) and initial_value.shape != dimensions):
+                self.script_errors.showError(
+                    pos=ScriptErrors.Position.extract(block),
+                    error_type="RUNTIME ERROR",
+                    title="Array Shape Mismatch",
+                    msg=(
+                        f"Cannot initialize array '{var_name}' with shape {initial_value.shape} "
+                        f"when declared size is {dimensions}."
+                    )
+                )
+                exit()
+
         try:
             var.set(initial_value)
         except (AttributeError, TypeError, ValueError):

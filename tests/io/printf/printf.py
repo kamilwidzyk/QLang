@@ -2,8 +2,8 @@ from tests.test import *
 
 
 
-def test_function_call() -> bool:
-    run_in_test_mode("tests\\function\\call\\call.ql")
+def test_io_printf() -> bool:
+    run_in_test_mode("tests\\io\\printf\\printf.ql")
 
     test_lines = extract_test_lines_from_log()
     if(SYNTAX_ERRORS in test_lines):
@@ -16,18 +16,11 @@ def test_function_call() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "F1\nF2 x=10\nF3 x=5 y=10\nF4 x=5 y=10 z=15\n10\nF6\n"
+    expected_output = "x = 42, y = 3.14\nHello world"
 
     if place_log["global"] != expected_output:
-        print("Expected: " + expected_output.replace("\n", "\\n"))
-        print("Got: " + place_log["global"].replace("\n", "\\n"))
+        print("Expected: " + repr(expected_output))
+        print("Got: " + repr(place_log["global"]))
         return False
     
     return True
-
-
-
-
-
-
-
