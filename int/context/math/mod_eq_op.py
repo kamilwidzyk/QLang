@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from place import Place
 
 
-
 def handle_mod_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr '%=' expr
     # left is variable -> assign variable % right, return variable % right
@@ -25,11 +24,7 @@ def handle_mod_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
 
     right_value = self.handle_block(right_expr, block)
 
-    if right_value == 0:
-        raise ModuloOverZeroException(ScriptErrors.Position.extract(right_expr))
-
-    if not is_variable(left_expr):
-        raise AssignmentToExpressionException(ScriptErrors.Position.extract(left_expr))
+    
 
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
         

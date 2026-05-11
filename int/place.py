@@ -72,6 +72,7 @@ from .context.operator.eq_comp                import handle_eq_comp
 from .context.math.logic.and_op                 import handle_and
 from .context.math.logic.or_op                  import handle_or
 from .context.expression.bool_val               import handle_bool
+from .context.expression.null_val               import handle_null
 from .context.expression.parentheses            import handle_parentheses
 from .context.terminal               import handle_terminal
 from .context.io.constraint             import handle_constraint
@@ -90,6 +91,7 @@ from .context.math.mod_eq_op              import handle_mod_eq_op
 from .context.math.pow_eq_op              import handle_pow_eq_op
 from .context.math.logic.and_eq_op              import handle_and_eq_op
 from .context.math.logic.or_eq_op               import handle_or_eq_op
+from .context.operator.reference import handle_reference
 
 class Place:
     """
@@ -217,6 +219,7 @@ class Place:
             AndExprCtx:             handle_and,
             OrExprCtx:              handle_or,
             BoolExprCtx:            handle_bool,
+            NullExprCtx:            handle_null,
             ParenExprCtx:           handle_parentheses,
             ConstraintCtx:          handle_constraint,
             AssigmentStmtCtx:       handle_assigment,
@@ -250,7 +253,9 @@ class Place:
             # And equal
             AndEqExprCtx:           handle_and_eq_op,
             # Or equal
-            OrEqExprCtx:            handle_or_eq_op
+            OrEqExprCtx:            handle_or_eq_op,
+            # Reference '@'
+            ReferenceCtx:           handle_reference
 
 
 

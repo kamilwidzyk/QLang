@@ -84,7 +84,7 @@ def read_place_files_as_dict() -> dict:
 
     return result
 
-def run_tests_in_directory(root_dir):
+def run_tests_in_directory(root_dir, test_name=None):
     results = {}
 
     for dirpath, dirnames, filenames in os.walk(root_dir):
@@ -107,15 +107,17 @@ def run_tests_in_directory(root_dir):
                 for attr_name in dir(module):
                     #print(f"  Checking {attr_name}...")
                     if attr_name.startswith("test_"):
+                        if test_name and attr_name != test_name:
+                            continue
                         func = getattr(module, attr_name)
                         print(f"{colorama.Fore.GREEN}     >>>>> Running {attr_name} <<<<<{colorama.Style.RESET_ALL}")
 
                         if callable(func):
-                            test_name = attr_name[len("test_"):]
+                            test_name_short = attr_name[len("test_"):] if attr_name.startswith("test_") else attr_name
 
                             # 👇 relative path instead of absolute
                             rel_path = os.path.relpath(file_path, os.getcwd())
-                            key = f"{rel_path}:{test_name}"
+                            key = f"{rel_path}:{test_name_short}"
 
                             try:
                                 result = func()
@@ -130,15 +132,17 @@ def run_tests_in_directory(root_dir):
 if __name__ == "__main__":
     # Default: run all tests
     prepare_test_run()
-    subdir = "tests"
+    subdir = path_from_root("tests")
+    test_name = None
 
     # If argument provided → run only that subdirectory
     if len(sys.argv) > 1:
         subdir = path_from_root(f"tests/{sys.argv[1]}")
-    else:
-        subdir = path_from_root("tests")
+    # If second argument provided → run only that test function
+    if len(sys.argv) > 2:
+        test_name = "test_" +sys.argv[2]
 
-    failed_passed = run_tests_in_directory(subdir)
+    failed_passed = run_tests_in_directory(subdir, test_name)
 
     print(f"{colorama.Fore.BLACK}\n\n{colorama.Back.GREEN}          #####>-- Test results: --<#####          {colorama.Style.RESET_ALL}\n")
     passed_count = sum(1 for result in failed_passed.values() if result)

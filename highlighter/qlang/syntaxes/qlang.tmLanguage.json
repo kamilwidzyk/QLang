@@ -6,10 +6,10 @@
 		{ "include": "#strings" },
 		{ "include": "#semicolon"},
 		{ "include": "#numbers"},
+		{ "include": "#storage" },
 		{ "include": "#function_calls"},
 		{ "include": "#constant"},
 		{ "include": "#operators" },
-		{ "include": "#storage" },
 		{ "include": "#keywords_control"},
 		{ "include": "#keywords_function"},
 		{ "include": "#builtin_functions" }
@@ -18,15 +18,15 @@
 		"operators": {
 			"patterns": [
 				{
-					"name": "keyword.operator.mylang",
-					"match": "(#|\\+\\+|--|\\+=|-=|\\*=|/=|\\*\\*=|==|!=|>=|<=|\\*\\*|=|\\+|-|\\*|/|<|>|!|&|\\||&=|\\|=|%|%=)"
+					"name": "keyword.operator.qlang",
+					"match": "(#|\\+\\+|--|\\+=|-=|\\*=|/=|\\*\\*=|==|!=|>=|<=|\\*\\*|=|\\+|-|\\*|/|<|>|!|&|\\||&=|\\|=|%|%=|@)"
 				}
 			]
 		},
 		"builtin_functions":{
 			"patterns": [
 				{
-					"name": "support.function",
+					"name": "support.function.qlang",
 					"match": "\\b(print|println|input|debug|range|parent|\\.\\.)\\b"
 				}
 			]
@@ -50,16 +50,16 @@
 		"storage": {
 			"patterns": [
 				{
-					"name": "storage.type",
-					"match": "\\b(num|obs|state)\\b"
+					"name": "storage.type.primitive.qlang",
+					"match": "\\b(num|obs|state|text)\\b"
 				}
 			]
 		},
 		"constant": {
 			"patterns": [
 				{
-					"name": "constant.language",
-					"match": "\\b(T|F|DEC|HEX|BIN)\\b"
+					"name": "constant.language.qlang",
+					"match": "\\b(T|F|DEC|HEX|BIN|NULL)\\b"
 				}
 			]
 		},

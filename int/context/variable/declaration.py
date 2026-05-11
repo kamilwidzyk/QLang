@@ -4,7 +4,7 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 from ...obs import Obs, ObsRegister
 
-from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER
+from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER, TYPE_TEXT
 from ...logger import log, VARIABLE, FATAL
 
 from ...exception.size_error import SizeErrorException
@@ -52,16 +52,20 @@ if TYPE_CHECKING:
 
 
 def handle_variable_sizevar(self: Place, block: any, parent: any):
-    # sizeVar: '[' expr ']'; 
-    # Only int allowed as size
-    expr = self.handle_block(block.expr(), block)
-    if expr.type != TYPE_INT:
-        raise SizeErrorException(ScriptErrors.Position.extract(block))
-    
-    if expr.value <= 0:
-        raise SizeErrorException(ScriptErrors.Position.extract(block))
+    # sizeVar: '[' (expr | '?') ']'; 
+    # Only int allowed as size, or '?' for dynamic size
+    if block.expr():
+        expr = self.handle_block(block.expr(), block)
+        if expr.type != TYPE_INT:
+            raise SizeErrorException(ScriptErrors.Position.extract(block))
+        
+        if expr.value <= 0:
+            raise SizeErrorException(ScriptErrors.Position.extract(block))
 
-    return expr.value
+        return expr.value
+    elif block.getText().find('?') != -1:
+        # Dynamic size
+        return '?'
 
 
 
@@ -75,9 +79,11 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
     dimensions = []
     for size in block.sizeVar():
-        dimensions.append(
-            handle_variable_sizevar(self, size, block)
-        )
+        dim = handle_variable_sizevar(self, size, block)
+        dimensions.append(dim if dim != '?' else -100)
+
+    # Remember if it was dynamic
+    is_dynamic = -100 in [d for d in dimensions if isinstance(d, int)] or len(dimensions) == 0
     
     initial_value = None
 
@@ -114,6 +120,19 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
             initial_value = Expression(TYPE_LIST, initial_value, shape=value_shape)
         elif isinstance(initial_value, Expression) and initial_value.type == TYPE_LIST:
+            print("Initial value is a list expression with shape:", initial_value.shape)
+            print("Size dynamic: ", is_dynamic)
+            if(is_dynamic):
+                dimensions = initial_value.shape
+                var.dimensions = dimensions
+            value_shape = initial_value.shape
+            initial_value = Expression(TYPE_LIST, initial_value.value, shape=value_shape)
+            var = Variable(var_name, type, value_shape)
+            print("Dimesions: ", dimensions)
+            print("Initial value shape: ", value_shape)
+            print("Initial value: ", initial_value)
+            
+
             if initial_value.shape is None or (isinstance(initial_value.shape, int) and initial_value.shape != dimensions[0]) or (isinstance(initial_value.shape, list) and initial_value.shape != dimensions):
                 self.script_errors.showError(
                     pos=ScriptErrors.Position.extract(block),
@@ -126,16 +145,16 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                 )
                 exit()
 
-        try:
-            var.set(initial_value)
-        except (AttributeError, TypeError, ValueError):
-            self.script_errors.showError(
-                pos=ScriptErrors.Position.extract(block),
-                error_type="RUNTIME ERROR",
-                title="Type Mismatch",
-                msg=f"The variable '{var_name}' is defined as '{type}' (numeric)."
-            )
-            exit()
+        #try:
+        var.set(initial_value)
+        #except (AttributeError, TypeError, ValueError):
+        #    self.script_errors.showError(
+        #        pos=ScriptErrors.Position.extract(block),
+        #        error_type="RUNTIME ERROR",
+        #        title="Type Mismatch",
+        #        msg=f"The variable '{var_name}' is defined as '{type}' (numeric)."
+        #    )
+        #    exit()
 
     self.scopes.create(var_name, var)
 
@@ -151,6 +170,8 @@ def handle_variable_declaration(self: Place, block: any, parent: Any, pos: Scrip
         var_type = TYPE_OBS
     elif var_type == "num":
         var_type = TYPE_NUM
+    elif var_type == "text":
+        var_type = TYPE_TEXT
     else:
         log(VARIABLE, FATAL, "Unsupported variable type: " + str(var_type))
         exit()

@@ -4,6 +4,7 @@ from .expression import *
 from .logger import log, INTERNAL, FATAL, VARIABLE
 from .obs import Obs, ObsRegister
 from .num import Num
+from .text import Text
 
 # Class enclosing every variable
 # Supports making arrays with multiple dimensions
@@ -24,7 +25,6 @@ class Variable:
             log(INTERNAL, FATAL, "Attempted to create instance of Variable with type of " + str(type))
             exit()
         if type == TYPE_OBS:
-
             self._create_array_of_obs()
         elif type == TYPE_OBS_REGISTER:
             self._create_array_of_obs_register()
@@ -80,12 +80,15 @@ class Variable:
     
     def _create_array_of_text(self):
         if self.dimensions != [0]:
-            self.data = self._create_array_of(str, self.dimensions)
+            self.data = self._create_array_of(Text, self.dimensions)
             self.is_list = True
         else:
-            self.data = ""
+            self.data = Text("")
     
     def assign_values(self, data, values):
+        print("Assigning values to variable", self.name)
+        print("Data before assignment: ", data)
+        print("Values to assign: ", values)
         if isinstance(values, Expression):
             values = values.value
         print("Data: ", data)
@@ -111,6 +114,32 @@ class Variable:
                 target = self.get_data_at_index(self.data, self.index[:-1])
 
             last_index = self.index[-1]
+            
+            if isinstance(target, Text):
+                # Handle string indexing
+                if isinstance(new_value.value, Text) and len(new_value.value) == 1:
+                    char = new_value.value
+                else:
+                    char = str(new_value.value)[0] if new_value.value else '\0'
+                
+                # Expand string if necessary
+                while len(target.value) <= last_index:
+                    target.value += '\0'
+                
+                # Replace character
+                target.value = target.value[:last_index] + char + target.value[last_index+1:]
+                
+                # Update the data
+                if len(self.index) == 1:
+                    self.data = target
+                else:
+                    # Need to set back in the parent structure
+                    parent = self.data
+                    for idx in self.index[:-2]:
+                        parent = parent[idx]
+                    parent[self.index[-2]] = target
+                return
+            
             element = target[last_index] if isinstance(target, list) else target
 
             if isinstance(element, list):
@@ -128,11 +157,16 @@ class Variable:
                 exit()
             self.assign_values(self.data, new_value.value)
         else:
-            self.data.set(new_value.value)
+            if isinstance(self.data, Text):
+                # Setting entire string
+                self.data.value = str(new_value.value) if new_value.value is not None else ""
+            else:
+                self.data.set(new_value.value)
 
     def get_data_at_index(self, data, indexes):
         for idx in indexes:
-            data = data[idx]
+            if isinstance(data, Text):
+                data.value = data.value[idx]
         return data
 
     def get(self):

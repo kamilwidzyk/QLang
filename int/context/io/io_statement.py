@@ -1,5 +1,7 @@
 from typing import Any, TYPE_CHECKING
 
+import colorama
+
 from ...script_errors import ScriptErrors
 from ...consts import *
 from ...obs import Obs, ObsRegister
@@ -11,6 +13,7 @@ from ...logger import log, DEBUG, IN_OUT
 from ...expression import *
 from ...variable import Variable
 from ...function import Function
+from ...text import Text
 if TYPE_CHECKING:
     from place import Place
 
@@ -20,6 +23,8 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
     def convert_value(value):
         if isinstance(value, Num):
             return value.get().value
+        if isinstance(value, Text):
+            return value.get()
         if isinstance(value, Expression):
             if value.type == TYPE_INT:
                 return int(value.value)
@@ -32,6 +37,10 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             elif value.type == TYPE_OBS_REGISTER:
                 return value.get()
             elif value.type == TYPE_NUM:
+                return value.value
+            elif value.type == TYPE_TEXT:
+                return value.value
+            elif value.type == TYPE_STRING:
                 return value.value
             else:
                 # For unspecified types, try to return the value directly
@@ -236,33 +245,133 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
     def handle_debug():
         nonlocal block
         
-        # DEBUG '(' ID ('[' expr ']')* ')'
-        var_name = block.ID().getText()
-        
-        if not self.scopes.exists(var_name):
-            self.script_errors.showError(
-                pos=pos,
-                error_type="RUNTIME ERROR",
-                title="Debug Error",
-                msg=f"Variable '{var_name}' not found."
-            )
-            exit()
-        
-        variable = self.scopes.get(var_name)
-        
-        index = []
-        for expr in block.expr():
-            expr_value = self.handle_block(expr, block)
-            if hasattr(expr_value, 'value'):
-                index.append(expr_value.value)
+        # DEBUG '(' expr ')'
+
+        is_reference = False
+        value = None
+
+        if block.expr():
+            value = self.handle_block(block.expr(0), block)
+
+        if block.reference():
+            value = self.handle_block(block.reference(), block)
+            is_reference = True
+
+        if value is None:
+            self.console.write("DEBUG None\n")
+            return
+
+        debug_lines = []
+
+        def value_to_lines(val):
+            if isinstance(val, int):
+                return [
+                    "Type: int", "Value: " + str(val)
+                ]
+            if isinstance(val, float):
+                return [
+                    "Type: float", "Value: " + str(val)
+                ]
+            if isinstance(val, str):
+                return [
+                    "Type: str", f"Length: {len(val)}", "Value: " + val
+                ]
+            if isinstance(val, list):
+                lines = ["Type: list", f"Length: {len(val)}", "Value: ["]
+                for item in val:
+                    item_lines = value_to_lines(item)
+                    lines.extend(["\t" + line for line in item_lines])
+                lines.append("]")
+                return lines
+            if isinstance(val, Num):
+                return [
+                    "Type: Num", f"Value: {val.get()} (is_float: {val.is_float})"
+                ]
+            if isinstance(val, Obs):
+                return [
+                    "Type: Obs", f"Value: {val.get()}"
+                ]
+            if isinstance(val, ObsRegister):
+                return [
+                    "Type: ObsRegister", f"Size: {val.size}", f"Value: {val.get()}"
+                ]
+            if isinstance(val, Text):
+                return [
+                    "Type: Text", f"Length: {len(val.get())}", f"Value: {val.get()}"
+                ]
+
+            
+
+            return [
+                "Unknown type: " + str(type(val)), "Value: " + str(val)
+            ]
+
+
+        if is_reference:
+            # this should be a variable or function
+            if isinstance(value, Variable):
+                # information to display: name, type, dimensions, data, is_list, index
+                # for data use a separate print handler
+                debug_lines.append("===== Variable Reference =====")
+                debug_lines.append(f"Name:       {value.name}")
+                debug_lines.append(f"Type:       {value.type}")
+                debug_lines.append(f"Dimensions: {value.dimensions}")
+                debug_lines.append(f"Is List:    {value.is_list}")
+                debug_lines.append(f"Index:      {value.index}")
+                if value.data is not None:
+                    debug_lines.append("Data: ")
+                value_lines = value_to_lines(value.data)
+                debug_lines.extend(["\t" + x for x in value_lines])
+
+            elif isinstance(value, Function):
+                # information to display: name, params(list + count), body(likely not), pos, type
+                debug_lines.append("===== Function Reference =====")
+                debug_lines.append(f"Name:            {value.name}")
+                debug_lines.append(f"Parameter Count: {len(value.params)}")
+                for i, param in enumerate(value.params):
+                    debug_lines.append(f"\tParam {i}: {param.name}")
+                    debug_lines.append(f"\t\tType: {param.type}")
+                    debug_lines.append(f"\t\tSize: {param.size}")
+                    if param.initial_value is not None:
+                        debug_lines.append(f"\t\tInitial Value: ")
+                        param_value_lines = value_to_lines(param.initial_value)
+                        debug_lines.extend(["\t\t\t" + x for x in param_value_lines])
+                debug_lines.append(f"Body Length:     {len(value.body)}")
+                debug_lines.append(f"Position:        {value.pos}")
             else:
-                index.append(expr_value)
+                self.console.write(f"DEBUG Unsupported reference type: {type(value)}\n")
+                return
+        elif isinstance(value, Expression):
+            debug_lines.append("===== Expression =====")
+            debug_lines.append(f"Type:  {value.type}")
+            debug_lines.append(f"Shape: {value.shape}")
+            if value.value is not None:
+                debug_lines.append("Value: ")
+                debug_lines.extend(["\t" + x for x in value_to_lines(value.value)])
+            if value.variable is not None:
+                debug_lines.append("Variable: ")
+                debug_lines.extend(["\t" + x for x in value_to_lines(value.variable.data)])
+        else:
+            debug_lines.append("===== Value =====")
+            debug_lines.extend(value_to_lines(value))
+
+
+
+        debug_lines = [f"{colorama.Fore.RED}DEBUG{colorama.Style.RESET_ALL} {str(line)}" for line in debug_lines]
+        self.console.write("\n".join(debug_lines) + "\n")
         
-        debug_info = f"DEBUG {var_name}"
-        if len(index) > 0:
-            for i in index:
-                debug_info += f"[{i}]"
-        debug_info += ": "
+
+        return
+
+
+        if isinstance(value, Variable):
+            debug_info = f"DEBUG {value.name}: type={value.type}, dimensions={value.dimensions}"
+            if value.data is not None:
+                debug_info += f", data={value.data}"
+            self.console.write(debug_info + "\n")
+            return
+
+        return        
 
         # TODO: make the debug output more structured, not just everything in one line
         # make it multiline and more readable

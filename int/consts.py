@@ -53,6 +53,7 @@ EqExprCtx = QLangParser.EqExprContext
 AndExprCtx = QLangParser.AndExprContext
 OrExprCtx = QLangParser.OrExprContext
 BoolExprCtx = QLangParser.BoolExprContext
+NullExprCtx = QLangParser.NullExprContext
 ParenExprCtx = QLangParser.ParenExprContext
 ConstraintCtx = QLangParser.ConstraintContext
 AssigmentStmtCtx = QLangParser.AssignStmtContext
@@ -104,5 +105,8 @@ OrEqExprCtx = QLangParser.OrEqExprContext
 
 # Short if expr
 ShortIfExprCtx = QLangParser.ShortIfExprContext
+
+# Reference '@'
+ReferenceCtx = QLangParser.ReferenceContext
 
 

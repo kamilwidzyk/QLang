@@ -43,12 +43,13 @@ constDecl: CONST ID '=' expr;
 // obs x[5][10] -> 5 wartości po 10 bitów
 // num a[10][10] -> 10 tablic po 10 wartości
 //
+reference: '@' ID;
 
 // Możliwe typy zmiennych: obs i num, state(jeszcze nie zrobione)
 varType: STATE | OBS | NUM | TEXT;
 
 // Do deklaracji zmiennej z możliwym przypisaniem
-sizeVar: '[' expr ']';               /** Rozmiar mogący zawierać zmienną */
+sizeVar: '[' (expr | '?') ']';               /** Rozmiar mogący zawierać zmienną */
 varAssign: ID sizeVar* ('=' expr)?;  /** Deklaracja zmiennej z możliwym rozmiarem i przypisaniem */
 
 // Do deklaracji zmiennej z brakiem możliwości przypisania (np. w deklaracji stanu kwantowego)
@@ -144,7 +145,7 @@ whileStmt: WHILE '(' expr ')' block;
 ioStmt
     : PRINT '(' (expr (',' expr)*)? ')'
     | PRINTLN '(' (expr (',' expr)*)? ')' // println() lub println(x) lub println(x, BIN) or printf style
-    | DEBUG '(' ID ('[' expr ']')* ')'
+    | DEBUG '(' (expr | reference) ')'
     | INPUT '(' ID ('[' expr ']')? (',' format)? (',' constraint)? ')'
     ;
 
@@ -193,6 +194,7 @@ expr
     | INT_NUMBER                         # IntNumExpr
     | NUMBER                             # NumExpr
     | BOOL_VAL                           # BoolExpr
+    | NULL                               # NullExpr
     | STRING                             # StrExpr
     | '(' expr ')'                       # ParenExpr
     | expr '?' expr ':' expr             # ShortIfExpr
@@ -318,6 +320,7 @@ HEX: 'HEX';
 
 // Literale
 BOOL_VAL: 'T' | 'F';
+NULL: 'NULL';
 
 POW_OP:   '**';
 LPAREN:   '(';
@@ -336,7 +339,10 @@ ARROW:    '->';
 ASSIGN:   '=';
 HAT:      '^';
 
-STRING     : '"' (~["\r\n])* '"' ;
+STRING     : '"' (~["\r\n])* '"' 
+           | '\'' (~['])* '\''
+           | '`' (~[`])* '`'
+           ;
 
 INT_NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
 NUMBER: FLOAT_NUMBER | INT_NUMBER;

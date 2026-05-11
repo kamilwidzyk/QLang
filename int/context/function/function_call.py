@@ -46,6 +46,13 @@ def _is_arg_type_compatible(expected_type: str, value: Any) -> bool:
         if isinstance(value, list):
             return True
         return False
+    if expected_type == "text":
+        # Accept string expressions and text variables.
+        if value_type in [TYPE_STRING, TYPE_TEXT]:
+            return True
+        if isinstance(value, str):
+            return True
+        return False
     if expected_type == "state":
         return False
     return True
@@ -340,7 +347,8 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
             type_const = {
                 "num": TYPE_NUM,
                 "obs": TYPE_OBS,
-                "state": TYPE_STATE
+                "state": TYPE_STATE,
+                "text": TYPE_TEXT
             }.get(param.type, TYPE_NUM)
             
             # Handle dimensions
