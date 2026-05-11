@@ -26,8 +26,14 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
             self.handle_block(expr, block).value
         )
 
-    print("index: ", index)
-
+    # For lists (like varargs), handle indexing directly
+    if isinstance(variable, list):
+        if index:
+            result = variable
+            for idx in index:
+                result = result[int(idx)]
+            return Expression("value", result) if not isinstance(result, Expression) else result
+        return variable
 
     variable.index = index
 

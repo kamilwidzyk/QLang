@@ -6,12 +6,18 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_arg_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # argList: expr (',' expr)*;
+    # argList: arg (',' arg)*;
+    # arg: expr | namedArg;
+    # namedArg: ID '=' expr;
 
-    named_arg_list = block.namedArgList()
-    if named_arg_list:
-        arg_names = [token.getText() for token in named_arg_list.ID()]
-        arg_values = [self.handle_block(expr, block) for expr in named_arg_list.expr()]
-        return dict(zip(arg_names, arg_values))
-
-    return [self.handle_block(expr, block) for expr in block.standardArgList().expr()]
+    args = []
+    for arg in block.arg():
+        if arg.expr() is not None:
+            args.append(self.handle_block(arg.expr(), block))
+        elif arg.namedArg() is not None:
+            named_arg = arg.namedArg()
+            arg_name = named_arg.ID().getText()
+            arg_value = self.handle_block(named_arg.expr(), block)
+            args.append({arg_name: arg_value})
+    
+    return args

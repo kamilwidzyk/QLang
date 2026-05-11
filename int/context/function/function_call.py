@@ -56,23 +56,19 @@ def _collect_call_args(self: Place, block: Any):
     if arg_list is None:
         return [], {}
 
-    # For mixed positional and keyword args, we need to parse both
-    # Currently grammar only supports either all positional or all keyword
-    # We'll modify to support mixed by checking both
     positional_args = []
     keyword_args = {}
     
-    # Check for standard args
-    standard = arg_list.standardArgList()
-    if standard is not None:
-        positional_args = [self.handle_block(expr, block) for expr in standard.expr()]
-    
-    # Check for named args
-    named = arg_list.namedArgList()
-    if named is not None:
-        arg_names = [token.getText() for token in named.ID()]
-        arg_values = [self.handle_block(expr, block) for expr in named.expr()]
-        keyword_args = dict(zip(arg_names, arg_values))
+    for arg in arg_list.arg():
+        if arg.expr() is not None:
+            # Positional argument
+            positional_args.append(self.handle_block(arg.expr(), block))
+        elif arg.namedArg() is not None:
+            # Keyword argument
+            named_arg = arg.namedArg()
+            arg_name = named_arg.ID().getText()
+            arg_value = self.handle_block(named_arg.expr(), block)
+            keyword_args[arg_name] = arg_value
     
     return positional_args, keyword_args
     scope = current_scope
@@ -87,7 +83,11 @@ def _resolve_parent_value(self: Place, block: Any, args: Any, current_scope: Sco
     if not isinstance(args, list) or len(args) != 1:
         return None, "parent() expects exactly one variable name argument."
 
-    arg_block = block.argList().standardArgList().expr(0)
+    arg = block.argList().arg(0)
+    if arg.namedArg() is not None:
+        return None, "parent() does not accept named arguments."
+    
+    arg_block = arg.expr()
 
     if isinstance(arg_block, QLangParser.VarExprContext):
         var_name = arg_block.ID().getText()
@@ -320,10 +320,21 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
         if param.type == "varargs":
             # Handle *args - store as a list directly in scope
             varargs_values = ordered_args[param_index] if param_index < len(ordered_args) else []
-            new_scope.vars[param.name] = varargs_values
+            # Extract values from Expression objects
+            cleaned_varargs = []
+            for val in varargs_values:
+                if isinstance(val, Expression):
+                    cleaned_varargs.append(val.value)
+                else:
+                    cleaned_varargs.append(val)
+            var = Variable(param.name, TYPE_NUM, [len(cleaned_varargs)])
+            var.data = cleaned_varargs
+            new_scope.vars[param.name] = var
+            param_index += 1
         else:
             # Regular parameter - create variable of the appropriate type
             param_value = ordered_args[param_index] if param_index < len(ordered_args) else param.initial_value
+            param_index += 1
             
             # Convert type string to constant
             type_const = {
@@ -341,8 +352,6 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
             if param_value is not None:
                 var.set(param_value)
             new_scope.vars[param.name] = var
-        
-        param_index += 1
     
     # Switch execution context
     old_scope = self.scopes.current

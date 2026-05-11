@@ -21,6 +21,10 @@
       "scopeName": "source.qlang",
       "path": "./syntaxes/qlang.tmLanguage.json"
     }],
+    "themes": [{
+      "label": "QLang Format Highlight",
+      "path": "./themes/qlang-color-theme.json"
+    }],
     "configuration": {
       "type": "object",
       "title": "QLang",

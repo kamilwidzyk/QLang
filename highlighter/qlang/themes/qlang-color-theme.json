@@ -1,0 +1,24 @@
+{
+  "$schema": "vscode://schemas/color-theme",
+  "name": "QLang Format Highlight",
+  "tokenColors": [
+    {
+      "scope": "string.interpolation.qlang",
+      "settings": {
+        "foreground": "#ff0000"
+      }
+    },
+    {
+      "scope": "variable.parameter.named.qlang",
+      "settings": {
+        "foreground": "#00ff00"
+      }
+    },
+    {
+      "scope": "entity.name.function.qlang",
+      "settings": {
+        "foreground": "#0000ff"
+      }
+    }
+  ]
+}

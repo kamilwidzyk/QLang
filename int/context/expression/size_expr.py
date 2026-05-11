@@ -20,10 +20,29 @@ def handle_expression_size_getter(self: Place, block: Any, parent: Any, pos: Scr
     
     var = self.scopes.get(var_name)
 
-    if var.dimensions == [0] or var.dimensions == []:
-        return 1
-
-    return Expression(TYPE_INT, value=var.dimensions[0])
+    if isinstance(var, list):
+        return Expression(TYPE_INT, len(var))
+    elif isinstance(var, str):
+        return Expression(TYPE_INT, len(var))
+    elif hasattr(var, 'data') and isinstance(var.data, list):
+        return Expression(TYPE_INT, len(var.data))
+    elif var.dimensions == []:
+        return Expression(TYPE_INT, 1)
+    elif var.dimensions == [0]:
+        return Expression(TYPE_INT, 1)
+    else:
+        return Expression(TYPE_INT, value=var.dimensions[0])
 
 def handle_expression_size_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    return self.handle_block(block.sizeGetter(), block)
+    # # ID
+    expr_result = self.handle_block(block.sizeGetter(), block)
+    if isinstance(expr_result, Expression):
+        return expr_result
+    if isinstance(expr_result, list):
+        return Expression(TYPE_INT, len(expr_result))
+    elif isinstance(expr_result, str):
+        return Expression(TYPE_INT, len(expr_result))
+    elif hasattr(expr_result, 'dimensions'):
+        return Expression(TYPE_INT, expr_result.dimensions[0] if expr_result.dimensions else 1)
+    else:
+        return Expression(TYPE_INT, 1)

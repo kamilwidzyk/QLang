@@ -34,6 +34,8 @@ class Variable:
             self._create_array_of_state()
         elif type == TYPE_STATE_REGISTER:
             self._create_array_of_state_register()
+        elif type == TYPE_TEXT:
+            self._create_array_of_text()
         else:
             log(INTERNAL, FATAL, "Attempted to create instance of Variable with unknown type of " + str(type))
             exit()
@@ -75,6 +77,13 @@ class Variable:
 
     def _create_array_of_state_register():
         raise NotImplementedError()
+    
+    def _create_array_of_text(self):
+        if self.dimensions != [0]:
+            self.data = self._create_array_of(str, self.dimensions)
+            self.is_list = True
+        else:
+            self.data = ""
     
     def assign_values(self, data, values):
         if isinstance(values, Expression):

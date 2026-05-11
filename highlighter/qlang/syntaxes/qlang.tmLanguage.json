@@ -6,7 +6,7 @@
 		{ "include": "#strings" },
 		{ "include": "#semicolon"},
 		{ "include": "#numbers"},
-
+		{ "include": "#function_calls"},
 		{ "include": "#constant"},
 		{ "include": "#operators" },
 		{ "include": "#storage" },
@@ -71,6 +71,10 @@
 				{
 					"name": "constant.character.escape.qlang",
 					"match": "\\\\."
+				},
+				{
+					"name": "string.interpolation.qlang",
+					"match": "%(?:[-+#0 ]*(?:\\d+|\\*)?(?:\\.\\d+|\\.\\*)?[hlL]?[diouxXeEfFgGcspn%])"
 				}
 			]
 		},
@@ -94,6 +98,27 @@
 		"semicolon": {
 			"name": "punctuation.terminator.statement.qlang",
 			"match": ";"
+		},
+		"function_calls": {
+			"begin": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
+			"beginCaptures": {
+				"1": { "name": "entity.name.function.qlang" }
+			},
+			"end": "\\)",
+			"patterns": [
+				{ "include": "#strings" },
+				{ "include": "#numbers" },
+				{ "include": "#named_args" },
+				{ "include": "#operators" }
+			]
+		},
+		"named_args": {
+			"patterns": [
+				{
+					"name": "variable.parameter.named.qlang",
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\s*=)"
+				}
+			]
 		}
 	},
 	"scopeName": "source.qlang"

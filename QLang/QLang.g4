@@ -1,6 +1,12 @@
 grammar QLang;
 
 // ==========================================
+// LEXER RULES
+// ==========================================
+
+TEXT: 'text';
+
+// ==========================================
 // PARSER RULES
 // ==========================================
 
@@ -39,7 +45,7 @@ constDecl: CONST ID '=' expr;
 //
 
 // Możliwe typy zmiennych: obs i num, state(jeszcze nie zrobione)
-varType: STATE | OBS | NUM;
+varType: STATE | OBS | NUM | TEXT;
 
 // Do deklaracji zmiennej z możliwym przypisaniem
 sizeVar: '[' expr ']';               /** Rozmiar mogący zawierać zmienną */
@@ -118,13 +124,9 @@ multipleParam: ',' '...' ID;
 
 // Wywołanie funkcji
 functionCallStmt:  ID '(' argList? ')';
-argList: standardArgList | namedArgList;
-
-// Zwykła lista argumentów bez nazwanych argumentów
-standardArgList: expr (',' expr)*;
-
-// Lista argumentów z nazwanymi argumentami
-namedArgList: (ID '=' expr) (',' (ID '=' expr))*;
+argList: arg (',' arg)*;
+arg: namedArg | expr;
+namedArg: ID '=' expr;
 
 
 
@@ -181,6 +183,7 @@ expr
     | expr ('==' | '!=') expr            # EqExpr
     | expr '&&' expr                     # AndExpr
     | expr '||' expr                     # OrExpr
+    | '$' expr                          # TypeExpr
     | list                               # ListExpr
     | varUnknown                         # VarUnknownExpr
     | sizeGetter                         # SizeGetterExpr

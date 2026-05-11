@@ -33,6 +33,9 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 return value.get()
             elif value.type == TYPE_NUM:
                 return value.value
+            else:
+                # For unspecified types, try to return the value directly
+                return value.value
         if isinstance(value, str):
             return value
         if isinstance(value, list):
@@ -42,6 +45,8 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 else:
                     return convert_value(data)
             return map_list(value)
+        if isinstance(value, (int, float)):
+            return value
         return str(value)
     
     def handle_print(add_newline=False):

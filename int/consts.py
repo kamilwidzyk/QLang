@@ -18,6 +18,7 @@ SizeGetterCtx = QLangParser.SizeGetterContext
 
 #################### LIST ####################
 ListExprCtx = QLangParser.ListExprContext
+TypeExprCtx = QLangParser.TypeExprContext
 ListCtx = QLangParser.ListContext
 EmptyListCtx = QLangParser.EmptyListContext
 NonEmptyListCtx = QLangParser.NonEmptyListContext

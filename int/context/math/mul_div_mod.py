@@ -36,8 +36,19 @@ def handle_mul_div_mod(self: Place, block: Any, parent: Any, pos: ScriptErrors.P
 
 
     if operation == '%':
-        if right == 0:
-            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Math Error", "Modulo over zero? Bold of you to assume I'd allow that.")
-            exit()
-        return do_operation_mod(left, right)
+        if isinstance(left, str):
+            # String formatting
+            if isinstance(right, list):
+                try:
+                    return left % tuple(right)
+                except:
+                    return left % right
+            else:
+                return left % right
+        else:
+            # Numeric modulo
+            if right == 0:
+                parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
+                self.script_errors.showError(parent_pos, "RUNTIME ERROR", "Math Error", "Modulo over zero? Bold of you to assume I'd allow that.")
+                exit()
+            return do_operation_mod(left, right)

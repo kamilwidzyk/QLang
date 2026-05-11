@@ -19,20 +19,29 @@ def handle_add_sub(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posit
 
     result = None
 
-    #try:
+    # Handle string operations
+    if isinstance(left, str) or isinstance(right, str):
+        if operation == '+':
+            return str(left) + str(right)
+        elif operation == '-':
+            # Remove all instances of characters in right from left
+            if isinstance(right, str):
+                for char in right:
+                    left = str(left).replace(char, '')
+                return left
+            else:
+                raise OperatorTypeMismatchException(
+                    pos=pos,
+                    left_type=type(left).__name__,
+                    right_type=type(right).__name__,
+                    operator=operation,
+                    operator_worded="subtracting"
+                )
+
+    # Numeric operations
     if operation == '+':
         result = do_operation_add(left, right)
     elif operation == '-':
         result = do_operation_sub(left, right)
-    # except TypeError:
-    #     raise OperatorTypeMismatchException(
-    #         pos=ScriptErrors.Position.extract(block),
-    #         left_type=type(left).__name__,
-    #         right_type=type(right).__name__,
-    #         operator=operation,
-    #         operator_worded=
-    #             {'+': "adding", "-": "substracting"}.get(operation)
-    #     )
-
 
     return result

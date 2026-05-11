@@ -49,6 +49,7 @@ from .context.expression.number      import handle_expression_number
 
 from .context.io.io_statement           import handle_io_statement
 from .context.expression.variable_expression    import handle_variable_expression
+from .context.expression.type_expr             import handle_type_expr
 from .context.place_member           import handle_place_member
 from .context.function.function_declaration   import handle_function_declaration
 from .context.function.param_list             import handle_param_list
@@ -179,6 +180,7 @@ class Place:
 
             ##### LIST #####
             ListExprCtx:            handle_expression_list_expr,
+            TypeExprCtx:            handle_type_expr,
             ListCtx:                handle_expression_list,
             EmptyListCtx:           handle_expression_list_empty,
             NonEmptyListCtx:        handle_expression_list_non_empty,
