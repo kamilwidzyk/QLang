@@ -3,6 +3,7 @@ from typing import Any, TYPE_CHECKING
 from ...script_errors import ScriptErrors
 from ...consts import *
 from ...expression import Expression
+from ...variable import Variable
 
 from ...exception.cant_find_variable import CantFindVariableException
 
@@ -11,6 +12,7 @@ if TYPE_CHECKING:
 
 def handle_variable_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position, return_variable=False):
     # ID ('[' expr ']')*
+    print("variable expression: " + block.getText())
 
     var_name = block.ID().getText()
 
@@ -36,6 +38,8 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
         return variable
 
     variable.index = index
+    
+    print("variable expression: ", variable, " index: ", index, " value: ", variable.get())
 
     if return_variable:
         return variable
@@ -43,8 +47,10 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
     if isinstance(variable, Expression):
         return variable
 
-    if hasattr(variable, "get"):
+    if isinstance(variable, Variable):
+        print("variable expression variable get(): ", variable.get())
         return variable.get()
+    
 
     return variable
 

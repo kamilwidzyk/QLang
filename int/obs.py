@@ -38,6 +38,9 @@ class ObsRegister:
         """
         self.obs[index].set(value)
 
+    def __len__(self):
+        return self.size
+
     def max_val(self) -> int:
         return (2**self.size) - 1
     
@@ -75,6 +78,9 @@ class ObsRegister:
         for i in range(self.size):
             result = (result << 1) | self[i]
         return result
+
+    def get_value(self) -> int:
+        return self.get()
     
     
 
@@ -126,6 +132,12 @@ class Obs:
             log(OBS, FATAL, "There was an attempt at setting " + str(new_value) + " as obs value")
             exit()
 
+    def __len__(self):
+        return 1
+    
+    def __getitem__(self, key):
+        raise TypeError("Obs object is not subscriptable")
+
     def get(self) -> bool:
         """
         Gets the value
@@ -135,6 +147,9 @@ class Obs:
             False: otherwise
         """
         return self.state == 1
+
+    def get_value(self) -> bool:
+        return self.get()
     
     def max_val(self) -> int:
         return 1

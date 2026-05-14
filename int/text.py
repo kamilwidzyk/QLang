@@ -20,6 +20,17 @@ class Text:
         else:
             self.value = new_value
         
+    def __len__(self):
+        return len(self.value)
+    
+    def __getitem__(self, key):
+        return self.value[key]
+    
+    def __setitem__(self, key, new_value):
+        self.value[key] = new_value
+
+    def get_value(self) -> str:
+        return self.get()
 
     def get(self) -> str:
         return self.value

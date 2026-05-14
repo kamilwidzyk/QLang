@@ -132,6 +132,8 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
             print("Initial value shape: ", value_shape)
             print("Initial value: ", initial_value)
             
+            if isinstance(dimensions, int):
+                dimensions = [dimensions]
 
             if initial_value.shape is None or (isinstance(initial_value.shape, int) and initial_value.shape != dimensions[0]) or (isinstance(initial_value.shape, list) and initial_value.shape != dimensions):
                 self.script_errors.showError(

@@ -1,5 +1,5 @@
 function a(num x, num y = 20){
-    println("x=%d y=%d", x, y);
+    println("x=%d y=%d" % [x, y]);
 }
 
 a(5); // x=5 y=20

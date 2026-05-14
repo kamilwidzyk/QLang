@@ -6,9 +6,14 @@
 
 from ..expression import Expression
 
+def extract_variable_value(variable):
+    while hasattr(variable, 'get_value'):
+        variable = variable.get_value()
+    return variable
+
 # PRE DECREMENT
 def do_variable_pre_decrement(place, variable): # --expr
-    var_value = variable.get().value
+    var_value = extract_variable_value(variable)
     var_type = variable.get().type
     var_value -= 1
     variable.set(Expression(var_type, var_value))
@@ -19,7 +24,7 @@ def do_variable_pre_decrement(place, variable): # --expr
 # POST DECREMENT
 def do_variable_post_decrement(place, variable): # expr--
     var_name = variable.name
-    orig_value = variable.get().value
+    orig_value = extract_variable_value(variable)
     orig_type = variable.get().type
     variable.set(Expression(orig_type, orig_value - 1))
     place.scopes.set(var_name, variable)
@@ -28,7 +33,7 @@ def do_variable_post_decrement(place, variable): # expr--
 # PRE INCREMENT
 def do_variable_pre_increment(place, variable): # ++expr
     var_name = variable.name
-    var_value = variable.get().value
+    var_value = extract_variable_value(variable)
     var_type = variable.get().type
     var_value += 1
     variable.set(Expression(var_type, var_value))
@@ -38,7 +43,7 @@ def do_variable_pre_increment(place, variable): # ++expr
 # POST INCREMENT
 def do_variable_post_increment(place, variable): # expr++
     var_name = variable.name
-    orig_value = variable.get().value
+    orig_value = extract_variable_value(variable)
     orig_type = variable.get().type
     variable.set(Expression(orig_type, orig_value + 1))
     place.scopes.set(var_name, variable)

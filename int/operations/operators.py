@@ -5,6 +5,8 @@
 
 from int.exception.modulo_over_zero import ModuloOverZeroException
 from int.context.operator.pre_post import is_variable
+from int.num import Num
+from int.obs import Obs, ObsRegister
 from int.script_errors import ScriptErrors
 from int.exception.assignment_to_expression import AssignmentToExpressionException
 
@@ -32,14 +34,22 @@ def extract_string(expr) -> str:
         raise ValueError("Expected a string or text expression")
     
 def extract_list(expr) -> list:
+    ret_val = None
     if isinstance(expr, Expression) and expr.type == TYPE_LIST:
-        return expr.value
+        ret_val =  expr.value
     elif isinstance(expr, Variable) and expr.type in [TYPE_LIST, TYPE_ARRAY]:
-        return expr.data
+        ret_val = expr.data
     elif hasattr(expr, 'data') and isinstance(expr.data, list):
-        return expr.data
+        ret_val = expr.data
     else:
         raise ValueError("Expected a list expression")
+    
+    if isinstance(ret_val, list):
+        return [x.get_value() for x in ret_val]
+    return ret_val
+
+def flatten_expressions_list(lst):
+    return [x.get_value() if isinstance(x, Expression) else x for x in lst]
 
 # NOT
 def do_operation_not(right): # !right
@@ -63,26 +73,111 @@ def do_operation_minus(right): # -right
 def do_operation_plus(right): # +right
     return right
 
+def convert_value(value):
+    print("Converting value: ", value)
+    result = None
+    if isinstance(value, (Num, ObsRegister, Text)):
+        result = convert_value(value.get_value())
+    if isinstance(value, Expression):
+        result = convert_value(value.get_value())
+    if isinstance(value, Variable):
+        result = convert_value(value.get_value())
+    if isinstance(value, list):
+        result = [convert_value(x) for x in value]
+    if isinstance(value, (int, float)):
+        result = value
+    if isinstance(value, str):
+        result = value
+    if isinstance(value, bool):
+        result = 'T' if value else 'F'
+    if isinstance(value, Obs):
+        result = 'T' if value.get_value() else 'F'
+
+    print("Converted value: ", result)
+    return result
+
 # ADD
 def do_operation_add(left, right): # left + right
-    if left.type == TYPE_TEXT or right.type == TYPE_TEXT:
+
+    def make_list_str(x):
+        list_str = ", ".join(make_list_str(x) if isinstance(x, list) else str(x) for x in x)
+        return "[" + list_str + "]"
+    
+    if is_string_or_text(left) and is_list(right):
+        # string + list
+        left_str = extract_string(left)
+        print("Left string: " + left_str)
+        print("Right list (raw): " + str(right))
+
+        right_list = extract_list(right)
+        converted_list = convert_value(right_list)
+        flat_list = flatten_expressions_list(converted_list)
+        print("Right list: " + str(right_list))
+        print("Converted list: " + str(converted_list))
+        print("Flat list: " + str(flat_list))
+
+        
+
+        list_str = make_list_str(flat_list)
+        result = left_str + list_str
+        return Expression(TYPE_STRING, result)
+    
+    if is_string_or_text(right) and is_list(left):
+        # string + list
+        right_str = extract_string(right)
+        print("Right string: " + right_str)
+        print("Left list (raw): " + str(left))
+
+        left_list = extract_list(left)
+        converted_list = convert_value(left_list)
+        flat_list = flatten_expressions_list(converted_list)
+        print("Left list: " + str(left_list))
+        print("Converted list: " + str(converted_list))
+        print("Flat list: " + str(flat_list))
+
+
+        list_str = make_list_str(flat_list)
+        result = list_str + right_str
+        return Expression(TYPE_STRING, result)
+    
+    if is_string_or_text(left) and hasattr(right, 'get_value'):
+        # string + other
+        left_str = extract_string(left)
+        right_val = convert_value(right.get_value())
+        print("Left string: " + left_str)
+        print("Right value: " + str(right_val))
+        result = left_str + str(right_val)
+        return Expression(TYPE_STRING, result)
+    
+    if is_string_or_text(right) and hasattr(left, 'get_value'):
+        # other + string
+        right_str = extract_string(right)
+        left_val = convert_value(left.get_value())
+
+        print("Left value: " + str(left_val))
+        print("Right string: " + right_str)
+        result = str(left_val) + right_str
+        return Expression(TYPE_STRING, result)
+    
+    if is_string_or_text(left) or is_string_or_text(right):
         # String concatenation
         left_str = str(left.value) if left.value is not None else ""
         right_str = str(right.value) if right.value is not None else ""
-        return Expression(TYPE_TEXT, left_str + right_str)
+        print("concatenating strings: '" + left_str + "' + '" + right_str + "'")
+        return Expression(TYPE_STRING, left_str + right_str)
     
     result_type = get_max_type(left, right)
-    return Expression(result_type, left.value + right.value)
+    return Expression(result_type, left.get_value() + right.get_value())
 
 # SUB
 def do_operation_sub(left, right): # left - right
-    if left.type == TYPE_TEXT or right.type == TYPE_TEXT:
+    if is_string_or_text(left) and is_string_or_text(right):
         # String subtraction: remove characters
-        left_str = str(left.value) if left.value is not None else ""
-        right_str = str(right.value) if right.value is not None else ""
+        left_str = extract_string(left) 
+        right_str = extract_string(right)
         for char in right_str:
             left_str = left_str.replace(char, '')
-        return Expression(TYPE_TEXT, left_str)
+        return Expression(TYPE_STRING, left_str)
     
     result_type = get_max_type(left, right)
     return Expression(result_type, left.value - right.value)
@@ -93,7 +188,7 @@ def do_operation_mul(left, right): # left * right
         # String repetition
         left_str = extract_string(left)
         count = int(right.value) if right.value is not None else 0
-        return Expression(TYPE_TEXT, left_str * count)
+        return Expression(TYPE_STRING, left_str * count)
     
     result_type = get_max_type(left, right)
     return Expression(result_type, left.value * right.value)
@@ -103,14 +198,18 @@ def do_operation_mod(left, right): # left % right
     if is_string_or_text(left) and is_list(right):
         left_str = extract_string(left)
         right_list = extract_list(right)
-        result = left_str % tuple([x.value for x in right_list])
+
+        print("Left string: " + left_str)
+        print("Right list: " + str(right_list))
+
+        result = left_str % tuple(right_list)
         return Expression(TYPE_STRING, result)
     
     if right == 0:
         raise ModuloOverZeroException(ScriptErrors.Position.UNKNOWN)
 
-    if not is_variable(left):
-        raise AssignmentToExpressionException(ScriptErrors.Position.UNKNOWN)
+    #if not is_variable(left):
+    #    raise AssignmentToExpressionException(ScriptErrors.Position.UNKNOWN)
 
     result_type = get_max_type(left, right)
     return Expression(result_type, left.value % right.value)

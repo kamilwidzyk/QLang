@@ -18,5 +18,5 @@ def handle_eq_comp(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posit
 
     if children[1].getText() == "==":
         return do_compare_equal(left, right)
-    else:
+    if children[1].getText() == "!=":
         return do_compare_not_equal(left, right)

@@ -16,6 +16,8 @@ from ...expression import (
     TYPE_OBS_REGISTER,
     TYPE_LIST,
     TYPE_STATE,
+    TYPE_STRING,
+    TYPE_TEXT
 )
 from ...variable import Variable
 
@@ -78,13 +80,14 @@ def _collect_call_args(self: Place, block: Any):
             keyword_args[arg_name] = arg_value
     
     return positional_args, keyword_args
+
+def _resolve_parent_scope(current_scope: Scope, depth: int = 1):
     scope = current_scope
     for _ in range(depth):
         if scope.parent is None:
             return None
         scope = scope.parent
     return scope
-
 
 def _resolve_parent_value(self: Place, block: Any, args: Any, current_scope: Scope):
     if not isinstance(args, list) or len(args) != 1:

@@ -8,6 +8,8 @@ from ...num import Num
 
 from ...expression import Expression, TYPE_INT
 from ..statement import BreakLoop, ContinueLoop
+from ...operations.compare import do_compare_greater, do_compare_greater_equal, do_compare_less, do_compare_less_equal
+from ...operations.operators import do_operation_add
 
 if TYPE_CHECKING:
     from place import Place
@@ -29,7 +31,7 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
         # Default step value
         if step_val is None:
             step_val = Expression(TYPE_INT)
-            if end_val.value > start_val.value:
+            if do_compare_greater(end_val, start_val).get_value():
                 step_val.value = 1
             else:
                 step_val.value = -1
@@ -56,8 +58,8 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
 
     try:
         # Repeat block until condition is met
-        while (start_val.value > end_val.value and counter.get().value > end_val.value) or \
-              (start_val.value < end_val.value and counter.get().value < end_val.value):
+        while (do_compare_greater(start_val, end_val) and do_compare_greater(counter.get(), end_val)) or \
+              (do_compare_less(start_val, end_val) and do_compare_less(counter.get(), end_val)):
             # Run code inside
             try:
                 for child in for_block:
@@ -75,8 +77,7 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
 
             # Get the current value of the counter(it might got chenged inside the loop)
             counter = self.scopes.get(var_name)
-            current_val = counter.get().value
-            current_val += step_val.value
+            current_val = do_operation_add(counter.get(), step_val)
             counter.set(current_val)
             self.scopes.set(var_name, counter)
 

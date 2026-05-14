@@ -30,6 +30,12 @@ class Num:
         else:
             self.is_float = False
             self.value = new_value
+
+    def __len__(self):
+        return 1
+    
+    def __getitem__(self, key):
+        raise TypeError("Num object is not subscriptable")
         
 
     def get(self) -> float:
@@ -37,4 +43,7 @@ class Num:
             return Expression(TYPE_FLOAT, self.value)
         else:
             return Expression(TYPE_INT, self.value)
+        
+    def get_value(self) -> float:
+        return self.get().value
     

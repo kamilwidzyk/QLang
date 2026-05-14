@@ -1,7 +1,7 @@
 function a(num x, ...b){
-    println("x=%d #b=%d", x, #b);
+    println("x=%d #b=%d" % [x, #b]);
     for i from 0 to #b {
-        println("b[%d]=%d", i, b[i]);
+        println("b[%d]=%d" % [i, b[i]]);
     }
 }
 

@@ -46,6 +46,9 @@ class Variable:
                 return cls()
             else:
                 return cls(size=size)
+            
+        if isinstance(dimensions, int):
+            dimensions = [dimensions]
         
         return [self._create_array_of(cls, dimensions[1:]) for _ in range(dimensions[0])]
     
@@ -163,16 +166,48 @@ class Variable:
             else:
                 self.data.set(new_value.value)
 
+    def __len__(self):
+        if self.is_list:
+            return len(self.data)
+        if self.data is not None:
+            return len(self.data)
+        return 0
+    
+    def __getitem__(self, key):
+        if self.is_list:
+            return self.data[key]
+        if self.data is not None:
+            return self.data[key]
+        raise TypeError("Variable is not subscriptable")
+    
+    def __setitem__(self, key, new_value):
+        if self.is_list:
+            self.data[key] = new_value
+        elif self.data is not None:
+            self.data[key] = new_value
+        else:
+            raise TypeError("Variable is not subscriptable")
+
     def get_data_at_index(self, data, indexes):
         for idx in indexes:
-            if isinstance(data, Text):
-                data.value = data.value[idx]
+            data = data[idx]
         return data
 
     def get(self):
-        if self.index is not None:
-            return self.get_data_at_index(self.data, self.index)
-        return self.data
+        if self.index is not None and len(self.index) > 0:
+            print("Getting variable", self.name, " at index ", self.index)
+            data = self.get_data_at_index(self.data, self.index)
+            return Expression(self.type[self.index[0]], self.get_data_at_index(self.data, self.index), shape=len(data) if isinstance(data, list) else None)
+        return Expression(self.type, self.data, shape=len(self.data) if self.is_list else None)
+    
+    def get_value(self):
+        data = self.get()
+        if isinstance(data, Text):
+            return data.get()
+        elif isinstance(data, (Obs, ObsRegister, Num)):
+            return data.get()
+        else:
+            return data
 
 
 

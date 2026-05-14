@@ -76,3 +76,39 @@ class Expression:
         self.value = value
         self.variable = variable
         self.shape = shape # when type is list -> this is the shape from outer to inner
+
+    def get(self):
+        if self.variable is not None:
+            return self.variable.get()
+        return self.value
+    
+    def __len__(self):
+        if self.variable is not None:
+            return len(self.variable)
+        if self.value is not None:
+            return len(self.value)
+        return 0
+    
+    def __getitem__(self, key):
+        if self.variable is not None:
+            return self.variable[key]
+        if self.value is not None:
+            return self.value[key]
+        raise TypeError("Expression of type " + str(self.type) + " is not subscriptable")
+    
+    def __setitem__(self, key, value):
+        if self.variable is not None:
+            self.variable[key] = value
+        elif self.value is not None:
+            self.value[key] = value
+        else:
+            raise TypeError("Expression of type " + str(self.type) + " is not subscriptable")
+
+    def get_value(self):
+        val = self.get()
+        if hasattr(val, 'get_value'):
+            return val.get_value()
+        return val
+
+    def __bool__(self):
+        return bool(self.get_value())

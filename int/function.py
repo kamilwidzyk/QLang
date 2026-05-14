@@ -13,7 +13,10 @@ class Function:
         self.body = body                    # code inside the function
         self.closure_scope = closure_scope  # scope where the function was declared
         self.pos = pos                      # position in the code
-        self.type = "Function"              
+        self.type = "Function"    
+
+    def __len__(self): # length of function is the number of parameters it takes
+        return len(self.params)          
 
 class FunctionParam:
     """

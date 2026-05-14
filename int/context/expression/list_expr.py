@@ -21,14 +21,21 @@ def handle_expression_list_non_empty(self: Place, block: Any, parent: Any, pos: 
 def handle_expression_list_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     print("list expr: " + block.getText())
     for x in block.getChildren():
-        return self.handle_block(x, block)
+        result = self.handle_block(x, block)
+        print("Result: " + str(result))
+        return result
 
 def handle_expression_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     print("list: " + block.getText())
     lst = []
+
     for x in block.expr():
-        if x.getText() not in ['[', ']', ',']:
-            lst.append(self.handle_block(x, block))
+        print("List element text: " + x.getText())
+        
+        result = self.handle_block(x, block)
+        print("List element result: " + str(result) + str(result.get()))
+        lst.append(result)
+        print(lst)
         # return self.handle_block(x, block)
     print(lst)
     

@@ -21,42 +21,27 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
     # first child can be 'print', 'println' or 'input', 'debug'
 
     def convert_value(value):
-        if isinstance(value, Num):
-            return value.get().value
-        if isinstance(value, Text):
-            return value.get()
+        print("Converting value: ", value)
+        result = None
+        if isinstance(value, (Num, ObsRegister, Text)):
+            result = convert_value(value.get_value())
         if isinstance(value, Expression):
-            if value.type == TYPE_INT:
-                return int(value.value)
-            elif value.type == TYPE_FLOAT:
-                return float(value.value)
-            elif value.type == TYPE_BOOL:
-                return 'T' if value.value else 'F'
-            elif value.type == TYPE_OBS:
-                return 'T' if value.get() else 'F'
-            elif value.type == TYPE_OBS_REGISTER:
-                return value.get()
-            elif value.type == TYPE_NUM:
-                return value.value
-            elif value.type == TYPE_TEXT:
-                return value.value
-            elif value.type == TYPE_STRING:
-                return value.value
-            else:
-                # For unspecified types, try to return the value directly
-                return value.value
-        if isinstance(value, str):
-            return value
+            result = convert_value(value.get_value())
+        if isinstance(value, Variable):
+            result = convert_value(value.get_value())
         if isinstance(value, list):
-            def map_list(data):
-                if isinstance(data, list):
-                    return [map_list(x) for x in data]
-                else:
-                    return convert_value(data)
-            return map_list(value)
-        if isinstance(value, (int, float)):
-            return value
-        return str(value)
+            result = [convert_value(x) for x in value]
+        if isinstance(value, (int, float, str)):
+            result = value
+        if isinstance(value, bool):
+            result = 'T' if value else 'F'
+        if isinstance(value, Obs):
+            result = 'T' if value.get_value() else 'F'
+
+        print("Converted value: ", result)
+        return result
+    
+    
     
     def handle_print(add_newline=False):
         nonlocal block
@@ -72,30 +57,12 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         for i in range(len(block.expr())):
             exprs.append(self.handle_block(block.expr(i), block))
 
-        # If first is string with %, treat as printf
-        if len(exprs) > 0 and isinstance(exprs[0], str) and '%' in exprs[0]:
-            format_str = exprs[0]
-            args = exprs[1:]
-            # Convert args to values
-            converted_args = []
-            for arg in args:
-                converted_args.append(convert_value(arg))
-            try:
-                print_text = format_str % tuple(converted_args)
-            except Exception as e:
-                self.script_errors.showError(
-                    pos=pos,
-                    error_type="RUNTIME ERROR",
-                    title="Printf format error",
-                    msg=str(e)
-                )
-                exit()
-        else:
-            # Print all args separated by space
-            print_parts = []
-            for expr in exprs:
-                print_parts.append(str(convert_value(expr)))
-            print_text = ' '.join(print_parts)
+       
+        # Print all args separated by space
+        print_parts = []
+        for expr in exprs:
+            print_parts.append(str(convert_value(expr)))
+        print_text = ' '.join(print_parts)
 
         # add a newline if the command was println
         if add_newline:
