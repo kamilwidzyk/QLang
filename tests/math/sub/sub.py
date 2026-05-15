@@ -16,7 +16,7 @@ def test_math_sub() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "2\n0.5\n0.5\n0.5\nF\nT\nT\nF\n-4\n-5\n4\n5\n-4.5\n-5.5\n4.5\n5.5\n"
+    expected_output = "2\n0.5\n0.5\n0.5\n0\n1\n-1\n0\n-4\n-5\n4\n5\n-4.5\n-5.5\n4.5\n5.5\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))

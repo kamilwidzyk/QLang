@@ -4,6 +4,8 @@ from typing import List
 from .logger import log, OBS, WARNING, FATAL
 
 from .expression import *
+from .exception.modulo_over_zero import ModuloOverZeroException
+from .exception.divide_by_zero import DivideByZeroException
 
 class ObsRegister:
     """
@@ -44,7 +46,7 @@ class ObsRegister:
     def max_val(self) -> int:
         return (2**self.size) - 1
     
-    def set(self, new_value: int):
+    def set(self, new_value: int | Expression):
         """
         Converts the given number to binary and stores it
         Value must fit in the number is bits this register has
@@ -56,6 +58,8 @@ class ObsRegister:
             OverflowError: number is too large to store in this register
             ValueError: number is negative or not int
         """
+        if isinstance(new_value, Expression):
+            new_value = new_value.get_value()
 
 
         if int(new_value) != new_value:
@@ -82,7 +86,158 @@ class ObsRegister:
     def get_value(self) -> int:
         return self.get()
     
+    def __get_other_value(self, other):
+        while hasattr(other, 'get_value'):
+            other = other.get_value()
+        return other
+
+    def __str__(self):
+        return str(self.get_value())
+
+    def __bool__(self):
+        return self.get_value() != 0
+        
+    def __lt__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() < self.__get_other_value(other))
     
+    def __le__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() <= self.__get_other_value(other))
+    
+    def __gt__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() > self.__get_other_value(other))
+    
+    def __ge__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() >= self.__get_other_value(other))
+    
+    def __eq__(self, value):
+        return Expression(TYPE_BOOL, self.get_value() == self.__get_other_value(value))
+    
+    def __ne__(self, value):
+        return Expression(TYPE_BOOL, self.get_value() != self.__get_other_value(value))
+    
+    def __add__(self, other):
+        other = self.__get_other_value(other)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value() + other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value() + other)
+        if isinstance(other, str): # string concatenation
+            return Expression(TYPE_STRING, str(self) + other)
+        
+        raise TypeError("(ObsRegister) Unsupported type for addition with ObsRegister: " + str(type(other)))
+
+    def __sub__(self, other):
+        other = self.__get_other_value(other)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value() - other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value() - other)
+        
+        raise TypeError("(ObsRegister) Unsupported type for subtraction with ObsRegister: " + str(type(other)))
+    
+    def __mul__(self, other):
+        other = self.__get_other_value(other)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value() * other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value() * other)
+        
+        raise TypeError("(ObsRegister) Unsupported type for multiplication with ObsRegister: " + str(type(other)))
+    
+    def __mod__(self, other):
+        other = self.__get_other_value(other)
+        if other == 0:
+            raise ModuloOverZeroException(None)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value() % other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value() % other)
+        
+        raise TypeError("(ObsRegister) Unsupported type for modulo with ObsRegister: " + str(type(other)))
+
+    def __truediv__(self, other):
+        other = self.__get_other_value(other)
+        if other == 0:
+            raise DivideByZeroException(None)
+        if isinstance(other, int):
+            return Expression(TYPE_FLOAT, self.get_value() / other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value() / other)
+        
+        raise TypeError("(ObsRegister) Unsupported type for division with ObsRegister: " + str(type(other)))
+
+    def __floordiv__(self, other):
+        other = self.__get_other_value(other)
+        if other == 0:
+            raise DivideByZeroException(None)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value() // other)
+        if isinstance(other, float):
+            return Expression(TYPE_INT, self.get_value() // other)
+        
+        raise TypeError("(ObsRegister) Unsupported type for floor division with ObsRegister: " + str(type(other)))
+
+    def __pow__(self, other):
+        other = self.__get_other_value(other)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value() ** other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value() ** other)
+        
+        raise TypeError("(ObsRegister) Unsupported type for exponentiation with ObsRegister: " + str(type(other)))
+    
+    def __iadd__(self, other):
+        self.set(self.__add__(other))
+        return self
+    
+    def __isub__(self, other):
+        self.set(self.__sub__(other))
+        return self
+    
+    def __imul__(self, other):
+        self.set(self.__mul__(other))
+        return self
+    
+    def __imod__(self, other):
+        self.set(self.__mod__(other))
+        return self
+    
+    def __itruediv__(self, other):
+        self.set(self.__truediv__(other))
+        return self
+    
+    def __ifloordiv__(self, other):
+        self.set(self.__floordiv__(other))
+        return self
+    
+    def __ipow__(self, other):
+        self.set(self.__pow__(other))
+        return self
+
+    def __radd__(self, other):
+        return other.__add__(self)
+    
+    def __rsub__(self, other):
+        return other.__sub__(self)
+    
+    def __rmul__(self, other):
+        return other.__mul__(self)
+    
+    def __rmod__(self, other):
+        return other.__mod__(self)
+    
+    def __rtruediv__(self, other):
+        return other.__truediv__(self)
+    
+    def __rfloordiv__(self, other):
+        return other.__floordiv__(self)
+    
+    def __rpow__(self, other):
+        return other.__pow__(self)
+    
+
+
+
 
 class Obs:
     """
@@ -151,5 +306,160 @@ class Obs:
     def get_value(self) -> bool:
         return self.get()
     
+    def get_value_as_int(self) -> int:
+        return 1 if self.get() else 0
+    
     def max_val(self) -> int:
         return 1
+    
+    def __get_other_value(self, other):
+        while hasattr(other, 'get_value'):
+            other = other.get_value()
+        return other
+        
+    def __lt__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() < self.__get_other_value(other))
+    
+    def __le__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() <= self.__get_other_value(other))
+    
+    def __gt__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() > self.__get_other_value(other))
+    
+    def __ge__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() >= self.__get_other_value(other))
+    
+    def __eq__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() == self.__get_other_value(other))
+    
+    def __ne__(self, other):
+        return Expression(TYPE_BOOL, self.get_value() != self.__get_other_value(other))
+
+    def __str__(self):
+        return 'T' if self.get_value() else 'F'
+    
+    def __bool__(self):
+        return self.get_value()
+    
+    def __add__(self, other):
+        other = self.__get_other_value(other)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value_as_int() + other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value_as_int() + other)
+        if isinstance(other, str): # string concatenation
+            return Expression(TYPE_STRING, str(self) + other)
+        
+        raise TypeError("(Obs) Unsupported type for addition with Obs: " + str(type(other)))
+    
+    def __sub__(self, other):
+        other = self.__get_other_value(other)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value_as_int() - other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value_as_int() - other)
+        
+        raise TypeError("(Obs) Unsupported type for subtraction with Obs: " + str(type(other)))
+    
+    def __mul__(self, other):
+        other = self.__get_other_value(other)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value_as_int() * other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value_as_int() * other)
+        
+        raise TypeError("(Obs) Unsupported type for multiplication with Obs: " + str(type(other)))
+    
+    def __mod__(self, other):
+        other = self.__get_other_value(other)
+        if other == 0:
+            raise ModuloOverZeroException(None)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value_as_int() % other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value_as_int() % other)
+        
+        raise TypeError("(Obs) Unsupported type for modulo with Obs: " + str(type(other)))
+
+    def __truediv__(self, other):
+        other = self.__get_other_value(other)
+        if other == 0:
+            raise DivideByZeroException(None)
+        if isinstance(other, int):
+            return Expression(TYPE_FLOAT, self.get_value_as_int() / other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value_as_int() / other)
+        
+        raise TypeError("(Obs) Unsupported type for division with Obs: " + str(type(other)))
+    
+    def __floordiv__(self, other):
+        other = self.__get_other_value(other)
+        if other == 0:
+            raise DivideByZeroException(None)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value_as_int() // other)
+        if isinstance(other, float):
+            return Expression(TYPE_INT, self.get_value_as_int() // other)
+        
+        raise TypeError("(Obs) Unsupported type for floor division with Obs: " + str(type(other)))
+    
+    def __pow__(self, other):
+        other = self.__get_other_value(other)
+        if isinstance(other, int):
+            return Expression(TYPE_INT, self.get_value_as_int() ** other)
+        if isinstance(other, float):
+            return Expression(TYPE_FLOAT, self.get_value_as_int() ** other)
+        
+        raise TypeError("(Obs) Unsupported type for exponentiation with Obs: " + str(type(other)))
+    
+    def __iadd__(self, other):
+        self.set(self.__add__(other))
+        return self
+    
+    def __isub__(self, other):
+        self.set(self.__sub__(other))
+        return self
+    
+    def __imul__(self, other):
+        self.set(self.__mul__(other))
+        return self
+    
+    def __imod__(self, other):
+        self.set(self.__mod__(other))
+        return self
+    
+    def __itruediv__(self, other):
+        self.set(self.__truediv__(other))
+        return self
+    
+    def __ifloordiv__(self, other):
+        self.set(self.__floordiv__(other))
+        return self
+    
+    def __ipow__(self, other):
+        self.set(self.__pow__(other))
+        return self
+    
+    def __radd__(self, other):
+        return other.__add__(self)
+    
+    def __rsub__(self, other):
+        return other.__sub__(self)
+    
+    def __rmul__(self, other):
+        return other.__mul__(self)
+    
+    def __rmod__(self, other):
+        return other.__mod__(self)
+    
+    def __rtruediv__(self, other):
+        return other.__truediv__(self)
+    
+    def __rfloordiv__(self, other):
+        return other.__floordiv__(self)
+    
+    def __rpow__(self, other):
+        return other.__pow__(self)
+    
+    
+    

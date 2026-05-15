@@ -2,6 +2,7 @@ from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
 from ...consts import *
+from ...expression import Expression
 from ...obs import Obs, ObsRegister
 
 if TYPE_CHECKING:
@@ -22,5 +23,5 @@ def handle_number_expression(self: Place, block: Any, parent: Any, pos: ScriptEr
         val = float(text)
     else:
         val = int(text)
-    
-    return val
+
+    return Expression(TYPE_FLOAT if isinstance(val, float) else TYPE_INT, val)

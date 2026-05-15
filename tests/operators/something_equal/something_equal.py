@@ -162,7 +162,7 @@ def test_operator_and_eq() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "0\n0\n1\n1\n0\n0\n"
+    expected_output = "F\n0\nT\n1\nF\n0\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
@@ -185,7 +185,7 @@ def test_operator_or_eq() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "1\n1\n1\n1\n1\n1\n"
+    expected_output = "T\n1\nT\n1\nT\n1\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))

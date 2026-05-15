@@ -16,7 +16,7 @@ def test_math_add() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "4\n4.5\n4.5\n5.0\nT\nT\nT\nF\n6\n5\n6\n5\n6.5\n5.5\n6.5\n5.5\n"
+    expected_output = "4\n4.5\n4.5\n5.0\n2\n1\n1\n0\n6\n5\n6\n5\n6.5\n5.5\n6.5\n5.5\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))

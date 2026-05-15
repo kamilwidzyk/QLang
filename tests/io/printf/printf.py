@@ -16,7 +16,7 @@ def test_io_printf() -> bool:
     
     print(place_log["global"])
 
-    expected_output = "x = 42, y = 3.14\nHello world"
+    expected_output = "x = 42, y = 3.14\nHello world\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + repr(expected_output))

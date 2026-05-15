@@ -98,7 +98,6 @@ def convert_value(value):
 
 # ADD
 def do_operation_add(left, right): # left + right
-
     def make_list_str(x):
         list_str = ", ".join(make_list_str(x) if isinstance(x, list) else str(x) for x in x)
         return "[" + list_str + "]"
@@ -180,7 +179,7 @@ def do_operation_sub(left, right): # left - right
         return Expression(TYPE_STRING, left_str)
     
     result_type = get_max_type(left, right)
-    return Expression(result_type, left.value - right.value)
+    return Expression(result_type, left.get_value() - right.get_value())
 
 # MUL
 def do_operation_mul(left, right): # left * right
@@ -191,7 +190,7 @@ def do_operation_mul(left, right): # left * right
         return Expression(TYPE_STRING, left_str * count)
     
     result_type = get_max_type(left, right)
-    return Expression(result_type, left.value * right.value)
+    return Expression(result_type, left.get_value() * right.get_value())
 
 # MOD
 def do_operation_mod(left, right): # left % right
@@ -208,11 +207,8 @@ def do_operation_mod(left, right): # left % right
     if right == 0:
         raise ModuloOverZeroException(ScriptErrors.Position.UNKNOWN)
 
-    #if not is_variable(left):
-    #    raise AssignmentToExpressionException(ScriptErrors.Position.UNKNOWN)
-
     result_type = get_max_type(left, right)
-    return Expression(result_type, left.value % right.value)
+    return Expression(result_type, left.get_value() % right.get_value())
 
 # DIV
 def do_operation_div(left, right): # left / right
@@ -223,7 +219,7 @@ def do_operation_div(left, right): # left / right
         split_result = left_str.split(sep)
         return Expression(TYPE_LIST, split_result)
     
-    result = left.value / right.value
+    result = left.get_value() / right.get_value()
     result_type = TYPE_FLOAT
     if isinstance(result, int) or int(result) == result:
         result_type = TYPE_INT
@@ -231,32 +227,28 @@ def do_operation_div(left, right): # left / right
 
 # DIV INT
 def do_operation_div_int(left, right): # left // right
-    return Expression(TYPE_INT, left.value // right.value)
+    return Expression(TYPE_INT, left.get_value() // right.get_value())
 
 # POW
 def do_operation_pow(left, right): # left ** right
     result_type = get_max_type(left, right)
-    if(right.value < 0):
+    right_val = right.get_value()
+    if right_val < 0:
         result_type = TYPE_FLOAT
-    return Expression(result_type, left.value ** right.value)
+    return Expression(result_type, left.get_value() ** right_val)
 
 
 # AND 
 def do_operation_and(left, right): # left && right
-    if left.type == TYPE_BOOL and right.type == TYPE_BOOL:
-        return Expression(TYPE_BOOL, (left.value == True) and (right.value == True))
-    
-    result_type = get_max_type(left, right)
-    print(result_type)
+    if hasattr(left, 'get_value') and hasattr(right, 'get_value'):
+        return Expression(TYPE_BOOL, bool(left.get_value()) and bool(right.get_value()))
+    return Expression(TYPE_BOOL, bool(left) and bool(right))
 
     return Expression(result_type, 1 if (left.value > 0) and (right.value > 0) else 0)
 
 # OR
 def do_operation_or(left, right): # left || right
-    if left.type == TYPE_BOOL and right.type == TYPE_BOOL:
-        return Expression(TYPE_BOOL, (left.value == True) or (right.value == True))
-    
-    result_type = get_max_type(left, right)
-
-    return Expression(result_type, 1 if (left.value > 0) or (right.value > 0) else 0)
+    if hasattr(left, 'get_value') and hasattr(right, 'get_value'):
+        return Expression(TYPE_BOOL, bool(left.get_value()) or bool(right.get_value()))
+    return Expression(TYPE_BOOL, bool(left) or bool(right))
 

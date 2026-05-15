@@ -24,11 +24,13 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         print("Converting value: ", value)
         result = None
         if isinstance(value, (Num, ObsRegister, Text)):
-            result = convert_value(value.get_value())
+            result = value.get_value()
+            if isinstance(result, bool):
+                result = int(result)
         if isinstance(value, Expression):
-            result = convert_value(value.get_value())
+            result = convert_value(value.get())
         if isinstance(value, Variable):
-            result = convert_value(value.get_value())
+            result = convert_value(value.get())
         if isinstance(value, list):
             result = [convert_value(x) for x in value]
         if isinstance(value, (int, float, str)):
@@ -37,6 +39,9 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             result = 'T' if value else 'F'
         if isinstance(value, Obs):
             result = 'T' if value.get_value() else 'F'
+
+        while hasattr(result, 'get_value'):
+            result = result.get_value()
 
         print("Converted value: ", result)
         return result

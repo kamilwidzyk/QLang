@@ -193,11 +193,30 @@ class Variable:
             data = data[idx]
         return data
 
+    def _list_shape(self, data):
+        if not isinstance(data, list):
+            return []
+        if not data:
+            return [0]
+        return [len(data)] + self._list_shape(data[0])
+
     def get(self):
         if self.index is not None and len(self.index) > 0:
             print("Getting variable", self.name, " at index ", self.index)
             data = self.get_data_at_index(self.data, self.index)
-            return Expression(self.type[self.index[0]], self.get_data_at_index(self.data, self.index), shape=len(data) if isinstance(data, list) else None)
+            if isinstance(data, list):
+                return Expression(TYPE_LIST, data, shape=self._list_shape(data))
+            if isinstance(data, bool):
+                result = Expression(TYPE_BOOL, data)
+                result.display_as_python_bool = True
+                return result
+            if isinstance(data, int):
+                return Expression(TYPE_INT, data)
+            if isinstance(data, float):
+                return Expression(TYPE_FLOAT, data)
+            if isinstance(data, str):
+                return Expression(TYPE_STRING, data)
+            return Expression(data.type, data, shape=len(data) if isinstance(data, list) else None)
         return Expression(self.type, self.data, shape=len(self.data) if self.is_list else None)
     
     def get_value(self):
@@ -208,7 +227,87 @@ class Variable:
             return data.get()
         else:
             return data
+        
+    def _extract_value_from(value):
+        if isinstance(value, (Expression, Variable)):
+            return Expression._extract_value_from(value.get_value())
+        return value
 
+    def extract_value(self):
+        return Expression._extract_value_from(self)
+
+    def extract_raw_value(self):
+        val = self
+        while hasattr(val, 'get_value'):
+            val = val.get_value()
+        return val
+        
+    def __get_other_value(self, other):
+        while hasattr(other, 'get_value'):
+            other = other.get_value()
+        return other
+
+    
+    def __lt__(self, other):
+        other = self.__get_other_value(other)
+
+        if isinstance(other, list):
+            if self.type != TYPE_LIST:
+                raise TypeError("Cannot compare non-list variable with list")
+            return self.get_value() < other
+
+        return Expression(TYPE_BOOL, self.get_value() < self.__get_other_value(other))
+    
+    def __le__(self, other):
+        other = self.__get_other_value(other)
+
+        if isinstance(other, list):
+            if self.type != TYPE_LIST:
+                raise TypeError("Cannot compare non-list variable with list")
+            return self.get_value() < other
+
+
+        return Expression(TYPE_BOOL, self.get_value() <= self.__get_other_value(other))
+    
+    def __gt__(self, other):
+        other = self.__get_other_value(other)
+
+        if isinstance(other, list):
+            if self.type != TYPE_LIST:
+                raise TypeError("Cannot compare non-list variable with list")
+            return self.get_value() > other
+
+        return Expression(TYPE_BOOL, self.get_value() > self.__get_other_value(other))
+    
+    def __ge__(self, other):
+        other = self.__get_other_value(other)
+
+        if isinstance(other, list):
+            if self.type != TYPE_LIST:
+                raise TypeError("Cannot compare non-list variable with list")
+            return self.get_value() >= other
+
+        return Expression(TYPE_BOOL, self.get_value() >= self.__get_other_value(other))
+
+    def __eq__(self, other):
+        other = self.__get_other_value(other)
+
+        if isinstance(other, list):
+            if self.type != TYPE_LIST:
+                raise TypeError("Cannot compare non-list variable with list")
+            return self.get_value() == other
+
+        return Expression(TYPE_BOOL, self.get_value() == self.__get_other_value(other))
+
+    def __ne__(self, other):
+        other = self.__get_other_value(other)
+
+        if isinstance(other, list):
+            if self.type != TYPE_LIST:
+                raise TypeError("Cannot compare non-list variable with list")
+            return self.get_value() == other
+        
+        return Expression(TYPE_BOOL, self.get_value() != self.__get_other_value(other))
 
 
     

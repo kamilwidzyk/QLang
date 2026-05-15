@@ -33,7 +33,7 @@ def handle_div_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
 
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
         
-    var_name = left_variable.name
+    var_name = left_expr.ID().getText()
     var_value = left_variable.get()
 
     if var_value.type == TYPE_INT and right_value == TYPE_INT:

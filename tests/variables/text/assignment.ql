@@ -1,5 +1,5 @@
 text a = "abc";
 a = "xyz";
-println(a);
+println(a); // xyz
 a = '123';
-println(a);
+println(a); // 123

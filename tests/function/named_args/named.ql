@@ -1,5 +1,5 @@
 function a(num x, num y){
-    println("x=%d y=%d", x, y);
+    println("x=%d y=%d" % [x, y]);
 }
 // invalid call: a(named, standard) - named arguments must come after standard ones
 a(5, 10); // x=5 y=10

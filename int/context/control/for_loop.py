@@ -53,7 +53,7 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
 
     # set start value to counter
-    counter.set(start_val.value)
+    counter.set(start_val.extract_value())
     self.scopes.set(var_name, counter)
 
     try:
@@ -74,10 +74,9 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
 
             start_val, end_val, step_val = parse_expr(*expressions)
 
-
             # Get the current value of the counter(it might got chenged inside the loop)
             counter = self.scopes.get(var_name)
-            current_val = do_operation_add(counter.get(), step_val)
+            current_val = counter.get() + step_val
             counter.set(current_val)
             self.scopes.set(var_name, counter)
 

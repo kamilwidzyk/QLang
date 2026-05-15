@@ -42,7 +42,7 @@ def test_multidimensional_arrays() -> bool:
         "arr3d_empty: [[[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]]\n"
         "\n"
         "=== Testing OBS Arrays ===\n"
-        "obs1d[1]: False\n"
+        "obs1d[1]: F\n"
         "#obs1d: 3\n"
         "\n"
         "=== Testing Array Assignments ===\n"

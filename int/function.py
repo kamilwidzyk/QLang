@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import Any, List
+
+from int.expression import TYPE_BOOL, Expression
 from .script_errors import ScriptErrors
 
 class Function:
@@ -16,7 +18,37 @@ class Function:
         self.type = "Function"    
 
     def __len__(self): # length of function is the number of parameters it takes
-        return len(self.params)          
+        return len(self.params)   
+
+    def __lt__(self, other):
+        if not isinstance(other, Function):
+            raise TypeError("Cannot compare Function with " + str(type(other).__name__))
+        return Expression(TYPE_BOOL, len(self) < len(other))
+    
+    def __le__(self, other):
+        if not isinstance(other, Function):
+            raise TypeError("Cannot compare Function with " + str(type(other).__name__))
+        return Expression(TYPE_BOOL, len(self) <= len(other))
+    
+    def __gt__(self, other):
+        if not isinstance(other, Function):
+            raise TypeError("Cannot compare Function with " + str(type(other).__name__))
+        return Expression(TYPE_BOOL, len(self) > len(other))
+    
+    def __ge__(self, other):
+        if not isinstance(other, Function):
+            raise TypeError("Cannot compare Function with " + str(type(other).__name__))
+        return Expression(TYPE_BOOL, len(self) >= len(other))
+    
+    def __eq__(self, other):
+        if not isinstance(other, Function):
+            raise TypeError("Cannot compare Function with " + str(type(other).__name__))
+        return Expression(TYPE_BOOL, len(self) == len(other))
+    
+    def __ne__(self, other):
+        if not isinstance(other, Function):
+            raise TypeError("Cannot compare Function with " + str(type(other).__name__))
+        return Expression(TYPE_BOOL, len(self) != len(other))
 
 class FunctionParam:
     """

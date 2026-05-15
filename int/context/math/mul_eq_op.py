@@ -28,7 +28,7 @@ def handle_mul_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
     right_value = self.handle_block(right_expr, block)
         
-    var_name = left_variable.name
+    var_name = left_expr.ID().getText()
     var_value = left_variable.get()
     new_value = do_operation_mul(var_value, right_value)
     left_variable.set(new_value)

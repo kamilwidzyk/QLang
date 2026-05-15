@@ -19,11 +19,6 @@ def handle_add_sub(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posit
 
     result = None
 
-    print("Add or sub operation: " + operation)
-    print("Left operand: " + str(left) + " of type " + left.type)
-    print("Right operand: " + str(right) + " of type " + right.type)
-
-    # Numeric operations
     if operation == '+':
         result = do_operation_add(left, right)
     elif operation == '-':

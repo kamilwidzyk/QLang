@@ -2,7 +2,8 @@ from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
 from ...consts import *
-from ...expression import Expression
+from ...expression import Expression, TYPE_NUM
+from ...num import Num
 from ...variable import Variable
 
 from ...exception.cant_find_variable import CantFindVariableException
@@ -12,8 +13,6 @@ if TYPE_CHECKING:
 
 def handle_variable_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position, return_variable=False):
     # ID ('[' expr ']')*
-    print("variable expression: " + block.getText())
-
     var_name = block.ID().getText()
 
     if not self.scopes.exists(var_name):
@@ -38,8 +37,6 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
         return variable
 
     variable.index = index
-    
-    print("variable expression: ", variable, " index: ", index, " value: ", variable.get())
 
     if return_variable:
         return variable
@@ -48,16 +45,20 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
         return variable
 
     if isinstance(variable, Variable):
-        print("variable expression variable get(): ", variable.get())
+        if variable.type == TYPE_NUM:
+            return variable.get_value()
         return variable.get()
-    
 
-    return variable
-
-
+    if isinstance(variable, Num):
+        return variable.get()
 
     if type(variable) == int:
         return variable
+
+    if isinstance(variable, Expression):
+        return variable
+
+    return variable
 
     # Check if it can be read
     if variable.type in ["StateRegister", "State"]:
