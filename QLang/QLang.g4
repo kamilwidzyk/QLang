@@ -208,6 +208,14 @@ expr
 // ^a (parent::a)
 // ^^a (parent::parent::a)
 
+// Do zrobienia: ustawianie stałego seed do random + funkcja random
+// 
+// seed(n) - ustawia globalny pythonowy seed na stałą wartość
+// random() - zwraca losową wartość 0-1
+//
+
+// Do zrobienia: biblioteka standardowa(to chyba będzie lepsze, bo będzie można zobaczyć implementację) lub funkcje wbudowane
+
 // Do zrobienia: Konwersja typów
 // nie odgapiamy operatorów (int) (float) itp
 //

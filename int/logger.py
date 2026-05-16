@@ -65,15 +65,16 @@ a w przypadku błędu:
 
 """
 # Module tags, add more if needed, but make everything the same length
-INIT =     "INIT " # Initialization
-PLACE =    "PLACE" # Place divide/Place run
-SC_ER =    "SC ER" # ScriptErrors
-QNET =     "Q NET" # Quantum Network
-OBS =      " OBS " # Observation
-STATE =    "STATE" # Quantum state
-IN_OUT =   "INOUT" # Console input output
-INTERNAL = "INTER" # Internal interpreter error
-VARIABLE = " VAR " # Variable
+INIT =      "INIT " # Initialization
+PLACE =     "PLACE" # Place divide/Place run
+SC_ER =     "SC ER" # ScriptErrors
+QNET =      "Q NET" # Quantum Network
+OBS =       " OBS " # Observation
+STATE =     "STATE" # Quantum state
+IN_OUT =    "INOUT" # Console input output
+INTERNAL =  "INTER" # Internal interpreter error
+VARIABLE =  " VAR " # Variable
+SIMULATOR = "Q SIM" # Simulator 
 TEST =     "--- TEST ---" # DO NOT USE IN NORMAL CODE 
 
 # Types, do not add more, this is enough

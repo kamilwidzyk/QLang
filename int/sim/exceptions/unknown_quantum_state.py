@@ -1,0 +1,3 @@
+
+class UnknownQuantumStateException(Exception):
+    pass

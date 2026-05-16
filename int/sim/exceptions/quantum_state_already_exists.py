@@ -1,0 +1,4 @@
+
+
+class QuantumStateAlreadyExistsException(Exception):
+    pass

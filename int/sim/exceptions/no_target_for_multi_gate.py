@@ -1,0 +1,4 @@
+
+
+class NoTargetForMultiGateException(Exception):
+    pass

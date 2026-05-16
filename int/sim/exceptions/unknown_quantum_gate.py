@@ -1,0 +1,3 @@
+
+class UnknownQuantumGateException(Exception):
+    pass
