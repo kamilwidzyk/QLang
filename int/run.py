@@ -17,6 +17,7 @@ from .script_errors import ScriptErrors
 from .places import divideIntoPlaces, Places
 from .sim.server import start_server
 
+
 class QLangErrorListener(ErrorListener):
     def __init__(self):
         super(QLangErrorListener, self).__init__()

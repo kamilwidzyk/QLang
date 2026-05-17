@@ -15,6 +15,14 @@ from ...variable import Variable
 from ...function import Function
 from ...text import Text
 from ...state import State
+
+from ...sim.data.consts import QuantumID, QuantumMeasurement, QuantumPrefix
+from ...sim.data.event import QuantumEvent
+from ...sim.data.gates import QuantumGate, QuantumGates
+from ...sim.data.graph import EntaglementGraph
+from ...sim.data.history import QuantumHistory
+from ...sim.data.state import QuantumState
+
 if TYPE_CHECKING:
     from place import Place
 
@@ -273,10 +281,33 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                     "Type: Text", f"Length: {len(val.get())}", f"Value: {val.get()}"
                 ]
             if isinstance(val, State):
-                return [
+                state_lines = [
                     "Type: State", f"UID: {val.uid}"
                 ]
+        
+                # Quantum state -> some additional info
+                # get_history() -> QuantumHistory
+                # get_stabilizers() -> list[str]
+                # get_state_info() -> QuantumState
+                history: QuantumHistory = val.get_history()
+                stabilizers: list[str] = val.get_stabilizers()
+                state: QuantumState = val.get_state_info()
 
+                state_lines.append("History:")
+                for event in history.as_list():
+                    state_lines.append(f"\t{str(event)}")
+
+                state_lines.append("Stabilizers:")
+                for stab in stabilizers:
+                    state_lines.append(f"\t{str(stab)}")
+
+                state_lines.append("State:")
+                state_lines.append(f"\tX: {state.x}")
+                state_lines.append(f"\tZ: {state.z}")
+                state_lines.append(f"\tPhase: {state.phase}")
+
+
+                return state_lines
             
 
             return [
@@ -297,8 +328,12 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 debug_lines.append(f"Index:      {value.index}")
                 if value.data is not None:
                     debug_lines.append("Data: ")
-                value_lines = value_to_lines(value.data)
-                debug_lines.extend(["\t" + x for x in value_lines])
+                    value_lines = value_to_lines(value.data)
+                    debug_lines.extend(["\t" + x for x in value_lines])
+
+                        
+
+
 
             elif isinstance(value, Function):
                 # information to display: name, params(list + count), body(likely not), pos, type
