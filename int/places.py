@@ -4,21 +4,15 @@ from typing import List, Dict, Any
 import re
 import antlr4
 
-from .logger import init_log, log, log_level 
-from .logger import INIT, PLACE
-from .logger import FATAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, NOTHING
+from .consts import *
+from .logger import log
+from .logger import PLACE
+from .logger import SUCCESS, INFO, DEBUG
 
-from .load import load_input_files
 from .script_errors import ScriptErrors
-
 from .place import Place
 
-from .QLang.QLangParser import QLangParser
-# Aliases for contexts
-ProgramCtx = QLangParser.ProgramContext
-PlaceDeclCtx = QLangParser.PlaceDeclContext
-FunctionDeclCtx = QLangParser.FunctionDeclContext
-StatementCtx = QLangParser.StatementContext
+
 
 def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, parser: any) -> Places:
     """ 

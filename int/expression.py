@@ -34,11 +34,7 @@ TYPE_STATE_REGISTER = "StateRegister"
 TYPE_LIST = "list" # [expr, expr, ...]
 TYPE_ARRAY = "Array" # instance of multidimensional Variable
 
-from typing import TYPE_CHECKING
 from .text import Text
-
-if TYPE_CHECKING:
-    from .variable import Variable
 
 
 def type_to_rank(value):

@@ -15,7 +15,7 @@ def path_from_root(rel_path: str) -> str:
 def prepare_test_run():
     """ Runs preparation for running in test mode"""
 
-    bat_file = "prepare_test.bat"
+    bat_file = "antlr\\prepare_test.bat"
 
     bat_path = path_from_root(bat_file)
 
@@ -32,7 +32,7 @@ def prepare_test_run():
 def run_in_test_mode(ql_path: str):
     """ Runs the interpreter in test mode with a given .ql file, logs are in logs dir"""
 
-    bat_file = "run_test.bat"
+    bat_file = "antlr\\run_test.bat"
     argument = ql_path
 
     bat_path = path_from_root(bat_file)

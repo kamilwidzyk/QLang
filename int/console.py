@@ -1,6 +1,5 @@
 import subprocess
 import socket
-import time
 import os
 import sys
 

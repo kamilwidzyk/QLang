@@ -1,5 +1,3 @@
-
-
 from .expression import *
 from .logger import log, INTERNAL, FATAL, VARIABLE
 from .obs import Obs, ObsRegister

@@ -8,13 +8,12 @@ from .QLang.QLangLexer import QLangLexer
 from .QLang.QLangParser import QLangParser
 
 from .logger import init_log, log, log_level, log_test, enable_test_mode
-from .logger import INIT, PLACE
-from .logger import FATAL, ERROR, WARNING, SUCCESS, INFO, DEBUG, NOTHING
+from .logger import INIT
+from .logger import WARNING, DEBUG
 
-from .load import load_input_files
 from .script_errors import ScriptErrors
 
-from .places import divideIntoPlaces, Places
+from .places import divideIntoPlaces
 from .sim.server import start_server
 
 

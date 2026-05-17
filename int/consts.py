@@ -4,11 +4,13 @@ Do not import anything from this module to not make a cyclic import
 """
 
 from antlr4.tree.Tree import TerminalNode
-from .QLang.QLangLexer import QLangLexer
 from .QLang.QLangParser import QLangParser
 
-
+################### TOP LEVEL #####################
 TerminalCtx = TerminalNode
+ProgramCtx = QLangParser.ProgramContext
+PlaceDeclCtx = QLangParser.PlaceDeclContext
+FunctionDeclCtx = QLangParser.FunctionDeclContext
 StatementCtx = QLangParser.StatementContext
 
 #################### VARIABLES ####################
@@ -35,7 +37,6 @@ NumCastExprCtx = QLangParser.NumCastExprContext
 IoStmtCtx = QLangParser.IoStmtContext
 VarExprCtx = QLangParser.VarExprContext
 PlaceMemberCtx = QLangParser.PlaceMemberContext
-FunctionDeclCtx = QLangParser.FunctionDeclContext
 ParamListCtx = QLangParser.ParamListContext
 ParamCtx = QLangParser.ParamContext
 BlockCtx = QLangParser.BlockContext

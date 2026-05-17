@@ -1,6 +1,4 @@
-from int.obs import Obs, ObsRegister
-
-from .logger import log,WARNING
+from .logger import log, WARNING
 
 from .expression import *
 from .exception.modulo_over_zero import ModuloOverZeroException
