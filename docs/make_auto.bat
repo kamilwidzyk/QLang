@@ -1,0 +1,1 @@
+latexmk -pdf -pvc -view=none -outdir=docs\pdf -jobname=QLang docs\main.tex 

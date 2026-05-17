@@ -1,0 +1,20 @@
+PWD C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory
+INPUT C:\Users\widzy\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
+INPUT docs\main.tex
+OUTPUT C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\docs\pdf\QLang.log
+INPUT C:\Users\widzy\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls
+INPUT C:\Users\widzy\AppData\Local\Programs\MiKTeX\tex\latex\base\article.cls
+INPUT C:\Users\widzy\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
+INPUT C:\Users\widzy\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
+INPUT C:\Users\widzy\AppData\Local\Programs\MiKTeX\tex\latex\base\size10.clo
+INPUT C:\Users\widzy\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Users\widzy\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\docs\pdf\QLang.aux
+INPUT C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\docs\pdf\QLang.aux
+INPUT C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\docs\pdf\QLang.aux
+OUTPUT C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\docs\pdf\QLang.aux
+OUTPUT C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\docs\pdf\QLang.pdf
+INPUT C:\Users\widzy\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
+INPUT C:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\docs\pdf\QLang.aux
+INPUT C:\Users\widzy\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
+INPUT C:\Users\widzy\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmr10.pfb
