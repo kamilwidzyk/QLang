@@ -53,7 +53,7 @@ class QuantumSimulator:
             Returns internal stabilizers for a given state ID
         get_state(ID) -> state
             Returns internal state for a given state ID
-        get_history(ID) -> list[event]
+        get_history(ID) -> history
             Returns a list of all events tied to state ID
         apply_gate(ID, gate, target|None)
             Applies the specified gate to state with given ID
@@ -74,6 +74,10 @@ class QuantumSimulator:
     def __init__(self) -> None:
         self._lock = threading.RLock()
         self.states: Dict[QuantumID, QuantumState] = {}
+        # alias -> canonical original id
+        self.aliases: Dict[QuantumID, QuantumID] = {}
+        # canonical original id -> list of aliases (new names)
+        self.canonical_aliases: Dict[QuantumID, List[QuantumID]] = {}
         self._x: List[List[int]] = []
         self._z: List[List[int]] = []
         self._phase: List[int] = []
@@ -146,6 +150,7 @@ class QuantumSimulator:
 
     def measure(self, id: QuantumID) -> QuantumMeasurement:
         with self._lock:
+            
             state = self._get_state(id)
             column = self._get_qubit_index(id)
             row_index = self._find_random_measurement_row(column)
@@ -159,6 +164,7 @@ class QuantumSimulator:
             self.entanglement.split(id)
 
             state.record(QuantumEvent.measure(id, result))
+            log(SIMULATOR, DEBUG, f"Measuring {id} -> {result}")
             return result
 
     def remove_qubit(self, id: QuantumID) -> bool:
@@ -182,6 +188,34 @@ class QuantumSimulator:
             self.entanglement.remove(id)
 
             return True
+
+    def rename_state(self, old_id: QuantumID, new_prefix: QuantumPrefix) -> QuantumID:
+        """Create an additional name for an existing state.
+
+        The original state's canonical id remains unchanged. This method
+        generates a new full id using the `QuantumUIDGenerator` and records it
+        as an alias mapping so the simulator accepts the new id as referring
+        to the same underlying state. Returns the new generated full id.
+        """
+        with self._lock:
+            if old_id not in self.states:
+                raise UnknownQuantumStateException(str(old_id))
+
+            new_id = self.uid_generator.next(new_prefix)
+
+            if new_id in self.states or new_id in self.aliases:
+                raise QuantumStateAlreadyExistsException(str(new_id))
+
+            # register alias -> canonical and canonical -> aliases
+            self.aliases[new_id] = old_id
+            self.canonical_aliases.setdefault(old_id, []).append(new_id)
+
+            # record alias event in the canonical state's history
+            canonical_state = self.states[old_id]
+            canonical_state.record(QuantumEvent.alias(old_id, new_id))
+
+            log(SIMULATOR, DEBUG, f"Added alias for state: {old_id} -> {new_id}")
+            return new_id
 
     
     def _apply_single_gate(self, id: QuantumID, gate: QuantumGate):
@@ -359,14 +393,26 @@ class QuantumSimulator:
         return rows
     
     def _get_state(self, id: QuantumID):
+        # resolve aliases first
+        canonical = id
         if id not in self.states:
-            raise UnknownQuantumStateException(str(id))
-        return self.states[id]
+            if id in self.aliases:
+                canonical = self.aliases[id]
+            else:
+                raise UnknownQuantumStateException(str(id))
+        return self.states[canonical]
 
     def _get_qubit_index(self, id: QuantumID) -> int:
+        # resolve aliases that point to canonical ids
+        canonical = id
         if id not in self._qubit_index:
+            if id in self.aliases:
+                canonical = self.aliases[id]
+            else:
+                raise UnknownQuantumStateException(str(id))
+        if canonical not in self._qubit_index:
             raise UnknownQuantumStateException(str(id))
-        return self._qubit_index[id]
+        return self._qubit_index[canonical]
 
     def _qubit_count(self) -> int:
         return len(self._qubit_order)

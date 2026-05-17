@@ -9,6 +9,7 @@ class EventType:
     MULTI = "multi"
     MEASURE = "measure"
     INIT = "init"
+    ALIAS = "alias"
     UNKNOWN = "unknown"
 
 class QuantumEvent:
@@ -36,6 +37,9 @@ class QuantumEvent:
             return f"MEASURE {self.control} = {self.outcome}"
         if self.type == EventType.INIT:
             return f"INIT {self.control}"
+        if self.type == EventType.ALIAS:
+            # represent alias event as: ALIAS {newID}
+            return f"ALIAS {self.target}"
         return "UNKNOWN"
     
     # Add this event when applying a single gate
@@ -79,6 +83,15 @@ class QuantumEvent:
         return cls(
             type=EventType.INIT,
             control=id
+        )
+
+    # Add this event when creating an alias for a state
+    @classmethod
+    def alias(cls, original: QuantumID, new_id: QuantumID) -> QuantumEvent:
+        return cls(
+            type=EventType.ALIAS,
+            control=original,
+            target=new_id,
         )
     
     
