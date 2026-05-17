@@ -14,6 +14,7 @@ from ...expression import *
 from ...variable import Variable
 from ...function import Function
 from ...text import Text
+from ...state import State
 if TYPE_CHECKING:
     from place import Place
 
@@ -271,6 +272,10 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 return [
                     "Type: Text", f"Length: {len(val.get())}", f"Value: {val.get()}"
                 ]
+            if isinstance(val, State):
+                return [
+                    "Type: State", f"UID: {val.uid}"
+                ]
 
             
 
@@ -310,6 +315,57 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                         debug_lines.extend(["\t\t\t" + x for x in param_value_lines])
                 debug_lines.append(f"Body Length:     {len(value.body)}")
                 debug_lines.append(f"Position:        {value.pos}")
+            elif isinstance(value, Variable) and isinstance(value.data, State):
+                # State variable reference - query the quantum server
+                debug_lines.append("===== Quantum State Reference =====")
+                debug_lines.append(f"Variable Name:   {value.name}")
+                debug_lines.append(f"Type:            {value.type}")
+                debug_lines.append(f"State UID:       {value.data.uid}")
+                
+                try:
+                    # Get and display quantum history
+                    history = value.data.get_history()
+                    debug_lines.append("Quantum History:")
+                    if history:
+                        if hasattr(history, '__iter__') and not isinstance(history, str):
+                            for i, entry in enumerate(history):
+                                debug_lines.append(f"\t[{i}] {entry}")
+                        else:
+                            debug_lines.append(f"\t{history}")
+                    else:
+                        debug_lines.append("\t(empty)")
+                except Exception as e:
+                    debug_lines.append(f"Quantum History: ERROR - {str(e)}")
+                
+                try:
+                    # Get and display stabilizers
+                    stabilizers = value.data.get_stabilizers()
+                    debug_lines.append("Stabilizers:")
+                    if stabilizers:
+                        if hasattr(stabilizers, '__iter__') and not isinstance(stabilizers, str):
+                            for i, stab in enumerate(stabilizers):
+                                debug_lines.append(f"\t[{i}] {stab}")
+                        else:
+                            debug_lines.append(f"\t{stabilizers}")
+                    else:
+                        debug_lines.append("\t(empty)")
+                except Exception as e:
+                    debug_lines.append(f"Stabilizers: ERROR - {str(e)}")
+                
+                try:
+                    # Get and display state information
+                    state_info = value.data.get_state_info()
+                    debug_lines.append("State Information:")
+                    if state_info:
+                        if hasattr(state_info, '__dict__'):
+                            for key, val in state_info.__dict__.items():
+                                debug_lines.append(f"\t{key}: {val}")
+                        else:
+                            debug_lines.append(f"\t{state_info}")
+                    else:
+                        debug_lines.append("\t(empty)")
+                except Exception as e:
+                    debug_lines.append(f"State Information: ERROR - {str(e)}")
             else:
                 self.console.write(f"DEBUG Unsupported reference type: {type(value)}\n")
                 return
@@ -318,8 +374,34 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             debug_lines.append(f"Type:  {value.type}")
             debug_lines.append(f"Shape: {value.shape}")
             if value.value is not None:
-                debug_lines.append("Value: ")
-                debug_lines.extend(["\t" + x for x in value_to_lines(value.value)])
+                if isinstance(value.value, State):
+                    debug_lines.append("Value: ")
+                    debug_lines.append(f"\tState UID: {value.value.uid}")
+                    try:
+                        history = value.value.get_history()
+                        debug_lines.append("\tQuantum History:")
+                        if history:
+                            if hasattr(history, '__iter__') and not isinstance(history, str):
+                                for i, entry in enumerate(history):
+                                    debug_lines.append(f"\t\t[{i}] {entry}")
+                            else:
+                                debug_lines.append(f"\t\t{history}")
+                    except Exception as e:
+                        debug_lines.append(f"\tQuantum History: ERROR - {str(e)}")
+                    try:
+                        stabilizers = value.value.get_stabilizers()
+                        debug_lines.append("\tStabilizers:")
+                        if stabilizers:
+                            if hasattr(stabilizers, '__iter__') and not isinstance(stabilizers, str):
+                                for i, stab in enumerate(stabilizers):
+                                    debug_lines.append(f"\t\t[{i}] {stab}")
+                            else:
+                                debug_lines.append(f"\t\t{stabilizers}")
+                    except Exception as e:
+                        debug_lines.append(f"\tStabilizers: ERROR - {str(e)}")
+                else:
+                    debug_lines.append("Value: ")
+                    debug_lines.extend(["\t" + x for x in value_to_lines(value.value)])
             if value.variable is not None:
                 debug_lines.append("Variable: ")
                 debug_lines.extend(["\t" + x for x in value_to_lines(value.variable.data)])

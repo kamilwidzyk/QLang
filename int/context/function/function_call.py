@@ -56,7 +56,7 @@ def _is_arg_type_compatible(expected_type: str, value: Any) -> bool:
             return True
         return False
     if expected_type == "state":
-        return False
+        return value_type == TYPE_STATE
     return True
 
 
@@ -359,7 +359,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
             if len(dimensions) == 1 and dimensions[0] == 0:
                 dimensions = [0]
             
-            var = Variable(param.name, type_const, dimensions)
+            var = Variable(param.name, type_const, dimensions, quantum_client=self.quantum_client)
             if param_value is not None:
                 var.set(param_value)
             new_scope.vars[param.name] = var

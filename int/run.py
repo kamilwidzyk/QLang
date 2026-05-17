@@ -1,4 +1,5 @@
 import sys
+import multiprocessing
 
 from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
@@ -14,8 +15,7 @@ from .load import load_input_files
 from .script_errors import ScriptErrors
 
 from .places import divideIntoPlaces, Places
-
-from .network import QuantumNetwork, create_quantum_network
+from .sim.server import start_server
 
 class QLangErrorListener(ErrorListener):
     def __init__(self):
@@ -121,29 +121,44 @@ def main():
     log_test("SYNTAX_ERRORS=0")
     print("No errors found")
 
-    # Prepare for interpreter start
-
-    # Create a quantum network for communication between places
-    network, manager = create_quantum_network()
-
     # Scan the tree and divide the code into multiple places that will run in parrael
-    places = divideIntoPlaces(tree, scriptErrors, network, parser)
+    places = divideIntoPlaces(tree, scriptErrors, parser)
     for place in places.places:
         log_test(f"PLACE_NAME={place}")
         log_test(f"PLACE_CODE={places.places[place].block}")
     log_test("PLACE_END")
 
-    # Start every place in separate process
-    if(TEST_MODE):
-        places.enable_test_mode()
-    places.run()
+    quantum_command_queue = multiprocessing.Queue()
+    quantum_response_queues = {
+        place_name: multiprocessing.Queue()
+        for place_name in places.list_names()
+    }
+    quantum_server_process = multiprocessing.Process(
+        target=start_server,
+        args=(quantum_command_queue, quantum_response_queues),
+        name="QuantumSimulatorServer",
+    )
+    quantum_server_process.start()
+    places.set_quantum_channels(quantum_command_queue, quantum_response_queues)
 
-    log_test("ALL_PLACES_STARTED")
+    try:
+        # Start every place in separate process
+        if(TEST_MODE):
+            places.enable_test_mode()
+        places.run()
 
-    # Wait for all places to finish execution
-    places.wait_for_end()
+        log_test("ALL_PLACES_STARTED")
 
-    log_test("ALL_PLACES_FINISHED")
+        # Wait for all places to finish execution
+        places.wait_for_end()
+
+        log_test("ALL_PLACES_FINISHED")
+    finally:
+        quantum_command_queue.put(None)
+        quantum_server_process.join(timeout=10.0)
+        if quantum_server_process.is_alive():
+            quantum_server_process.terminate()
+            quantum_server_process.join(timeout=10.0)
 
 
 

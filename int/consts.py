@@ -15,6 +15,8 @@ StatementCtx = QLangParser.StatementContext
 VarDeclCtx = QLangParser.VarDeclContext
 SizeGetterExprCtx = QLangParser.SizeGetterExprContext
 SizeGetterCtx = QLangParser.SizeGetterContext
+GateStmtCtx = QLangParser.GateStmtContext
+MeasureExprCtx = QLangParser.MeasureExprContext
 
 #################### LIST ####################
 ListExprCtx = QLangParser.ListExprContext

@@ -5,11 +5,11 @@ import re
 from dataclasses import dataclass
 import sys
 
-from .network import QuantumNetwork
 from .script_errors import ScriptErrors
 from .console import Console
 from .consts import *
 from .scope import ScopeManager
+from .sim.client import QuantumClient
 
 from .logger import log, PLACE, INFO, FATAL
 
@@ -92,6 +92,7 @@ from .context.math.pow_eq_op              import handle_pow_eq_op
 from .context.math.logic.and_eq_op              import handle_and_eq_op
 from .context.math.logic.or_eq_op               import handle_or_eq_op
 from .context.operator.reference import handle_reference
+from .context.quantum import handle_gate_statement, handle_measure_expr
 
 class Place:
     """
@@ -101,7 +102,6 @@ class Place:
     """
     name: str = None
     block: List = []
-    network: QuantumNetwork
     script_errors: ScriptErrors
     declared_at: ScriptErrors.Position
     scopes: ScopeManager
@@ -110,21 +110,20 @@ class Place:
 
 
     def __init__(self, name: str, script_errors: ScriptErrors, 
-                 declared_at: ScriptErrors.Position, network: QuantumNetwork):
+                 declared_at: ScriptErrors.Position):
         """
         Initializes the place with a name
 
         Parameters:
             name (str): Place name, specified by the code
             script_errors (ScriptErrors): instance of class for displaying errors
-            network (QuauntumNetwork): instance of QuantumNetwork
         """
         self.name = name
         self.script_errors = script_errors
-        self.network = network
         self.block = []
         self.declared_at = declared_at
         self.scopes = ScopeManager()
+        self.quantum_client = None
         
     def enable_test_mode(self):
         self.test_mode = True
@@ -179,6 +178,8 @@ class Place:
             VarDeclCtx:             handle_variable_declaration,
             SizeGetterCtx:          handle_expression_size_getter,
             SizeGetterExprCtx:      handle_expression_size_expr,
+            GateStmtCtx:            handle_gate_statement,
+            MeasureExprCtx:         handle_measure_expr,
 
             ##### LIST #####
             ListExprCtx:            handle_expression_list_expr,
@@ -297,12 +298,14 @@ class Place:
         log(PLACE, FATAL, "Handler for block not found, type: " + block.__class__.__name__)
         exit()
 
-    def process_target(self):
+    def process_target(self, quantum_command_queue=None, quantum_response_queue=None):
         """
         Place execution entry point
         """
         sys.setrecursionlimit(4_000_000)
         sys.stdout.reconfigure(encoding='utf-8')
+        if quantum_command_queue is not None and quantum_response_queue is not None:
+            self.quantum_client = QuantumClient(self.name, quantum_command_queue, quantum_response_queue)
 
         # Open console with title that includes place's name
         self.console = Console("Place: " + self.name)
@@ -335,11 +338,14 @@ class Place:
 
         
 
-    def run(self):
+    def run(self, quantum_command_queue=None, quantum_response_queue=None):
         """
         Starts execution of this place inside a separate process
         """
-        self.proc = Process(target=self.process_target)
+        self.proc = Process(
+            target=self.process_target,
+            args=(quantum_command_queue, quantum_response_queue),
+        )
         self.proc.start()
         log(PLACE, INFO, f"Place {self.name} started")
 

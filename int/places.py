@@ -12,7 +12,6 @@ from .load import load_input_files
 from .script_errors import ScriptErrors
 
 from .place import Place
-from .network import QuantumNetwork
 
 from .QLang.QLangParser import QLangParser
 # Aliases for contexts
@@ -21,7 +20,7 @@ PlaceDeclCtx = QLangParser.PlaceDeclContext
 FunctionDeclCtx = QLangParser.FunctionDeclContext
 StatementCtx = QLangParser.StatementContext
 
-def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, network: QuantumNetwork, parser: any) -> Places:
+def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, parser: any) -> Places:
     """ 
     Divides original tree into places. 
     Code not in any place ends up in 'global' place.
@@ -32,7 +31,6 @@ def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, n
     Parameters:
         tree (Any): parsed tree
         script_errors (ScriptErrors): instace of error displaying class
-        network (QuantumNetwork): instace of QuantumNetwork
     
     Returns:
         Instance of Places class with all of the places added along with their code
@@ -56,7 +54,7 @@ def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, n
 
     # Create places instance to store the separated places
     places = Places()
-    places.create_place("global", script_errors, ScriptErrors.Position(0, 0), network)
+    places.create_place("global", script_errors, ScriptErrors.Position(0, 0))
 
     # Get children of topLevelItem
     top_level_items = tree.topLevelItem()
@@ -92,8 +90,7 @@ def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, n
                 places.create_place(
                     place_name, 
                     script_errors, 
-                    position, 
-                    network
+                    position
                 )
 
                 # Add every member to place 
@@ -119,21 +116,22 @@ class Places:
     """
     places: Dict[str, Place] = {}
     test_mode: bool = False
+    quantum_command_queue = None
+    quantum_response_queues = None
 
     def enable_test_mode(self):
         self.test_mode = True
 
     def create_place(self, name: str, script_errors: ScriptErrors, 
-                     declared_at: ScriptErrors, network: QuantumNetwork):
+                     declared_at: ScriptErrors):
         """
         Creates empty place with given name
 
         Parameters:
             name (str): Name of the place to create
             script_errors (ScriptErrors): instance of class for displaying errors
-            network (QuantumNetwork): instance of QuauntumNetwork
         """
-        new_place = Place(name, script_errors, declared_at, network)
+        new_place = Place(name, script_errors, declared_at)
         self.places[name] = new_place
 
     def add_code(self, name: str, code: Any):
@@ -161,6 +159,10 @@ class Places:
         Returns a list of all names
         """
         return self.places.keys()
+
+    def set_quantum_channels(self, command_queue, response_queues):
+        self.quantum_command_queue = command_queue
+        self.quantum_response_queues = response_queues
     
     def run(self):
         """
@@ -169,7 +171,10 @@ class Places:
         for place in self.places.values():
             if(self.test_mode):
                 place.enable_test_mode()
-            place.run()
+            response_queue = None
+            if self.quantum_response_queues is not None:
+                response_queue = self.quantum_response_queues[place.name]
+            place.run(self.quantum_command_queue, response_queue)
         log(PLACE, SUCCESS, "All places running")
 
     def wait_for_end(self):

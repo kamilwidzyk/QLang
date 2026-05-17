@@ -4,6 +4,7 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 from ..expression.variable_expression import handle_variable_expression
 from ..operator.pre_post import is_variable
+from ...expression import TYPE_STATE
 
 from ...exception.assignment_to_expression import AssignmentToExpressionException
 
@@ -25,6 +26,14 @@ def handle_assignment_expr(self: Place, block: Any, parent: Any, pos: ScriptErro
         raise AssignmentToExpressionException(ScriptErrors.Position.extract(left_expr))
 
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
+    if left_variable.type == TYPE_STATE:
+        self.script_errors.showError(
+            pos=pos,
+            error_type="RUNTIME ERROR",
+            title="Access Denied",
+            msg="Quantum states cannot be assigned directly.",
+        )
+        exit()
     right_value = self.handle_block(right_expr, block)
         
     var_name = left_variable.name

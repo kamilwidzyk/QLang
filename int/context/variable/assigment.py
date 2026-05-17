@@ -7,7 +7,7 @@ from ...exception.cant_find_variable import CantFindVariableException
 from ...exception.information_leak import InformationLeakException
 from ...exception.index_not_int import IndexNotIntException
 
-from ...expression import Expression, TYPE_INT
+from ...expression import Expression, TYPE_INT, TYPE_STATE
 from ...variable import Variable
 
 
@@ -45,6 +45,15 @@ def handle_var(self: Place, block: Any, parent: Any) -> Variable:
 def handle_assigment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # assignStmt: var '=' expr;
     var = handle_var(self, block.var(), block)
+
+    if var.type == TYPE_STATE:
+        self.script_errors.showError(
+            pos=pos,
+            error_type="RUNTIME ERROR",
+            title="Access Denied",
+            msg="Quantum states cannot be assigned directly.",
+        )
+        exit()
 
     assign_val = self.handle_block(block.expr(), block)
     var.set(assign_val)

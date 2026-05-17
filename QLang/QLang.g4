@@ -67,13 +67,11 @@ sizeGetter: '#' ID;                  /** Pobranie rozmiaru zmiennej/listy argume
 
 // -------------------- INSTRUKCJE --------------------
 statement
-    : stateDecl ';'        # stateDeclaration
-    | constDecl ';'        # constDeclaration
+    : constDecl ';'        # constDeclaration
     | varDecl ';'          # varDeclaration
     | receiveDecl ';'      # receiveDeclaration
     | sendStmt ';'         # sendStatement
     | gateStmt ';'         # gateStatement
-    | measureStmt ';'      # measureStatement
     | assignStmt ';'       # assignmentStatement
     | functionCallStmt ';' # functionCallStatement
     | ifStmt               # ifStatement
@@ -97,13 +95,7 @@ varUnknown: '?' var '?';
 
 // -------------------- DEKLARACJE --------------------
 
-// Wielokrotna deklaracja stanu kwantowego lub stanu w superpozycji
-stateDecl
-: STATE varNoAssign (',' varNoAssign)*  # multipleStateDecl
-| STATE ID '=' SUPERPOSED               # superposedStateDecl
-;
-
-// Deklaracja zmiennej OBS lub NUM, możliwia wielokrotna deklaracja z przypisaniem
+// Deklaracja zmiennej OBS, NUM, TEXT lub STATE
 // Przypisanie może być tylko przy niektórych deklaracjach
 varDecl: varType varAssign (',' varAssign)*;
 
@@ -188,6 +180,7 @@ expr
     | list                               # ListExpr
     | varUnknown                         # VarUnknownExpr
     | sizeGetter                         # SizeGetterExpr
+    | (MEASURE | MEASUREX) var           # MeasureExpr
     | NUM '(' argList? ')'               # NumCastExpr
     | ID '(' argList? ')'                # FuncCallExpr
     | ID ('[' expr ']')*                 # VarExpr
@@ -415,17 +408,13 @@ sendStmt
 // --- OPERACJE KWANTOWE ---
 
 gateStmt
-    : singleQubitGate ID ('[' expr ']')?
-    | multiQubitGate ID ('[' expr ']')? '->' ID ('[' expr ']')?
-    | SWAP ID ('[' expr ']')? ID ('[' expr ']')?
+    : singleQubitGate var
+    | multiQubitGate var '->' var
+    | SWAP var var
     ;
 
 singleQubitGate: H | SUPERPOSE | S | SHIFT | X | NOT | Y | DUAL_NOT | Z | PHASE_NOT;
 multiQubitGate: CNOT | ENTANGLE | CZ | ENTANGLE_PHASE;
-
-measureStmt
-    : ID ('[' expr ']')? '=' (MEASURE | MEASUREX) ID ('[' expr ']')?
-    ;
 
 
 // -------------------- LISTA --------------------

@@ -1,5 +1,5 @@
 from typing import List
-from .consts import QuantumID
+from .consts import QuantumID, QuantumPrefix
 from .gates import QuantumGate, QuantumGates
 
 class QuantumCommand:

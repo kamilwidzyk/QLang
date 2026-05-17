@@ -4,7 +4,7 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 from ...obs import Obs, ObsRegister
 
-from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER, TYPE_TEXT
+from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER, TYPE_STATE, TYPE_TEXT
 from ...logger import log, VARIABLE, FATAL
 
 from ...exception.size_error import SizeErrorException
@@ -99,7 +99,16 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
         dimensions = [0]
 
 
-    var = Variable(var_name, type, dimensions)
+    if type == TYPE_STATE and initial_value is not None:
+        self.script_errors.showError(
+            pos=ScriptErrors.Position.extract(block),
+            error_type="RUNTIME ERROR",
+            title="Access Denied",
+            msg="Quantum states cannot be assigned directly.",
+        )
+        exit()
+
+    var = Variable(var_name, type, dimensions, quantum_client=self.quantum_client)
     print(dimensions, initial_value)
     if initial_value is not None:
         if isinstance(initial_value, list):
@@ -127,7 +136,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                 var.dimensions = dimensions
             value_shape = initial_value.shape
             initial_value = Expression(TYPE_LIST, initial_value.value, shape=value_shape)
-            var = Variable(var_name, type, value_shape)
+            var = Variable(var_name, type, value_shape, quantum_client=self.quantum_client)
             print("Dimesions: ", dimensions)
             print("Initial value shape: ", value_shape)
             print("Initial value: ", initial_value)
@@ -174,6 +183,8 @@ def handle_variable_declaration(self: Place, block: any, parent: Any, pos: Scrip
         var_type = TYPE_NUM
     elif var_type == "text":
         var_type = TYPE_TEXT
+    elif var_type == "state":
+        var_type = TYPE_STATE
     else:
         log(VARIABLE, FATAL, "Unsupported variable type: " + str(var_type))
         exit()

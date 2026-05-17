@@ -5,6 +5,7 @@ from .logger import log, INTERNAL, FATAL, VARIABLE
 from .obs import Obs, ObsRegister
 from .num import Num
 from .text import Text
+from .state import State
 
 # Class enclosing every variable
 # Supports making arrays with multiple dimensions
@@ -14,13 +15,14 @@ from .text import Text
 # dimensions is a list of array dimensions, [0] for single value
 # 
 class Variable:
-    def __init__(self, name: str, type: str, dimensions: list[int], index: list[int] = None):
+    def __init__(self, name: str, type: str, dimensions: list[int], index: list[int] = None, quantum_client=None):
         self.name = name
         self.type = type
         self.dimensions = dimensions
         self.data = None
         self.is_list = False
         self.index = index # this is used when handler returns a Variable with access index
+        self.quantum_client = quantum_client
         if type in [TYPE_INT, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING]:
             log(INTERNAL, FATAL, "Attempted to create instance of Variable with type of " + str(type))
             exit()
@@ -75,8 +77,17 @@ class Variable:
         else:
             self.data = Num()
 
-    def _create_array_of_state():
-        raise NotImplementedError()
+    def _create_array_of_state(self):
+        if self.dimensions != [0]:
+            self.data = self._create_array_of_state_data(self.dimensions)
+            self.is_list = True
+        else:
+            self.data = State(client=self.quantum_client)
+
+    def _create_array_of_state_data(self, dimensions):
+        if not dimensions:
+            return State(client=self.quantum_client)
+        return [self._create_array_of_state_data(dimensions[1:]) for _ in range(dimensions[0])]
 
     def _create_array_of_state_register():
         raise NotImplementedError()
@@ -111,6 +122,9 @@ class Variable:
             data.set(values)
 
     def set(self, new_value: Expression):
+        if self.type == TYPE_STATE:
+            raise TypeError("Quantum state cannot be assigned directly")
+
         if self.index is not None and len(self.index) > 0:
             target = self.data
             if len(self.index) > 1:

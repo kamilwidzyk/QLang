@@ -2,7 +2,7 @@ from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
 from ...consts import *
-from ...expression import Expression, TYPE_NUM
+from ...expression import Expression, TYPE_NUM, TYPE_STATE
 from ...num import Num
 from ...variable import Variable
 
@@ -45,6 +45,14 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
         return variable
 
     if isinstance(variable, Variable):
+        if variable.type == TYPE_STATE:
+            self.script_errors.showError(
+                pos=pos,
+                error_type="RUNTIME ERROR",
+                title="Access Denied",
+                msg="Quantum state values cannot be accessed directly. Use gates or measure.",
+            )
+            exit()
         if variable.type == TYPE_NUM:
             return variable.get_value()
         return variable.get()
