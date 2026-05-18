@@ -112,4 +112,7 @@ ShortIfExprCtx = QLangParser.ShortIfExprContext
 # Reference '@'
 ReferenceCtx = QLangParser.ReferenceContext
 
+# Reset 'reset'
+ResetExprCtx = QLangParser.ResetExprContext
+
 

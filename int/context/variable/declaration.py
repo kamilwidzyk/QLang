@@ -2,6 +2,8 @@ from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
 from ...consts import *
+import copy
+
 from ...obs import Obs, ObsRegister
 
 from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER, TYPE_STATE, TYPE_TEXT
@@ -158,6 +160,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
         #try:
         var.set(initial_value)
+        var.initial_value = copy.deepcopy(initial_value)
         #except (AttributeError, TypeError, ValueError):
         #    self.script_errors.showError(
         #        pos=ScriptErrors.Position.extract(block),

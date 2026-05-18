@@ -7,6 +7,7 @@
 		{ "include": "#semicolon"},
 		{ "include": "#numbers"},
 		{ "include": "#storage" },
+		{ "include": "#word_operators"},
 		{ "include": "#function_calls"},
 		{ "include": "#constant"},
 		{ "include": "#operators" },
@@ -15,6 +16,15 @@
 		{ "include": "#builtin_functions" }
 	],
 	"repository": {
+		"word_operators": {
+			"patterns": [
+				{
+					"name": "support.type.builtin.qlang",
+					"match": "\\b(H|superpose|X|not|S|shift|Y|dual_not|Z|phase_not|CNOT|entangle|CZ|entangle_phase|reset|measure|measureX)\\b"
+
+				}
+			]
+		},
 		"operators": {
 			"patterns": [
 				{
@@ -51,7 +61,7 @@
 			"patterns": [
 				{
 					"name": "storage.type.primitive.qlang",
-					"match": "\\b(num|obs|state|text)\\b"
+					"match": "\\b(num|obs|state|text|const)\\b"
 				}
 			]
 		},

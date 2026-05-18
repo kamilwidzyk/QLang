@@ -60,6 +60,9 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
         # Repeat block until condition is met
         while (do_compare_greater(start_val, end_val) and do_compare_greater(counter.get(), end_val)) or \
               (do_compare_less(start_val, end_val) and do_compare_less(counter.get(), end_val)):
+            # Push new scope for this iteration to clear variables from previous iteration
+            self.scopes.push(pos, scope_type="for_iteration")
+            
             # Run code inside
             try:
                 for child in for_block:
@@ -70,7 +73,11 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
                         break
             except BreakLoop:
                 # break out of the while loop entirely
+                self.scopes.pop()
                 break
+            finally:
+                # Pop iteration scope to clear variables for next iteration
+                self.scopes.pop()
 
             start_val, end_val, step_val = parse_expr(*expressions)
 

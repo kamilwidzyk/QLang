@@ -92,6 +92,7 @@ from .context.math.pow_eq_op              import handle_pow_eq_op
 from .context.math.logic.and_eq_op              import handle_and_eq_op
 from .context.math.logic.or_eq_op               import handle_or_eq_op
 from .context.operator.reference import handle_reference
+from .context.operator.reset import handle_reset_expr
 from .context.quantum import handle_gate_statement, handle_measure_expr
 
 class Place:
@@ -211,6 +212,7 @@ class Place:
             PowExprCtx:             handle_power,
             FormatCtx:              handle_format,
             IfStmtCtx:              handle_if,
+            ResetExprCtx:       handle_reset_expr,
             ShortIfExprCtx:     handle_short_if,
             RelExprContext:         handle_rel_comp,
             AddSubExprContext:      handle_add_sub,

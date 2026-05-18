@@ -16,34 +16,38 @@ def check_condition(expr_block):
     
     return do_compare_greater(expr_block, Expression(TYPE_INT, 0))
 
+
+def _if_bodies(block: Any) -> list:
+    bodies = []
+    for child in getattr(block, 'children', []):
+        if isinstance(child, (BlockCtx, StatementCtx)):
+            bodies.append(child)
+    return bodies
+
+
 def handle_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # ifStmt: IF '(' expr=if_expr ')' block=if_block ((ELSE_IF | ELIF) '(' expr=elif_expr ')' block=elif_block)* (ELSE block=else_block)?;
+    conditions = [self.handle_block(expr, block) for expr in block.expr()]
+    bodies = _if_bodies(block)
 
-    if check_condition(self.handle_block(block.expr(0), block)):
-        chosen_block = block.block(0)
-    else:
-        chosen_block = None
+    chosen_block = None
+    for cond, body in zip(conditions, bodies):
+        if check_condition(cond):
+            chosen_block = body
+            break
 
-        expr_count = len(block.expr())
-        for i in range(1, expr_count):
-            if check_condition(self.handle_block(block.expr(i), block)):
-                chosen_block = block.block(i)
-                break
-
-        if chosen_block is None:
-            total_blocks = len(block.block())
-            total_conditions = expr_count
-
-            if total_blocks > total_conditions:
-                chosen_block = block.block(total_blocks - 1)
+    if chosen_block is None and len(bodies) > len(conditions):
+        chosen_block = bodies[-1]
 
     if chosen_block is None:
         return
 
     self.scopes.push(pos, scope_type="if")
     try:
-        for item in self.handle_block(chosen_block, block):
-            self.handle_block(item, parent=chosen_block)
+        if isinstance(chosen_block, BlockCtx):
+            for item in self.handle_block(chosen_block, block):
+                self.handle_block(item, parent=chosen_block)
+        else:
+            self.handle_block(chosen_block, parent=block)
     finally:
         self.scopes.pop()
 

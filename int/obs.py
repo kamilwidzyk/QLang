@@ -61,6 +61,22 @@ class ObsRegister:
         if isinstance(new_value, Expression):
             new_value = new_value.get_value()
 
+        if isinstance(new_value, list):
+            if len(new_value) != self.size:
+                raise ValueError(f"List length {len(new_value)} does not match register size {self.size}")
+
+            for i, bit in enumerate(new_value):
+                if isinstance(bit, Expression):
+                    bit = bit.get_value()
+                if isinstance(bit, bool):
+                    self[i] = int(bit)
+                elif isinstance(bit, int):
+                    if bit not in (0, 1):
+                        raise ValueError("ObsRegister bits must be 0 or 1")
+                    self[i] = bit
+                else:
+                    raise ValueError("ObsRegister list assignment requires boolean or integer bits")
+            return
 
         if int(new_value) != new_value:
             raise ValueError("int is required")

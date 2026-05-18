@@ -21,6 +21,7 @@ class Variable:
         self.is_list = False
         self.index = index # this is used when handler returns a Variable with access index
         self.quantum_client = quantum_client
+        self.initial_value = None
         if type in [TYPE_INT, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING]:
             log(INTERNAL, FATAL, "Attempted to create instance of Variable with type of " + str(type))
             exit()
@@ -177,6 +178,100 @@ class Variable:
                 self.data.value = str(new_value.value) if new_value.value is not None else ""
             else:
                 self.data.set(new_value.value)
+
+    def _default_scalar_value(self):
+        if self.type == TYPE_TEXT:
+            return ""
+        return 0
+
+    def _default_list_value(self, dimensions=None):
+        if dimensions is None:
+            dimensions = self.dimensions
+
+        if self.type == TYPE_OBS_REGISTER and isinstance(dimensions, list) and len(dimensions) > 1:
+            dimensions = dimensions[:-1]
+
+        if not dimensions or dimensions == [0]:
+            return self._default_scalar_value()
+
+        if isinstance(dimensions, int):
+            dimensions = [dimensions]
+
+        if len(dimensions) == 1:
+            return [self._default_scalar_value() for _ in range(dimensions[0])]
+
+        return [self._default_list_value(dimensions[1:]) for _ in range(dimensions[0])]
+
+    def _wrap_expression(self, value):
+        if isinstance(value, Expression):
+            return value
+        if isinstance(value, list):
+            return Expression(TYPE_LIST, value, shape=self._list_shape(value))
+        return Expression(self.type, value)
+
+    def _get_initial_value_at_index(self, indexes):
+        if self.initial_value is None:
+            return None
+
+        value = self.initial_value
+        if isinstance(value, Expression):
+            if value.type == TYPE_LIST:
+                value = value.value
+            else:
+                if not indexes:
+                    return value
+
+        for idx in indexes:
+            if isinstance(value, Expression) and value.type == TYPE_LIST:
+                value = value.value
+            value = value[idx]
+
+        return self._wrap_expression(value)
+
+    def reset(self):
+        if self.type == TYPE_STATE:
+            raise TypeError("Quantum states cannot be reset directly")
+
+        if self.index is not None and len(self.index) > 0:
+            target = self.data
+            if len(self.index) > 1:
+                target = self.get_data_at_index(self.data, self.index[:-1])
+
+            last_index = self.index[-1]
+            element = target[last_index]
+            reset_value = self._get_initial_value_at_index(self.index)
+
+            if isinstance(element, list):
+                if reset_value is None:
+                    reset_value = self._default_list_value(self._list_shape(element))
+                if isinstance(reset_value, Expression) and reset_value.type == TYPE_LIST:
+                    reset_value = reset_value.value
+                self.assign_values(element, reset_value)
+                return Expression(TYPE_LIST, element, shape=self._list_shape(element))
+
+            if reset_value is None:
+                reset_value = self._default_scalar_value()
+
+            if isinstance(reset_value, Expression):
+                reset_value = reset_value.get_value()
+            element.set(reset_value)
+            return self.get()
+
+        if self.initial_value is not None:
+            self.set(self.initial_value)
+            return self.get()
+
+        if self.is_list:
+            default_value = self._default_list_value()
+            self.set(Expression(TYPE_LIST, default_value, shape=self._list_shape(default_value)))
+            return self.get()
+
+        default_value = self._default_scalar_value()
+        if self.type == TYPE_TEXT:
+            self.set(Expression(TYPE_TEXT, default_value))
+        else:
+            self.set(Expression(self.type, default_value))
+        return self.get()
 
     def __len__(self):
         if self.is_list:

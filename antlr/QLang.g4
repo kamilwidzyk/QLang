@@ -125,7 +125,7 @@ namedArg: ID '=' expr;
 
 // -------------------- KONTROLA PRZEPŁYWU --------------------
 
-ifStmt: IF '(' expr ')' block ((ELSE_IF | ELIF) '(' expr ')' block)* (ELSE block)?;
+ifStmt: IF '(' expr ')' (block | statement) ((ELSE_IF | ELIF) '(' expr ')' (block | statement))* (ELSE (block | statement))?;
 forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
 whileStmt: WHILE '(' expr ')' block;
 
@@ -181,6 +181,7 @@ expr
     | varUnknown                         # VarUnknownExpr
     | sizeGetter                         # SizeGetterExpr
     | (MEASURE | MEASUREX) var           # MeasureExpr
+    | 'reset' var                        # ResetExpr
     | NUM '(' argList? ')'               # NumCastExpr
     | ID '(' argList? ')'                # FuncCallExpr
     | ID ('[' expr ']')*                 # VarExpr
