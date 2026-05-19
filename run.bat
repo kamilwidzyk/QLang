@@ -12,7 +12,7 @@ type nul > int\QLang\__init__.py
 
 REM -- Generowanie parsera ANTLR --
 cd antlr
-java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 QLang.g4 -o ..\int\generated\ -visitor 
+java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 QLang.g4 -o ..\int\QLang\ -visitor 
 cd ..
 
 REM -- Wymuszenie odświeżenia cache Pythona --

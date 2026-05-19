@@ -5,13 +5,55 @@ from ...consts import *
 from ...expression import Expression, TYPE_NUM, TYPE_STATE
 from ...num import Num
 from ...variable import Variable
+from ...QLang.QLangParser import QLangParser
 
 from ...exception.cant_find_variable import CantFindVariableException
+from ..operator.parent import handle_operator_parent
 
 if TYPE_CHECKING:
     from place import Place
 
+
+def is_variable_expression(block: Any) -> bool:
+    if isinstance(block, QLangParser.VarExprContext):
+        return True
+    if isinstance(block, QLangParser.ParentExprContext):
+        return True
+    if isinstance(block, QLangParser.ParenExprContext):
+        inner = block.expr()
+        return inner is not None and is_variable_expression(inner)
+    return False
+
+
 def handle_variable_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position, return_variable=False):
+    # ID ('[' expr ']')* or ^...var or parenthesized variable expressions
+    if isinstance(block, QLangParser.ParentExprContext):
+        variable = handle_operator_parent(self, block, parent, pos)
+
+        if return_variable:
+            return variable
+
+        if isinstance(variable, Expression):
+            return variable
+
+        if isinstance(variable, Variable):
+            if variable.type == TYPE_STATE:
+                self.script_errors.showError(
+                    pos=pos,
+                    error_type="RUNTIME ERROR",
+                    title="Access Denied",
+                    msg="Quantum state values cannot be accessed directly. Use gates or measure.",
+                )
+                exit()
+            if variable.type == TYPE_NUM:
+                return variable.get_value()
+            return variable.get()
+
+        return variable
+
+    if isinstance(block, QLangParser.ParenExprContext):
+        return handle_variable_expression(self, block.expr(), block, pos, return_variable)
+
     # ID ('[' expr ']')*
     var_name = block.ID().getText()
 

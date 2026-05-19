@@ -115,4 +115,7 @@ ReferenceCtx = QLangParser.ReferenceContext
 # Reset 'reset'
 ResetExprCtx = QLangParser.ResetExprContext
 
+# Parent '^' operator
+ParentExprCtx = QLangParser.ParentExprContext
+
 

@@ -2,7 +2,7 @@ from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
 from ...consts import *
-from ..expression.variable_expression import handle_variable_expression
+from ..expression.variable_expression import handle_variable_expression, is_variable_expression
 from ...QLang.QLangParser import QLangParser
 
 from ...exception.assignment_to_expression import AssignmentToExpressionException
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from place import Place
 
 def is_variable(var: Any) -> bool:
-    return isinstance(var, QLangParser.VarExprContext) 
+    return is_variable_expression(var)
 
 
 def handle_pre_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):

@@ -94,6 +94,7 @@ from .context.math.logic.or_eq_op               import handle_or_eq_op
 from .context.operator.reference import handle_reference
 from .context.operator.reset import handle_reset_expr
 from .context.quantum import handle_gate_statement, handle_measure_expr
+from .context.operator.parent import handle_operator_parent
 
 class Place:
     """
@@ -258,7 +259,9 @@ class Place:
             # Or equal
             OrEqExprCtx:            handle_or_eq_op,
             # Reference '@'
-            ReferenceCtx:           handle_reference
+            ReferenceCtx:           handle_reference,
+            # Parent '^'
+            ParentExprCtx:          handle_operator_parent
 
 
 

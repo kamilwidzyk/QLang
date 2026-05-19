@@ -2,9 +2,8 @@ from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
 from ...consts import *
-from ..expression.variable_expression import handle_variable_expression
+from ..expression.variable_expression import handle_variable_expression, is_variable_expression
 from ...QLang.QLangParser import QLangParser
-from ..operator.pre_post import is_variable
 
 from ...exception.assignment_to_expression import AssignmentToExpressionException
 from ...operations.operators import do_operation_pow
@@ -24,12 +23,12 @@ def handle_pow_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
 
     right_value = self.handle_block(right_expr, block)
 
-    if not is_variable(left_expr):
+    if not is_variable_expression(left_expr):
         raise AssignmentToExpressionException(ScriptErrors.Position.extract(left_expr))
     
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
         
-    var_name = left_expr.ID().getText()
+    var_name = left_variable.name
     var_value = left_variable.get()
     new_value = do_operation_pow(var_value, right_value)
     left_variable.set(new_value)

@@ -2,10 +2,7 @@ from typing import Any, TYPE_CHECKING
 
 from ....script_errors import ScriptErrors
 from ....consts import *
-from ...expression.variable_expression import handle_variable_expression
-from ....QLang.QLangParser import QLangParser
-from ...operator.pre_post import is_variable
-
+from ...expression.variable_expression import handle_variable_expression, is_variable_expression
 from ....exception.assignment_to_expression import AssignmentToExpressionException
 
 from ....operations.operators import do_operation_or
@@ -24,7 +21,7 @@ def handle_or_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
 
     right_value = self.handle_block(right_expr, block)
 
-    if not is_variable(left_expr):
+    if not is_variable_expression(left_expr):
         raise AssignmentToExpressionException(ScriptErrors.Position.extract(left_expr))
 
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)

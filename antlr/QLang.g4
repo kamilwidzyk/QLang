@@ -191,6 +191,7 @@ expr
     | NULL                               # NullExpr
     | STRING                             # StrExpr
     | '(' expr ')'                       # ParenExpr
+    | '^' ('^')* var                     # ParentExpr
     | expr '?' expr ':' expr             # ShortIfExpr
     ;
 
