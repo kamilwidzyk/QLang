@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[11pt]{article}
 \usepackage[a4paper, margin=1.5cm]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -17,6 +17,7 @@
 \usepackage[hidelinks, colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
 \usepackage{xparse}
 \usepackage{xstring}
+\usepackage{ragged2e}
 
 %%% Command for linking clickable section references: \link[section]{<label>}
 
@@ -103,15 +104,72 @@
 
 \begin{document}
 
-\maketitle
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Title page   %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagenumbering{gobble} % Suppress page numbers on the title page
+
+\vspace*{4cm}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=8cm]{img/QLang_logo.png}
+\end{figure}
+
+\vspace{3cm}
+
+\begin{center}
+
+    \textbf{\fontsize{26}{19}\selectfont QLang Programming Language} \\
+    \vspace{0.8cm}
+    \color{gray}\textbf{\fontsize{16}{19}\selectfont Language Specification \& Documentation}
+
+\end{center}
+
+\vspace{4cm}
+
+\begin{center}
+
+    \textbf{\fontsize{14}{17}\selectfont Created by:} \\
+    \vspace{0.5cm}
+    \textbf{\fontsize{15}{17}\selectfont \color{gray}Kamil Widzyk} \\
+    \textbf{\fontsize{15}{17}\selectfont \color{gray}Maciej Świątek} \\
+    \vspace{0.1cm}
+    \textbf{\fontsize{15}{17}\selectfont \color{gray}Jan Wida}
+
+\end{center}
+
+\vspace{2cm}
+
+{\noindent\fontsize{11}{15}\selectfont \color{gray} https://github.com/kamilwidzyk/QLang}
+\hfill
+{\noindent\fontsize{11}{15}\selectfont \color{gray} Version 1.0}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Introduction page   %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\pagenumbering{arabic} % Start page numbering from 1
+\input{intro/intro}
+
+
+
+
+
+
+\newpage
 \tableofcontents
 
 
 
 
 \newpage
-\section{Introduction}
-\input{intro/intro}
+
 
 
 

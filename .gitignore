@@ -3,3 +3,6 @@ output/
 int/QLang/
 logs/
 **/__pycache__/
+docs/pdf/*
+!docs/pdf/
+!docs/pdf/QLang.pdf
