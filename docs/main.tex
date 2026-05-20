@@ -1,4 +1,45 @@
-\documentclass{article}
+\documentclass[10pt]{article}
+\usepackage[a4paper, margin=1.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\usepackage{verbatim}
+
+\setmainfont{Nunito-Regular.ttf}[
+    Path=fonts/Nunito/,
+    BoldFont=Nunito-Bold.ttf,
+    ItalicFont=Nunito-Italic.ttf,
+    BoldItalicFont=Nunito-BoldItalic.ttf
+]
+\setmonofont{MartianMono-Regular.ttf}[
+    Path=fonts/MartianMono/,
+    BoldFont=MartianMono-Bold.ttf,
+    ItalicFont=MartianMono-Italic.ttf,
+    BoldItalicFont=MartianMono-BoldItalic.ttf
+]
+
+
+
 \begin{document}
-Hello World!
+
+\noindent Żeby kompilacja się nie wysypała to trzeba make\_auto.bat uruchomić w głównym katalogu projektu, a nie w katalogu docs. 
+gdfgdf
+
+\textbf{gdfgfdgdfgdfgdfg}
+
+
+\begin{verbatim}
+gldgkjdflgkdfjgldfkgj glfkjgldfkjg dljk jl kjd
+\end{verbatim}
+
+\section{Błędy}
+
+\input{error_codes/error_codes}
+
+
 \end{document}

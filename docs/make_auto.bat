@@ -1,1 +1,3 @@
-latexmk -pdf -pvc -view=none -outdir=docs\pdf -jobname=QLang docs\main.tex 
+cd docs
+latexmk -lualatex -pvc -view=none -outdir=pdf -jobname=QLang -interaction=nonstopmode main.tex 
+cd ..
