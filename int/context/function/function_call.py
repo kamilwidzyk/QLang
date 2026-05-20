@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
+import random
+
 from ...script_errors import ScriptErrors
 from ...consts import *
 from ...function import Function
@@ -26,6 +28,46 @@ class FunctionReturn(Exception):
     def __init__(self, value: Any):
         super().__init__("Function return")
         self.value = value
+
+_current_seed = random.SystemRandom().randrange(2**64)
+random.seed(_current_seed)
+
+
+def _parse_seed_value(value: Any):
+    if isinstance(value, Expression):
+        if value.type in [TYPE_INT, TYPE_FLOAT, TYPE_NUM]:
+            return int(value.value)
+        if value.type == TYPE_STRING:
+            parsed_value = _parse_num_cast_value(value.value)
+            if parsed_value is not None:
+                return int(parsed_value.value)
+            return None
+        return None
+
+    if isinstance(value, (int, float)):
+        return int(value)
+
+    if isinstance(value, str):
+        parsed_value = _parse_num_cast_value(value)
+        if parsed_value is not None:
+            return int(parsed_value.value)
+        return None
+
+    return None
+
+
+def _get_seed_expression():
+    return Expression(TYPE_INT, _current_seed)
+
+
+def _set_seed(value: Any):
+    global _current_seed
+    seed_value = _parse_seed_value(value)
+    if seed_value is None:
+        return None
+    _current_seed = seed_value
+    random.seed(_current_seed)
+    return Expression(TYPE_INT, _current_seed)
 
 if TYPE_CHECKING:
     from place import Place
@@ -273,6 +315,40 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
             exit()
 
         return value
+
+    if func_name == "seed":
+        if keyword_args:
+            self.script_errors.showError(
+                pos=block_pos,
+                error_type="RUNTIME ERROR",
+                title="ExecutionError",
+                msg="seed() doesn't accept keyword arguments.",
+            )
+            exit()
+
+        if len(positional_args) == 0:
+            return _get_seed_expression()
+
+        if len(positional_args) != 1:
+            self.script_errors.showError(
+                pos=block_pos,
+                error_type="RUNTIME ERROR",
+                title="ExecutionError",
+                msg="seed() expects zero or one argument.",
+            )
+            exit()
+
+        seed_value = _set_seed(positional_args[0])
+        if seed_value is None:
+            self.script_errors.showError(
+                pos=block_pos,
+                error_type="RUNTIME ERROR",
+                title="Type Error",
+                msg="seed() expects a numeric argument.",
+            )
+            exit()
+
+        return seed_value
 
     # Check if the function exists
     if not self.scopes.exists(func_name):
