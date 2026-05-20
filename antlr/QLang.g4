@@ -527,5 +527,5 @@ ID: [\p{L}_][\p{L}\p{N}_]*;
 
 // Ignorowane
 WS: [ \t\r\n]+ -> channel(HIDDEN);
-LINE_COMMENT: '//' ~[\r\n]* -> skip;
-BLOCK_COMMENT: '/*' .*? '*/' -> skip;
+LINE_COMMENT: '//' ~[\r\n]* -> channel(HIDDEN);
+BLOCK_COMMENT: '/*' .*? '*/' -> channel(HIDDEN);

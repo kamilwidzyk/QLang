@@ -9,6 +9,9 @@
 \usepackage{graphicx}
 \usepackage{tcolorbox}
 \usepackage{verbatim}
+\usepackage{xcolor}
+\usepackage{listings}
+\tcbuselibrary{listings}
 
 \setmainfont{Nunito-Regular.ttf}[
     Path=fonts/Nunito/,
@@ -18,24 +21,58 @@
 ]
 \setmonofont{MartianMono-Regular.ttf}[
     Path=fonts/MartianMono/,
-    BoldFont=MartianMono-Bold.ttf,
-    ItalicFont=MartianMono-Italic.ttf,
-    BoldItalicFont=MartianMono-BoldItalic.ttf
+    BoldFont=MartianMono-Bold.ttf
 ]
 
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codebox_type}{RGB}{245, 10, 10}
+\definecolor{codebox_number}{RGB}{0,150,64}
+\definecolor{codebox_control}{RGB}{130, 60, 200}
+\definecolor{codebox_constant}{RGB}{20, 128, 245}
+\definecolor{codebox_builtin_operator}{RGB}{0, 150, 40}
+\definecolor{codebox_builtin_function}{RGB}{215, 110, 20}
+\definecolor{codebox_operator}{RGB}{0, 0, 0}
+\definecolor{codebox_comment}{RGB}{128, 128, 128}
+\definecolor{codebox_string}{RGB}{0, 100, 200}
+\definecolor{keywordcolor}{RGB}{0,90,180}
+\definecolor{stringcolor}{RGB}{180,40,40}
+
+\newfontfamily\codefont{MartianMono-Regular.ttf}[
+    Path=fonts/MartianMono/,
+    BoldFont=MartianMono-Bold.ttf
+]
+
+\newtcblisting{codebox}{
+    colback=codebg,
+    colframe=black!10,
+    boxrule=0.5pt,
+    arc=4pt,
+    left=6pt,
+    right=6pt,
+    top=4pt,
+    bottom=4pt,
+    listing only,
+    fontupper=\codefont\small,
+    listing options={
+        showstringspaces=false,
+        columns=fullflexible,
+        keepspaces=true,
+        escapeinside={(*@}{@*)},
+        keywordstyle=\color{keywordcolor}\bfseries,
+        stringstyle=\color{stringcolor}
+    }
+}
 
 
 \begin{document}
 
 \noindent Żeby kompilacja się nie wysypała to trzeba make\_auto.bat uruchomić w głównym katalogu projektu, a nie w katalogu docs. 
-gdfgdf
 
 \textbf{gdfgfdgdfgdfgdfg}
 
 
-\begin{verbatim}
-gldgkjdflgkdfjgldfkgj glfkjgldfkjg dljk jl kjd
-\end{verbatim}
+\input{error_codes/qlang/test.tex}
+
 
 \section{Błędy}
 

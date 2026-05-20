@@ -1,5 +1,5 @@
-This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5) (format=lualatex 2026.5.20)  20 MAY 2026 13:26
- restricted system commands enabled.
+This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5) (format=lualatex 2026.5.20)  20 MAY 2026 15:17
+ system commands enabled.
 **main.tex
 (./main.tex
 LaTeX2e <2025-11-01>
@@ -1000,6 +1000,54 @@ Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 \tcb@temp=\box73
 \tcb@temp=\box74
 )
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/listings/listings.sty
+\lst@mode=\count337
+\lst@gtempboxa=\box75
+\lst@token=\toks40
+\lst@length=\count338
+\lst@currlwidth=\dimen280
+\lst@column=\count339
+\lst@pos=\count340
+\lst@lostspace=\dimen281
+\lst@width=\dimen282
+\lst@newlines=\count341
+\lst@lineno=\count342
+\lst@maxwidth=\dimen283
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/listings/lstpatch.sty
+File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
+)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
+\c@lstnumber=\count343
+\lst@skipnumbers=\count344
+\lst@framebox=\box76
+)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/listings/listings.cfg
+File: listings.cfg 2025/11/14 1.11b listings configuration
+))
+Package: listings 2025/11/14 1.11b (Carsten Heinz)
+==> First Aid for listings.sty no longer applied!
+    Expected:
+        2024/09/23 1.10c (Carsten Heinz)
+    but found:
+        2025/11/14 1.11b (Carsten Heinz)
+    so I'm assuming it got fixed.
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/tcolorbox/tcblistings.c
+ode.tex
+Library (tcolorbox): 'tcblistings.code.tex' version '6.9.0'
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/tcolorbox/tcblistingsco
+re.code.tex
+Library (tcolorbox): 'tcblistingscore.code.tex' version '6.9.0'
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/tcolorbox/tcbprocessing
+.code.tex
+Library (tcolorbox): 'tcbprocessing.code.tex' version '6.9.0'
+)
+\c@tcblisting=\count345
+))
 
 Package fontspec Info: 
 (fontspec)             Font family 'Nunito-Regular.ttf(0)' created for font
@@ -1048,118 +1096,19 @@ t=latn;language=dflt;"
 
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
 (Font)                  OT1/cmr/m/n --> TU/Nunito-Regular.ttf(1)/m/n on input l
-ine 18.
+ine 21.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
 (Font)                  OT1/cmr/m/it --> TU/Nunito-Regular.ttf(1)/m/it on input
- line 18.
+ line 21.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
 (Font)                  OT1/cmr/bx/n --> TU/Nunito-Regular.ttf(1)/b/n on input 
-line 18.
-luaotfload | db : Reload initiated (formats: otf,ttf,ttc); reason: File not foun
-d: "fonts/MartianMono/MartianMono-Italic.ttf".
-
-! Package fontspec Error: 
-(fontspec)                The font "MartianMono-Italic.ttf" cannot be found;
-(fontspec)                this may be but usually is not a fontspec bug.
-(fontspec)                Either there is a typo in the font name/file, the
-(fontspec)                font is not installed (correctly), or there is a
-(fontspec)                bug in the underlying font loading engine
-(fontspec)                (XeTeX/luaotfload).
-
-For immediate help type H <return>.
- ...                                              
-                                                  
-l.24 ]
-      
-
-A font might not be found for many reasons.
- Check the spelling, where the font is installed etc. etc.
-
- When in doubt, ask someone for help!
-
-
-
-! Package fontspec Error: 
-(fontspec)                The font "MartianMono-Italic" cannot be found;
-(fontspec)                this may be but usually is not a fontspec bug.
-(fontspec)                Either there is a typo in the font name/file, the
-(fontspec)                font is not installed (correctly), or there is a
-(fontspec)                bug in the underlying font loading engine
-(fontspec)                (XeTeX/luaotfload).
-
-For immediate help type H <return>.
- ...                                              
-                                                  
-l.24 ]
-      
-
-A font might not be found for many reasons.
- Check the spelling, where the font is installed etc. etc.
-
- When in doubt, ask someone for help!
-
-
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-
-! Package fontspec Error: 
-(fontspec)                The font "MartianMono-BoldItalic.ttf" cannot be
-(fontspec)                found; this may be but usually is not a fontspec
-(fontspec)                bug. Either there is a typo in the font name/file,
-(fontspec)                the font is not installed (correctly), or there is
-(fontspec)                a bug in the underlying font loading engine
-(fontspec)                (XeTeX/luaotfload).
-
-For immediate help type H <return>.
- ...                                              
-                                                  
-l.24 ]
-      
-
-A font might not be found for many reasons.
- Check the spelling, where the font is installed etc. etc.
-
- When in doubt, ask someone for help!
-
-
-
-! Package fontspec Error: 
-(fontspec)                The font "MartianMono-BoldItalic" cannot be found;
-(fontspec)                this may be but usually is not a fontspec bug.
-(fontspec)                Either there is a typo in the font name/file, the
-(fontspec)                font is not installed (correctly), or there is a
-(fontspec)                bug in the underlying font loading engine
-(fontspec)                (XeTeX/luaotfload).
-
-For immediate help type H <return>.
- ...                                              
-                                                  
-l.24 ]
-      
-
-A font might not be found for many reasons.
- Check the spelling, where the font is installed etc. etc.
-
- When in doubt, ask someone for help!
-
-
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
+line 21.
 
 Package fontspec Info: 
 (fontspec)             Font family 'MartianMono-Regular.ttf(0)' created for
 (fontspec)             font 'MartianMono-Regular.ttf' with options
 (fontspec)             [WordSpace={1,0,0},HyphenChar=None,PunctuationSpace=Word
-Space,Path=fonts/MartianMono/,BoldFont=MartianMono-Bold.ttf,ItalicFont=MartianM
-ono-Italic.ttf,BoldItalicFont=MartianMono-BoldItalic.ttf].
+Space,Path=fonts/MartianMono/,BoldFont=MartianMono-Bold.ttf].
 (fontspec)              
 (fontspec)              This font family consists of the following NFSS
 (fontspec)             series/shapes:
@@ -1170,116 +1119,13 @@ e;script=latn;language=dflt;"
 (fontspec)             - 'bold' (b/n) with NFSS spec.:
 (fontspec)             <->"[fonts/MartianMono/MartianMono-Bold.ttf]:mode=node;s
 cript=latn;language=dflt;"
-(fontspec)             - 'italic' (m/it) with NFSS spec.:
-(fontspec)             <->"[fonts/MartianMono/MartianMono-Italic.ttf]:mode=node
-;script=latn;language=dflt;"
-(fontspec)             - 'bold italic' (b/it) with NFSS spec.:
-(fontspec)             <->"[fonts/MartianMono/MartianMono-BoldItalic.ttf]:mode=
-node;script=latn;language=dflt;"
 
-
-! Package fontspec Error: 
-(fontspec)                The font "MartianMono-Italic.ttf" cannot be found;
-(fontspec)                this may be but usually is not a fontspec bug.
-(fontspec)                Either there is a typo in the font name/file, the
-(fontspec)                font is not installed (correctly), or there is a
-(fontspec)                bug in the underlying font loading engine
-(fontspec)                (XeTeX/luaotfload).
-
-For immediate help type H <return>.
- ...                                              
-                                                  
-l.24 ]
-      
-
-A font might not be found for many reasons.
- Check the spelling, where the font is installed etc. etc.
-
- When in doubt, ask someone for help!
-
-
-
-! Package fontspec Error: 
-(fontspec)                The font "MartianMono-Italic" cannot be found;
-(fontspec)                this may be but usually is not a fontspec bug.
-(fontspec)                Either there is a typo in the font name/file, the
-(fontspec)                font is not installed (correctly), or there is a
-(fontspec)                bug in the underlying font loading engine
-(fontspec)                (XeTeX/luaotfload).
-
-For immediate help type H <return>.
- ...                                              
-                                                  
-l.24 ]
-      
-
-A font might not be found for many reasons.
- Check the spelling, where the font is installed etc. etc.
-
- When in doubt, ask someone for help!
-
-
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-
-! Package fontspec Error: 
-(fontspec)                The font "MartianMono-BoldItalic.ttf" cannot be
-(fontspec)                found; this may be but usually is not a fontspec
-(fontspec)                bug. Either there is a typo in the font name/file,
-(fontspec)                the font is not installed (correctly), or there is
-(fontspec)                a bug in the underlying font loading engine
-(fontspec)                (XeTeX/luaotfload).
-
-For immediate help type H <return>.
- ...                                              
-                                                  
-l.24 ]
-      
-
-A font might not be found for many reasons.
- Check the spelling, where the font is installed etc. etc.
-
- When in doubt, ask someone for help!
-
-
-
-! Package fontspec Error: 
-(fontspec)                The font "MartianMono-BoldItalic" cannot be found;
-(fontspec)                this may be but usually is not a fontspec bug.
-(fontspec)                Either there is a typo in the font name/file, the
-(fontspec)                font is not installed (correctly), or there is a
-(fontspec)                bug in the underlying font loading engine
-(fontspec)                (XeTeX/luaotfload).
-
-For immediate help type H <return>.
- ...                                              
-                                                  
-l.24 ]
-      
-
-A font might not be found for many reasons.
- Check the spelling, where the font is installed etc. etc.
-
- When in doubt, ask someone for help!
-
-
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
-luaotfload | aux : no font with id 0
 
 Package fontspec Info: 
 (fontspec)             Font family 'MartianMono-Regular.ttf(1)' created for
 (fontspec)             font 'MartianMono-Regular.ttf' with options
 (fontspec)             [Renderer=Basic,Path=fonts/MartianMono/,BoldFont=Martian
-Mono-Bold.ttf,ItalicFont=MartianMono-Italic.ttf,BoldItalicFont=MartianMono-Bold
-Italic.ttf].
+Mono-Bold.ttf].
 (fontspec)              
 (fontspec)              This font family consists of the following NFSS
 (fontspec)             series/shapes:
@@ -1290,19 +1136,30 @@ e;script=latn;language=dflt;"
 (fontspec)             - 'bold' (b/n) with NFSS spec.:
 (fontspec)             <->"[fonts/MartianMono/MartianMono-Bold.ttf]:mode=base;s
 cript=latn;language=dflt;"
-(fontspec)             - 'italic' (m/it) with NFSS spec.:
-(fontspec)             <->"[fonts/MartianMono/MartianMono-Italic.ttf]:mode=base
-;script=latn;language=dflt;"
-(fontspec)             - 'bold italic' (b/it) with NFSS spec.:
-(fontspec)             <->"[fonts/MartianMono/MartianMono-BoldItalic.ttf]:mode=
-base;script=latn;language=dflt;"
 
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
 (Font)                  OT1/cmtt/m/n --> TU/MartianMono-Regular.ttf(1)/m/n on i
-nput line 24.
+nput line 25.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (Font)                  OT1/cmtt/m/n --> TU/MartianMono-Regular.ttf(1)/b/n on i
-nput line 24.
+nput line 25.
+
+Package fontspec Info: 
+(fontspec)             Font family 'MartianMono-Regular.ttf(2)' created for
+(fontspec)             font 'MartianMono-Regular.ttf' with options
+(fontspec)             [Path=fonts/MartianMono/,BoldFont=MartianMono-Bold.ttf].
+
+(fontspec)              
+(fontspec)              This font family consists of the following NFSS
+(fontspec)             series/shapes:
+(fontspec)              
+(fontspec)             - 'normal' (m/n) with NFSS spec.:
+(fontspec)             <->"[fonts/MartianMono/MartianMono-Regular.ttf]:mode=nod
+e;script=latn;language=dflt;"
+(fontspec)             - 'bold' (b/n) with NFSS spec.:
+(fontspec)             <->"[fonts/MartianMono/MartianMono-Bold.ttf]:mode=node;s
+cript=latn;language=dflt;"
+
 
 ("C:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/pdf/QLa
 ng.aux"
@@ -1311,22 +1168,22 @@ Package babel Info: 'polish' activates 'polish' shorthands.
 )
 \openout1 = QLang.aux
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 28.
-LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 67.
+LaTeX Font Info:    ... okay on input line 67.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: luatex
@@ -1363,9 +1220,9 @@ LaTeX Font Info:    ... okay on input line 28.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 28.
+(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 67.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 28.
+(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 67.
 
 Package fontspec Info: 
 (fontspec)             Font family 'latinmodern-math.otf(0)' created for font
@@ -1406,15 +1263,15 @@ e=base;script=math;language=dflt;mathfontdimen=xetex;+ssty=1;"
 e=dflt;mathfontdimen=xetex;"
 
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 28.
+(Font)              `operators' in the math version `normal' on input line 67.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> TU/latinmodern-math.otf(1)/m/n on input
- line 28.
+ line 67.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 28.
+(Font)              `operators' in the math version `bold' on input line 67.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
 (Font)                  OT1/cmr/bx/n --> TU/latinmodern-math.otf(1)/b/n on inpu
-t line 28.
+t line 67.
 
 Package fontspec Info: 
 (fontspec)             Font family 'latinmodern-math.otf(2)' created for font
@@ -1439,15 +1296,15 @@ dimen=xetex;mathfontdimen=tex2;+ssty=1;"
 e=dflt;mathfontdimen=xetex;mathfontdimen=tex2;"
 
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `normal' on input line 28.
+(Font)              `symbols' in the math version `normal' on input line 67.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
 (Font)                  OMS/cmsy/m/n --> TU/latinmodern-math.otf(2)/m/n on inpu
-t line 28.
+t line 67.
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `bold' on input line 28.
+(Font)              `symbols' in the math version `bold' on input line 67.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
 (Font)                  OMS/cmsy/b/n --> TU/latinmodern-math.otf(2)/b/n on inpu
-t line 28.
+t line 67.
 
 Package fontspec Info: 
 (fontspec)             Font family 'latinmodern-math.otf(3)' created for font
@@ -1472,32 +1329,32 @@ dimen=xetex;mathfontdimen=tex3;+ssty=1;"
 e=dflt;mathfontdimen=xetex;mathfontdimen=tex3;"
 
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `normal' on input line 2
-8.
+(Font)              `largesymbols' in the math version `normal' on input line 6
+7.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
 (Font)                  OMX/cmex/m/n --> TU/latinmodern-math.otf(3)/m/n on inpu
-t line 28.
+t line 67.
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `bold' on input line 28.
+(Font)              `largesymbols' in the math version `bold' on input line 67.
 
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
 (Font)                  OMX/cmex/m/n --> TU/latinmodern-math.otf(3)/b/n on inpu
-t line 28.
+t line 67.
 
 (C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/context/base/mkii/supp-pdf.mk
 ii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count337
-\scratchdimen=\dimen280
-\scratchbox=\box75
-\nofMPsegments=\count338
-\nofMParguments=\count339
-\everyMPshowfont=\toks40
-\MPscratchCnt=\count340
-\MPscratchDim=\dimen281
-\MPnumerator=\count341
-\makeMPintoPDFobject=\count342
-\everyMPtoPDFconversion=\toks41
+\scratchcounter=\count346
+\scratchdimen=\dimen284
+\scratchbox=\box77
+\nofMPsegments=\count347
+\nofMParguments=\count348
+\everyMPshowfont=\toks41
+\MPscratchCnt=\count349
+\MPscratchDim=\dimen285
+\MPnumerator=\count350
+\makeMPintoPDFobject=\count351
+\everyMPtoPDFconversion=\toks42
 )
 (C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/epstopdf-pkg/epstopdf-b
 ase.sty
@@ -1508,7 +1365,15 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 (C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/00miktex/epstopdf-sys.c
 fg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
-)) (./error_codes/error_codes.tex) [1
+))
+\c@lstlisting=\count352
+ (./error_codes/qlang/test.tex
+\g__tcobox_out_iow=\write4
+
+\openout4 = QLang.listing
+
+("C:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/pdf/QLa
+ng.listing")) (./error_codes/error_codes.tex) [1
 
 {C:/Users/widzy/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
 ("C:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/pdf/QLa
@@ -1520,20 +1385,20 @@ L3 programming layer <2026-03-20>
 )
 
 Here is how much of LuaTeX's memory you used:
- 23674 strings out of 475900
+ 25445 strings out of 475900
  100000,1144653 words of node,token memory allocated
  544 words of node memory still in use:
    7 hlist, 2 vlist, 2 rule, 5 glue, 4 kern, 1 glyph, 15 attribute, 53 glue_spec
 , 8 attribute_list, 2 write nodes
-   avail lists: 1:1,2:120,3:41,4:14,5:98,6:10,7:558,9:46,10:3,11:34
- 45791 multiletter control sequences out of 65536+600000
- 59 fonts using 14345663 bytes
- 98i,5n,113p,439b,280s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<./fonts/MartianMono/MartianMono-Regular.ttf><./fonts/Nunito/Nunito-Bold.ttf><./
-fonts/Nunito/Nunito-Regular.ttf>
-Output written on QLang.pdf (1 page, 19873 bytes).
+   avail lists: 1:1,2:846,3:153,4:154,5:312,6:40,7:1006,9:688,10:3,11:52
+ 47514 multiletter control sequences out of 65536+600000
+ 61 fonts using 14525639 bytes
+ 98i,5n,113p,439b,855s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<./fonts/MartianMono/MartianMono-Regular.ttf><./fonts/MartianMono/MartianMono-Bo
+ld.ttf><./fonts/Nunito/Nunito-Bold.ttf><./fonts/Nunito/Nunito-Regular.ttf>
+Output written on QLang.pdf (1 page, 26534 bytes).
 
-PDF statistics: 30 PDF objects out of 1000 (max. 8388607)
+PDF statistics: 37 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 1048576)
  16 words of extra memory for PDF output out of 10000 (max. 100000000)
 
