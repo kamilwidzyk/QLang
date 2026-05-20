@@ -4,6 +4,8 @@ from .obs import Obs, ObsRegister
 from .num import Num
 from .text import Text
 from .state import State
+from .script_errors import ScriptErrors
+from .exception.trying_to_modify_const import TryingToModifyConstException
 
 # Class enclosing every variable
 # Supports making arrays with multiple dimensions
@@ -13,7 +15,7 @@ from .state import State
 # dimensions is a list of array dimensions, [0] for single value
 # 
 class Variable:
-    def __init__(self, name: str, type: str, dimensions: list[int], index: list[int] = None, quantum_client=None):
+    def __init__(self, name: str, type: str, dimensions: list[int], index: list[int] = None, quantum_client=None, is_const: bool = False):
         self.name = name
         self.type = type
         self.dimensions = dimensions
@@ -22,6 +24,7 @@ class Variable:
         self.index = index # this is used when handler returns a Variable with access index
         self.quantum_client = quantum_client
         self.initial_value = None
+        self.is_const = is_const
         if type in [TYPE_INT, TYPE_FLOAT, TYPE_BOOL, TYPE_STRING]:
             log(INTERNAL, FATAL, "Attempted to create instance of Variable with type of " + str(type))
             exit()
@@ -120,7 +123,10 @@ class Variable:
         else:
             data.set(values)
 
-    def set(self, new_value: Expression):
+    def set(self, new_value: Expression, allow_const_init: bool = False, pos: ScriptErrors.Position = None):
+        if self.is_const and not allow_const_init:
+            raise TryingToModifyConstException(pos or ScriptErrors.Position(0, 0), self.name)
+
         if self.type == TYPE_STATE:
             raise TypeError("Quantum state cannot be assigned directly")
 

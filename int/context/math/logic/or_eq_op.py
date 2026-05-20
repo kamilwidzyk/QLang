@@ -27,7 +27,7 @@ def handle_or_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
 
     new_value = do_operation_or(left_variable.get(), right_value)
-    return do_variable_assignment(self, left_variable, new_value)
+    return do_variable_assignment(self, left_variable, new_value, pos)
 
     
     

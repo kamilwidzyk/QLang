@@ -24,6 +24,7 @@ from .exception.divide_by_zero import DivideByZeroException
 from .exception.modulo_over_zero import ModuloOverZeroException
 from .exception.operator_type_mismatch import OperatorTypeMismatchException
 from .exception.size_error import SizeErrorException
+from .exception.trying_to_modify_const import TryingToModifyConstException
 from .exception.variable_redefinition import VariableRedefiniotionException
 from .exception.index_not_int import IndexNotIntException
 
@@ -31,7 +32,7 @@ from .exception.index_not_int import IndexNotIntException
 from .context.statement              import handle_statement
 
 ##### VARIABLES #####
-from .context.variable.declaration   import handle_variable_declaration
+from .context.variable.declaration   import handle_variable_declaration, handle_const_variable_declaration
 from .context.expression.size_expr   import handle_expression_size_expr, \
                                             handle_expression_size_getter
 
@@ -95,6 +96,7 @@ from .context.operator.reference import handle_reference
 from .context.operator.reset import handle_reset_expr
 from .context.quantum import handle_gate_statement, handle_measure_expr
 from .context.operator.parent import handle_operator_parent
+from .context.operator.const import handle_operator_const
 
 class Place:
     """
@@ -178,6 +180,7 @@ class Place:
 
             ##### VARIABLES #####
             VarDeclCtx:             handle_variable_declaration,
+            ConstDeclarationCtx:    handle_const_variable_declaration,
             SizeGetterCtx:          handle_expression_size_getter,
             SizeGetterExprCtx:      handle_expression_size_expr,
             GateStmtCtx:            handle_gate_statement,
@@ -261,7 +264,9 @@ class Place:
             # Reference '@'
             ReferenceCtx:           handle_reference,
             # Parent '^'
-            ParentExprCtx:          handle_operator_parent
+            ParentExprCtx:          handle_operator_parent,
+            # Operator const
+            ConstDeclCtx:           handle_operator_const
 
 
 
@@ -280,6 +285,9 @@ class Place:
             e.show(self.script_errors)
             exit()
         except DivideByZeroException as e:
+            e.show(self.script_errors)
+            exit()
+        except TryingToModifyConstException as e:
             e.show(self.script_errors)
             exit()
         except ModuloOverZeroException as e:

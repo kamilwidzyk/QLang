@@ -35,7 +35,8 @@ block: '{' statement* '}';
 // -------------------- STAŁE  --------------------
 
 // Stała jest wartością, może być używana jak zmienna ale nie może być modyfikowana
-constDecl: CONST ID '=' expr;
+constAssign: ID sizeVar* '=' expr;
+constDecl: CONST (varType constAssign (',' constAssign)* | ID);
 
 
 // -------------------- UŻYCIE ZMIENNYCH --------------------
@@ -45,7 +46,7 @@ constDecl: CONST ID '=' expr;
 //
 reference: '@' ID;
 
-// Możliwe typy zmiennych: obs i num, state(jeszcze nie zrobione)
+// Możliwe typy zmiennych: state(stan kwantowy), obs(obserwacja), num(liczba), text
 varType: STATE | OBS | NUM | TEXT;
 
 // Do deklaracji zmiennej z możliwym przypisaniem

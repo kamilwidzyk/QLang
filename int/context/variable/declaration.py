@@ -71,13 +71,22 @@ def handle_variable_sizevar(self: Place, block: any, parent: any):
 
 
 
-def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: str):
+def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: str, is_const: bool = False):
     # varAssign: ID sizeVar* ('=' expr)?;
 
     var_name = block.ID().getText()
 
     if var_name in self.scopes.current.vars:
         raise VariableRedefiniotionException(ScriptErrors.Position.extract(block))
+
+    if is_const and block.expr() is None:
+        self.script_errors.showError(
+            pos=ScriptErrors.Position.extract(block),
+            error_type="RUNTIME ERROR",
+            title="DeclarationError",
+            msg=f"Const variable '{var_name}' must be initialized.",
+        )
+        exit()
 
     dimensions = []
     for size in block.sizeVar():
@@ -93,6 +102,15 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
         initial_value = self.handle_block(block.expr(), block)
 
     print(f"Variable declaration: name: {var_name}, dimensions: {dimensions}, initial_value: {initial_value}, type: {type}")
+
+    if is_const and type == TYPE_STATE:
+        self.script_errors.showError(
+            pos=ScriptErrors.Position.extract(block),
+            error_type="RUNTIME ERROR",
+            title="DeclarationError",
+            msg="Const state variables are not supported.",
+        )
+        exit()
 
     if type == TYPE_OBS and len(dimensions) >= 1:
         type = TYPE_OBS_REGISTER
@@ -110,7 +128,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
         )
         exit()
 
-    var = Variable(var_name, type, dimensions, quantum_client=self.quantum_client)
+    var = Variable(var_name, type, dimensions, quantum_client=self.quantum_client, is_const=is_const)
     print(dimensions, initial_value)
     if initial_value is not None:
         if isinstance(initial_value, list):
@@ -138,7 +156,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                 var.dimensions = dimensions
             value_shape = initial_value.shape
             initial_value = Expression(TYPE_LIST, initial_value.value, shape=value_shape)
-            var = Variable(var_name, type, value_shape, quantum_client=self.quantum_client)
+            var = Variable(var_name, type, value_shape, quantum_client=self.quantum_client, is_const=is_const)
             print("Dimesions: ", dimensions)
             print("Initial value shape: ", value_shape)
             print("Initial value: ", initial_value)
@@ -159,7 +177,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                 exit()
 
         #try:
-        var.set(initial_value)
+        var.set(initial_value, allow_const_init=is_const)
         var.initial_value = copy.deepcopy(initial_value)
         #except (AttributeError, TypeError, ValueError):
         #    self.script_errors.showError(
@@ -194,6 +212,63 @@ def handle_variable_declaration(self: Place, block: any, parent: Any, pos: Scrip
     
     for var_assign in block.varAssign():
         _handle_variable_subdeclaration(self, var_assign, block, var_type)
+
+
+def handle_const_variable_declaration(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    # constDecl: CONST varType constAssign (',' constAssign)*;
+    var_type = block.varType().getText()
+
+    if var_type == "obs":
+        var_type = TYPE_OBS
+    elif var_type == "num":
+        var_type = TYPE_NUM
+    elif var_type == "text":
+        var_type = TYPE_TEXT
+    elif var_type == "state":
+        var_type = TYPE_STATE
+    else:
+        log(VARIABLE, FATAL, "Unsupported variable type: " + str(var_type))
+        exit()
+
+    if var_type == TYPE_STATE:
+        self.script_errors.showError(
+            pos=pos,
+            error_type="RUNTIME ERROR",
+            title="DeclarationError",
+            msg="Const state variables are not supported.",
+        )
+        exit()
+
+    for const_assign in block.constAssign():
+        _handle_variable_subdeclaration(self, const_assign, block, var_type, is_const=True)
+
+
+def handle_const_existing_variable(self: Place, block: any, parent: Any, pos: ScriptErrors.Position):
+    # constDecl: CONST ID;
+    var_name = block.ID().getText()
+
+    if not self.scopes.exists(var_name):
+        self.script_errors.showError(
+            pos=ScriptErrors.Position.extract(block),
+            error_type="RUNTIME ERROR",
+            title="ReferenceError",
+            msg=f"Cannot declare const for undefined variable '{var_name}'.",
+        )
+        exit()
+
+    variable = self.scopes.get(var_name)
+
+    if isinstance(variable, Variable) and variable.type == TYPE_STATE:
+        self.script_errors.showError(
+            pos=ScriptErrors.Position.extract(block),
+            error_type="RUNTIME ERROR",
+            title="DeclarationError",
+            msg="Const state variables are not supported.",
+        )
+        exit()
+
+    if isinstance(variable, Variable):
+        variable.is_const = True
 
 
 

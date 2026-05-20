@@ -28,7 +28,7 @@ def handle_pre_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    return do_variable_pre_decrement(self, variable)
+    return do_variable_pre_decrement(self, variable, pos)
 
 
 def handle_post_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
@@ -40,7 +40,7 @@ def handle_post_decrement(self: Place, block: Any, parent: Any, pos: ScriptError
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    return do_variable_post_decrement(self, variable)
+    return do_variable_post_decrement(self, variable, pos)
     
 
 def handle_pre_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
@@ -52,7 +52,7 @@ def handle_pre_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    return do_variable_pre_increment(self, variable)
+    return do_variable_pre_increment(self, variable, pos)
     
 
 def handle_post_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
@@ -64,6 +64,6 @@ def handle_post_increment(self: Place, block: Any, parent: Any, pos: ScriptError
     
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    return do_variable_post_increment(self, variable)
+    return do_variable_post_increment(self, variable, pos)
 
     

@@ -39,7 +39,7 @@ def handle_div_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
         new_value = do_operation_div_int(var_value, right_value)
     else:
         new_value = do_operation_div(var_value, right_value)
-    left_variable.set(new_value)
+    left_variable.set(new_value, pos=pos)
     self.scopes.set(var_name, left_variable)
     return new_value
     

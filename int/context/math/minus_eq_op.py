@@ -28,7 +28,7 @@ def handle_minus_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.P
     var_name = left_variable.name
     var_value = left_variable.get()
     new_value = do_operation_sub(var_value, right_value)
-    left_variable.set(new_value)
+    left_variable.set(new_value, pos=pos)
     self.scopes.set(var_name, left_variable)
     return new_value
     

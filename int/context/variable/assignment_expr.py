@@ -35,7 +35,7 @@ def handle_assignment_expr(self: Place, block: Any, parent: Any, pos: ScriptErro
     right_value = self.handle_block(right_expr, block)
         
     var_name = left_variable.name
-    left_variable.set(right_value)
+    left_variable.set(right_value, pos=pos)
     self.scopes.set(var_name, left_variable)
     
 
