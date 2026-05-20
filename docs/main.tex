@@ -12,6 +12,31 @@
 \usepackage{xcolor}
 \usepackage{listings}
 \tcbuselibrary{listings}
+\usepackage{caption}
+\captionsetup{language=english}
+\usepackage[hidelinks, colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
+\usepackage{xparse}
+\usepackage{xstring}
+
+%%% Command for linking clickable section references: \link[section]{<label>}
+
+\makeatletter
+\newcommand{\getrefname}[1]{%
+  \getrefbykeydefault{#1}{name}{}%
+}
+\makeatother
+
+
+\NewDocumentCommand{\link}{O{} m}{%
+    \IfStrEq{#1}{section}{%
+        \hyperref[#2]{Section~\ref*{#2} -- \getrefname{#2}}%
+    }{%
+        \hyperref[#2]{\getrefname{#2}}%
+    }%
+}
+
+
+%%% Font import and color definitions
 
 \setmainfont{Nunito-Regular.ttf}[
     Path=fonts/Nunito/,
@@ -42,6 +67,14 @@
     BoldFont=MartianMono-Bold.ttf
 ]
 
+%%% Un-Polish the TOC title
+
+\addto\captionspolish{%
+  \renewcommand{\contentsname}{Contents}
+}
+
+%%% Custom tcolorbox style for code listings
+
 \newtcblisting{codebox}{
     colback=codebg,
     colframe=black!10,
@@ -63,8 +96,31 @@
     }
 }
 
+\title{QLang Documentation}
+\author{Kamil Widzyk, Maciej Świątek, Jan Wida}
+\date{}
+
 
 \begin{document}
+
+\maketitle
+\tableofcontents
+
+
+
+
+\newpage
+\section{Introduction}
+\input{intro/intro}
+
+
+
+
+
+
+
+\newpage
+\section{Test section}
 
 \noindent Żeby kompilacja się nie wysypała to trzeba make\_auto.bat uruchomić w głównym katalogu projektu, a nie w katalogu docs. 
 
@@ -73,9 +129,8 @@
 
 \input{error_codes/qlang/test.tex}
 
-
-\section{Błędy}
-
+\newpage
+\section{Errors}\label{sec:errors}
 \input{error_codes/error_codes}
 
 

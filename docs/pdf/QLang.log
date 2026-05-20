@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5) (format=lualatex 2026.5.20)  20 MAY 2026 15:17
+This is LuaHBTeX, Version 1.25.7 (MiKTeX 26.5) (format=lualatex 2026.5.20)  20 MAY 2026 16:07
  system commands enabled.
 **main.tex
 (./main.tex
@@ -1047,7 +1047,171 @@ Library (tcolorbox): 'tcblistingscore.code.tex' version '6.9.0'
 Library (tcolorbox): 'tcbprocessing.code.tex' version '6.9.0'
 )
 \c@tcblisting=\count345
+)) (C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/caption/caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/caption/caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen284
+\captionmargin=\dimen285
+\caption@leftmargin=\dimen286
+\caption@rightmargin=\dimen287
+\caption@width=\dimen288
+\caption@indent=\dimen289
+\caption@parindent=\dimen290
+\caption@hangindent=\dimen291
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count346
+\c@continuedfloat=\count347
+Package caption Info: listings package is loaded.
+)
+
+! Package caption Error: language undefined.
+
+See the caption package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.16 \captionsetup{language=english}
+                                    
+If you do not understand this error, please take a closer look
+at the documentation of the `caption' package, especially the
+section about errors.
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2026-04-24 v7.01q Hypertext links for LaTeX
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/kvdefinekeys/kvdefine
+keys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/pdfescape/pdfescape.s
+ty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/pdftexcmds/pdftexcmds
+.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/infwarerr/infwarerr.s
+ty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+\pdftexcmds@toks=\toks41
 ))
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/hyperref/nameref.sty
+Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/gettitlestring/gettit
+lestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count348
+)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/stringenc/stringenc.s
+ty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\@linkdim=\dimen292
+\Hy@linkcounter=\count349
+\Hy@pagecounter=\count350
+ (C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2026-04-24 v7.01q Hyperref: PDFDocEncoding definition (HO)
+) (C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count351
+ (C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/hyperref/puenc.def
+File: puenc.def 2026-04-24 v7.01q Hyperref: PDF Unicode definition (HO)
+)
+Package hyperref Info: Option `colorlinks' set `true' on input line 4070.
+Package hyperref Info: Hyper figures OFF on input line 4199.
+Package hyperref Info: Link nesting OFF on input line 4204.
+Package hyperref Info: Hyper index ON on input line 4207.
+Package hyperref Info: Plain pages OFF on input line 4214.
+Package hyperref Info: Backreferencing OFF on input line 4219.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4466.
+\c@Hy@tempcnt=\count352
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty
+\Urlmuskip=\muskip19
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4805.
+\XeTeXLinkMargin=\dimen293
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/bigintcalc/bigintcalc
+.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count353
+\Field@Width=\dimen294
+\Fld@charsize=\dimen295
+Package hyperref Info: Hyper figures OFF on input line 6091.
+Package hyperref Info: Link nesting OFF on input line 6096.
+Package hyperref Info: Hyper index ON on input line 6099.
+Package hyperref Info: backreferencing OFF on input line 6106.
+Package hyperref Info: Link coloring ON on input line 6109.
+Package hyperref Info: Link coloring with OCG OFF on input line 6116.
+Package hyperref Info: PDF/A mode OFF on input line 6121.
+\Hy@abspage=\count354
+\c@Item=\count355
+\c@Hfootnote=\count356
+)
+Package hyperref Info: Driver (autodetected): hluatex.
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/hyperref/hluatex.def
+File: hluatex.def 2026-04-24 v7.01q Hyperref driver for luaTeX
+\Fld@listcount=\count357
+\c@bookmark@seq@number=\count358
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/rerunfilecheck/rerunfil
+echeck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/uniquecounter/uniquec
+ounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+84.
+)
+\Hy@SectionHShift=\skip54
+)
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/xstring/xstring.sty
+(C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/generic/xstring/xstring.tex
+\xs_counta=\count359
+\xs_countb=\count360
+)
+Package: xstring 2023/08/22 v1.86 String manipulations (CT)
+)
 
 Package fontspec Info: 
 (fontspec)             Font family 'Nunito-Regular.ttf(0)' created for font
@@ -1096,13 +1260,13 @@ t=latn;language=dflt;"
 
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
 (Font)                  OT1/cmr/m/n --> TU/Nunito-Regular.ttf(1)/m/n on input l
-ine 21.
+ine 46.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
 (Font)                  OT1/cmr/m/it --> TU/Nunito-Regular.ttf(1)/m/it on input
- line 21.
+ line 46.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
 (Font)                  OT1/cmr/bx/n --> TU/Nunito-Regular.ttf(1)/b/n on input 
-line 21.
+line 46.
 
 Package fontspec Info: 
 (fontspec)             Font family 'MartianMono-Regular.ttf(0)' created for
@@ -1139,10 +1303,10 @@ cript=latn;language=dflt;"
 
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
 (Font)                  OT1/cmtt/m/n --> TU/MartianMono-Regular.ttf(1)/m/n on i
-nput line 25.
+nput line 50.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (Font)                  OT1/cmtt/m/n --> TU/MartianMono-Regular.ttf(1)/b/n on i
-nput line 25.
+nput line 50.
 
 Package fontspec Info: 
 (fontspec)             Font family 'MartianMono-Regular.ttf(2)' created for
@@ -1164,26 +1328,30 @@ cript=latn;language=dflt;"
 ("C:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/pdf/QLa
 ng.aux"
 Package babel Info: 'polish' activates 'polish' shorthands.
-(babel)             Reported on input line 5.
+(babel)             Reported on input line 8.
 )
 \openout1 = QLang.aux
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 67.
-LaTeX Font Info:    ... okay on input line 67.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 67.
-LaTeX Font Info:    ... okay on input line 67.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 67.
-LaTeX Font Info:    ... okay on input line 67.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 67.
-LaTeX Font Info:    ... okay on input line 67.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 67.
-LaTeX Font Info:    ... okay on input line 67.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 67.
-LaTeX Font Info:    ... okay on input line 67.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 67.
-LaTeX Font Info:    ... okay on input line 67.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 67.
-LaTeX Font Info:    ... okay on input line 67.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 104.
+LaTeX Font Info:    ... okay on input line 104.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: luatex
@@ -1220,9 +1388,9 @@ LaTeX Font Info:    ... okay on input line 67.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 67.
+(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 104.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 67.
+(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 104.
 
 Package fontspec Info: 
 (fontspec)             Font family 'latinmodern-math.otf(0)' created for font
@@ -1263,15 +1431,16 @@ e=base;script=math;language=dflt;mathfontdimen=xetex;+ssty=1;"
 e=dflt;mathfontdimen=xetex;"
 
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 67.
+(Font)              `operators' in the math version `normal' on input line 104.
+
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> TU/latinmodern-math.otf(1)/m/n on input
- line 67.
+ line 104.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 67.
+(Font)              `operators' in the math version `bold' on input line 104.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
 (Font)                  OT1/cmr/bx/n --> TU/latinmodern-math.otf(1)/b/n on inpu
-t line 67.
+t line 104.
 
 Package fontspec Info: 
 (fontspec)             Font family 'latinmodern-math.otf(2)' created for font
@@ -1296,15 +1465,15 @@ dimen=xetex;mathfontdimen=tex2;+ssty=1;"
 e=dflt;mathfontdimen=xetex;mathfontdimen=tex2;"
 
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `normal' on input line 67.
+(Font)              `symbols' in the math version `normal' on input line 104.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
 (Font)                  OMS/cmsy/m/n --> TU/latinmodern-math.otf(2)/m/n on inpu
-t line 67.
+t line 104.
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `bold' on input line 67.
+(Font)              `symbols' in the math version `bold' on input line 104.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
 (Font)                  OMS/cmsy/b/n --> TU/latinmodern-math.otf(2)/b/n on inpu
-t line 67.
+t line 104.
 
 Package fontspec Info: 
 (fontspec)             Font family 'latinmodern-math.otf(3)' created for font
@@ -1329,32 +1498,32 @@ dimen=xetex;mathfontdimen=tex3;+ssty=1;"
 e=dflt;mathfontdimen=xetex;mathfontdimen=tex3;"
 
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `normal' on input line 6
-7.
+(Font)              `largesymbols' in the math version `normal' on input line 1
+04.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
 (Font)                  OMX/cmex/m/n --> TU/latinmodern-math.otf(3)/m/n on inpu
-t line 67.
+t line 104.
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `bold' on input line 67.
-
+(Font)              `largesymbols' in the math version `bold' on input line 104
+.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
 (Font)                  OMX/cmex/m/n --> TU/latinmodern-math.otf(3)/b/n on inpu
-t line 67.
+t line 104.
 
 (C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/context/base/mkii/supp-pdf.mk
 ii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count346
-\scratchdimen=\dimen284
+\scratchcounter=\count361
+\scratchdimen=\dimen296
 \scratchbox=\box77
-\nofMPsegments=\count347
-\nofMParguments=\count348
-\everyMPshowfont=\toks41
-\MPscratchCnt=\count349
-\MPscratchDim=\dimen285
-\MPnumerator=\count350
-\makeMPintoPDFobject=\count351
-\everyMPtoPDFconversion=\toks42
+\nofMPsegments=\count362
+\nofMParguments=\count363
+\everyMPshowfont=\toks42
+\MPscratchCnt=\count364
+\MPscratchDim=\dimen297
+\MPnumerator=\count365
+\makeMPintoPDFobject=\count366
+\everyMPtoPDFconversion=\toks43
 )
 (C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/epstopdf-pkg/epstopdf-b
 ase.sty
@@ -1366,39 +1535,61 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 fg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-\c@lstlisting=\count352
- (./error_codes/qlang/test.tex
-\g__tcobox_out_iow=\write4
-
-\openout4 = QLang.listing
+\c@lstlisting=\count367
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: hyperref package is loaded.
+Package caption Info: End \AtBeginDocument code.
+Package hyperref Info: Link coloring ON on input line 104.
 
 ("C:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/pdf/QLa
-ng.listing")) (./error_codes/error_codes.tex) [1
+ng.out")
+("C:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/pdf/QLa
+ng.out")
+\@outlinefile=\write4
+
+\openout4 = QLang.out
+
+("C:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/pdf/QLa
+ng.toc")
+\tf@toc=\write5
+
+\openout5 = QLang.toc
+ [1
 
 {C:/Users/widzy/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
+(./intro/intro.tex) [2] (./error_codes/qlang/test.tex
+\g__tcobox_out_iow=\write6
+
+\openout6 = QLang.listing
+
+("C:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/pdf/QLa
+ng.listing")) [3] (./error_codes/error_codes.tex
+(./error_codes/variables/variables.tex)) [4]
 ("C:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/pdf/QLa
 ng.aux")
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
  ***********
+Package rerunfilecheck Info: File `QLang.out' has not changed.
+(rerunfilecheck)             Checksum: A280CD7344EC33DDAB642107B9153EF2;509.
 )
 
 Here is how much of LuaTeX's memory you used:
- 25445 strings out of 475900
- 100000,1144653 words of node,token memory allocated
- 544 words of node memory still in use:
-   7 hlist, 2 vlist, 2 rule, 5 glue, 4 kern, 1 glyph, 15 attribute, 53 glue_spec
+ 33823 strings out of 475900
+ 125036,1373583 words of node,token memory allocated
+ 559 words of node memory still in use:
+   7 hlist, 2 vlist, 2 rule, 5 glue, 4 kern, 1 glyph, 15 attribute, 56 glue_spec
 , 8 attribute_list, 2 write nodes
-   avail lists: 1:1,2:846,3:153,4:154,5:312,6:40,7:1006,9:688,10:3,11:52
- 47514 multiletter control sequences out of 65536+600000
- 61 fonts using 14525639 bytes
- 98i,5n,113p,439b,855s stack positions out of 10000i,1000n,20000p,200000b,200000s
+   avail lists: 1:1,2:973,3:205,4:152,5:354,6:38,7:972,8:1,9:786,10:4,11:57
+ 55700 multiletter control sequences out of 65536+600000
+ 74 fonts using 21809099 bytes
+ 98i,6n,113p,439b,938s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <./fonts/MartianMono/MartianMono-Regular.ttf><./fonts/MartianMono/MartianMono-Bo
 ld.ttf><./fonts/Nunito/Nunito-Bold.ttf><./fonts/Nunito/Nunito-Regular.ttf>
-Output written on QLang.pdf (1 page, 26534 bytes).
+Output written on QLang.pdf (4 pages, 37757 bytes).
 
-PDF statistics: 37 PDF objects out of 1000 (max. 8388607)
- 0 named destinations out of 1000 (max. 1048576)
- 16 words of extra memory for PDF output out of 10000 (max. 100000000)
+PDF statistics: 101 PDF objects out of 1000 (max. 8388607)
+ 28 named destinations out of 1000 (max. 1048576)
+ 56 words of extra memory for PDF output out of 10000 (max. 100000000)
 
