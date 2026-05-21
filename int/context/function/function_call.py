@@ -30,6 +30,9 @@ from ...exception.kwargs_not_supported import KeywordArgumentsNotSupportedExcept
 from ...exception.builtin_expects_value import BuiltinExpectsValueException
 from ...exception.cant_find_variable import CantFindVariableException
 from ...exception.no_parent_scope import NoParentScopeException
+from ...exception.no_function_to_call import NoFunctionToCallException
+from ...exception.variable_call import VariableCallException
+from ...exception.incompatible_type import IncompatibleTypeException
 
 class FunctionReturn(Exception):
     """Control flow exception raised when a function returns a value."""
@@ -179,18 +182,22 @@ def _resolve_parent_value(self: Place, block: Any, args: Any, current_scope: Sco
             )
         variable = target_scope.vars[var_name]
         if hasattr(variable, 'get'):
-            return variable.get(), None
+            return variable.get()
         if hasattr(variable, 'values'):
-            return variable.values, None
-        return variable, None
+            return variable.values
+        return variable
 
     if isinstance(arg_block, QLangParser.FuncCallExprContext) and arg_block.ID().getText() == "parent":
-        inner_value, error_message = _resolve_parent_value(self, arg_block, [self.handle_block(arg_block, block)], _resolve_parent_scope(current_scope, 1) or current_scope)
-        if error_message is not None:
-            return None, error_message
-        return inner_value, None
+        return _resolve_parent_value(self, arg_block, [self.handle_block(arg_block, block)], _resolve_parent_scope(current_scope, 1) or current_scope)
 
-    return None, "parent() argument must be a variable name like parent(x)."
+    # code BEV-2
+    raise BuiltinExpectsValueException(
+        pos=ScriptErrors.Position.extract(arg_block),
+        func_name="parent",
+        expects="a variable name or a nested parent call",
+        code="2"
+    )
+
 
 
 def _normalize_call_args(function_def: Function, positional_args: list, keyword_args: dict, func_name: str):
@@ -357,95 +364,74 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
                 code="2"
             )
         
-        value, error_message = _resolve_parent_value(self, block, positional_args, self.scopes.current)
-        if error_message is not None:
-            self.script_errors.showError(
-                pos=block_pos,
-                error_type="RUNTIME ERROR",
-                title="ExecutionError",
-                msg=error_message,
-            )
-            exit()
-
-        return value
-
+        return _resolve_parent_value(self, block, positional_args, self.scopes.current)
     if func_name == "seed":
         if keyword_args:
-            self.script_errors.showError(
+            # code KANS-4
+            raise KeywordArgumentsNotSupportedException(
                 pos=block_pos,
-                error_type="RUNTIME ERROR",
-                title="ExecutionError",
-                msg="seed() doesn't accept keyword arguments.",
+                func_name="seed",
+                code="4"
             )
-            exit()
 
         if len(positional_args) == 0:
             return _get_seed_expression()
 
         if len(positional_args) != 1:
-            self.script_errors.showError(
+            # code TMA-4
+            raise TooMuchArgumentsException(
                 pos=block_pos,
-                error_type="RUNTIME ERROR",
-                title="ExecutionError",
-                msg="seed() expects zero or one argument.",
+                func_name="seed",
+                taken_args=len(positional_args),
+                expected_args=1,
+                code="4"
             )
-            exit()
 
         seed_value = _set_seed(positional_args[0])
         if seed_value is None:
-            self.script_errors.showError(
+            # code BEV-3
+            raise BuiltinExpectsValueException(
                 pos=block_pos,
-                error_type="RUNTIME ERROR",
-                title="Type Error",
-                msg="seed() expects a numeric argument.",
+                func_name="seed",
+                expects="a number",
+                code="3"
             )
-            exit()
 
         return seed_value
 
     # Check if the function exists
     if not self.scopes.exists(func_name):
-        self.script_errors.showError(
+        # code NFTC-1
+        raise NoFunctionToCallException(
             pos=block_pos, 
-            error_type="RUNTIME ERROR", 
-            title="ExecutionError", 
-            msg="Tried calling that function: No one picked up.")
-        exit()
+            func_name=func_name,
+            code="1"
+        )
 
     # Get the function
     function_def: Function = self.scopes.get(func_name)
 
     # Check if it's a function(variable call is possible but not legal)
     if not function_def.type == "Function":
-        self.script_errors.showError(
+        # code VC-1
+        raise VariableCallException(
             pos=block_pos, 
-            error_type="RUNTIME ERROR", 
-            title="ExecutionError", 
-            msg=f"I tried to call '{func_name}' but a variable picked up.")
-        exit()
-
-    try:
-        ordered_args = _normalize_call_args(function_def, positional_args, keyword_args, func_name)
-    except ValueError as error:
-        self.script_errors.showError(
-            pos=block_pos,
-            error_type="RUNTIME ERROR",
-            title="ExecutionError",
-            msg=str(error),
+            func_name=func_name,
+            code="1"
         )
-        exit()
+
+    ordered_args = _normalize_call_args(function_def, positional_args, keyword_args, func_name)
 
     for param, arg_value in zip(function_def.params or [], ordered_args):
         if not _is_arg_type_compatible(param.type, arg_value):
-            self.script_errors.showError(
+            # code IT-1
+            raise IncompatibleTypeException(
                 pos=block_pos,
-                error_type="RUNTIME ERROR",
-                title="Type Error",
-                msg=f"Argument '{param.name}' in '{func_name}' expects '{param.type}'.",
+                func_name=func_name,
+                param_name=param.name,
+                param_type=param.type,
+                code="1"
             )
-            exit()
-
-
 
     # Create new scope for function
     new_scope = Scope(

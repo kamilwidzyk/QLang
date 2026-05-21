@@ -24,7 +24,8 @@ def handle_pre_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors
     expression = block.expr()
 
     if not is_variable(expression):
-        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression))
+        # code: ATE-9
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression), code="9")
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
@@ -36,7 +37,8 @@ def handle_post_decrement(self: Place, block: Any, parent: Any, pos: ScriptError
     expression = block.expr()
 
     if not is_variable(expression):
-        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression))
+        # code: ATE-10
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression), code="10")
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
@@ -48,7 +50,8 @@ def handle_pre_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors
     expression = block.expr()
 
     if not is_variable(expression):
-        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression))
+        # code: ATE-11
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression), code="11")
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
@@ -60,8 +63,9 @@ def handle_post_increment(self: Place, block: Any, parent: Any, pos: ScriptError
     expression = block.expr()
 
     if not is_variable(expression):
-        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression))
-    
+        # code: ATE-12
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(expression), code="12")
+
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
     return do_variable_post_increment(self, variable)

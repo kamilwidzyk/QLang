@@ -22,7 +22,8 @@ def handle_or_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     right_value = self.handle_block(right_expr, block)
 
     if not is_variable_expression(left_expr):
-        raise AssignmentToExpressionException(ScriptErrors.Position.extract(left_expr))
+        # code ATE-2
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(left_expr), code="2")
 
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
 

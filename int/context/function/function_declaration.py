@@ -7,6 +7,8 @@ from ...function import Function
 if TYPE_CHECKING:
     from place import Place
 
+from ...exception.function_redeclaration import FunctionRedeclarationException
+
 def handle_function_declaration(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # functionDecl: FUNCTION ID '(' paramList? ')' block;
     
@@ -20,14 +22,13 @@ def handle_function_declaration(self: Place, block: Any, parent: Any, pos: Scrip
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
 
     # check if function does not exist
+    # code: FR-1
     if self.scopes.exists(func_name):
-        self.script_errors.showError(
+        raise FunctionRedeclarationException(
             pos=parent_pos, 
-            error_type="RUNTIME ERROR", 
-            title="You Error", 
-            msg="The function already exists, whether you remember it or not."
+            func_name=func_name, 
+            code="1"
         )
-        exit()
 
     # add function to current scope
     func = Function(func_name, param_list, func_block, self.scopes.current, pos)

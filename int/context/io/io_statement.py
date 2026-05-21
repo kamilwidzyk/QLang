@@ -8,7 +8,7 @@ from ...obs import Obs, ObsRegister
 from ...num import Num
 
 import random
-from ...logger import log, DEBUG, IN_OUT
+from ...logger import log, DEBUG, IN_OUT, ERROR
 
 from ...expression import *
 from ...variable import Variable
@@ -22,6 +22,11 @@ from ...sim.data.gates import QuantumGate, QuantumGates
 from ...sim.data.graph import EntaglementGraph
 from ...sim.data.history import QuantumHistory
 from ...sim.data.state import QuantumState
+
+from ...exception.test_mode import TestModeException
+from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.direct_quantum_access import DirectQuantumAccessException
+from ...exception.obs_not_indexed import ObsNotIndexedException
 
 if TYPE_CHECKING:
     from place import Place
@@ -89,14 +94,12 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         # INPUT '(' ID ('[' expr ']')? (',' format)? (',' constraint)? ')'
 
         if self.console.test_mode:
-            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(
-                pos=parent_pos,
-                error_type="RUNTIME ERROR",
-                title="Input not supported in TEST MODE",
-                msg="This program asks for input(), but TEST_MODE does not provide interactive console input.",
+            # code: TM-1
+            raise TestModeException(
+                pos=ScriptErrors.Position.extract(parent) if parent else pos,
+                error="input() not supported in TEST MODE",
+                code="1"
             )
-            exit()
         
         # variable name(ID) is required
         var_name = block.ID().getText()
@@ -120,37 +123,34 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         # check if variable exists
         if not self.scopes.exists(var_name):
             parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(
-                pos=parent_pos, 
-                error_type="RUNTIME ERROR", 
-                title="You Error", 
-                msg="No variable. You forgot to make it, input lost to the void."
+            # code: CFV-5
+            raise CantFindVariableException(
+                pos=parent_pos,
+                var_name=var_name,
+                code="5"
             )
-            exit()
 
         variable: Obs | ObsRegister | Num = self.scopes.get(var_name)
 
-        # check if the variable is of correct type
-        if variable.type not in ["Obs", "ObsRegister", "Num"]:
-            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(
-                pos=parent_pos, 
-                error_type="RUNTIME ERROR", 
-                title="Type Error", 
-                msg="Not how this works. I need an observation(s)."
+        if variable.type == TYPE_STATE:
+            # code: DQA-3
+            raise DirectQuantumAccessException(
+                pos=ScriptErrors.Position.extract(parent) if parent else pos,
+                var_name=var_name,
+                code="3"
             )
-            exit()
+        
+        if variable.type == TYPE_TEXT:
+            raise NotImplementedError("Input for text variables is not implemented yet.")
 
         # check if variable can be indexed
         if index is not None and variable.type == "Obs":
-            parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-            self.script_errors.showError(
-                pos=parent_pos, 
-                error_type="RUNTIME ERROR", 
-                title="Index Error", 
-                msg="You are looking too deep into something that can only be 0 or 1."
+            # code: ONI-1
+            raise ObsNotIndexedException(
+                pos=ScriptErrors.Position.extract(parent) if parent else pos,
+                var_name=var_name,
+                code="1"
             )
-            exit()
         
 
         # update to given constraint if possible
@@ -212,7 +212,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 "I can't work with that.", "Rejected.", "Input denied.", "Nice try, but no.",
                 "Be serious.", "No idea what that is.", "Nah.", "Hard no.", "Rejected in 0ms.",
                 "Absolutely not.", "Fail.", "Not today.", "Not a chance.", "Try harder.",
-                "LOL, no.", "Wrong.", "No.", "Nope.", "That's a no.", "Do better.",
+                "Wrong.", "No.", "Nope.", "That's a no.", "Do better.",
                 "Denied.", "I can't let that slide."
             ]
 
@@ -451,68 +451,6 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         
 
         return
-
-
-        if isinstance(value, Variable):
-            debug_info = f"DEBUG {value.name}: type={value.type}, dimensions={value.dimensions}"
-            if value.data is not None:
-                debug_info += f", data={value.data}"
-            self.console.write(debug_info + "\n")
-            return
-
-        return        
-
-        # TODO: make the debug output more structured, not just everything in one line
-        # make it multiline and more readable
-
-        def format_variable_value(var):
-            if isinstance(var, Num):
-                return f"Num(value={var.value}, is_float={var.is_float})"
-            elif isinstance(var, Obs):
-                return f"Obs(value={var.get()})"
-            elif isinstance(var, ObsRegister):
-                return f"ObsRegister(value={var.get()})"
-            elif isinstance(var, list):
-                return f"[{', '.join(format_variable_value(x) for x in var)}]"
-            else:
-                return str(var)
-        
-        if isinstance(variable, Variable):
-            debug_info += f"Variable(type={variable.type}, dimensions={variable.dimensions}"
-            if len(index) == 0:
-                if variable.data is None:
-                    debug_info += ", data=None"
-                else:
-                    debug_info += f", data={format_variable_value(variable.data)}"
-                debug_info += ")"
-            else:
-                try:
-                    if variable.is_list:
-                        indexed_value = variable.data
-                        for idx in index if isinstance(index, list) else [index]:
-                            indexed_value = indexed_value[idx]
-                        debug_info += f", indexed_value={format_variable_value(indexed_value)})"
-                    else:
-                        debug_info += ", not a list, cannot index)"
-                except Exception as e:
-                    debug_info += f", error accessing index: {e})"
-        elif isinstance(variable, Function):
-            debug_info += f"Function(param_count={len(variable.params)}"
-            
-            for p in variable.params or []:
-                debug_info += f", param_{p.name}={{name: {p.name}, type: {p.type}, size: {p.size}, initial_value: {format_variable_value(p.initial_value)}}}"
-            
-            debug_info += f", body_length={len(variable.body)}"
-            # position in code
-            debug_info += f", pos={variable.pos})"
-
-
-            
-        else:
-            debug_info += f"Other(type={type(variable)}, value={variable})"
-        
-        self.console.write(debug_info + "\n")
-
 
 
     stmt_type = block.getChild(0).getText()

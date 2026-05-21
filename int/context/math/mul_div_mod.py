@@ -11,6 +11,7 @@ from ...operations.operators import do_operation_mod
 from ...operations.operators import do_operation_mul
 from ...expression import TYPE_INT, TYPE_TEXT, Expression, TYPE_STRING, TYPE_LIST
 from ...text import Text
+from ...exception.expected_a_value import ExpectedAValueException
 
 if TYPE_CHECKING:
     from place import Place
@@ -27,7 +28,8 @@ def extract_string(expr) -> str:
     elif isinstance(expr, Variable) and expr.type == TYPE_TEXT:
         return expr.data.get()
     else:
-        raise ValueError("Expected a string or text expression")
+        # code EAV-1
+        raise ExpectedAValueException(ScriptErrors.Position(), "a string or text", code="1")
 
 def handle_mul_div_mod(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr ('*' | '/' | '%') expr 

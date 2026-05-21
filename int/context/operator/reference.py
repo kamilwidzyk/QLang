@@ -18,7 +18,8 @@ def handle_reference(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
     ID = block.ID().getText()
 
     if not self.scopes.exists(ID):
-        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), ID)
+        # code: CFV-7
+        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), ID, code="7")
 
     variable = self.scopes.get(ID)
 

@@ -7,6 +7,7 @@ from ...variable import Variable
 
 from ...exception.cant_find_variable import CantFindVariableException
 from ...exception.index_not_int import IndexNotIntException
+from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ...variable import TYPE_INT, TYPE_STATE
 
 if TYPE_CHECKING:
@@ -16,7 +17,8 @@ if TYPE_CHECKING:
 def handle_index(self: "Place", block: Any, parent: Any) -> int:
     index = self.handle_block(block.expr(), block)
     if index.type != TYPE_INT:
-        raise IndexNotIntException(ScriptErrors.Position.extract(block))
+        # code: INI-1
+        raise IndexNotIntException(ScriptErrors.Position.extract(block), code="1")
     return index.value
 
 
@@ -24,7 +26,8 @@ def handle_var(self: "Place", block: Any, parent: Any) -> Variable:
     var_name = block.ID().getText()
 
     if not self.scopes.exists(var_name):
-        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), var_name)
+        # code: CFV-8
+        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), var_name, code="8")
 
     index_list = []
     for index in block.index():
@@ -40,13 +43,8 @@ def handle_reset_expr(self: "Place", block: Any, parent: Any, pos: ScriptErrors.
     var = handle_var(self, block.var(), block)
 
     if var.type == TYPE_STATE:
-        self.script_errors.showError(
-            pos=pos,
-            error_type="RUNTIME ERROR",
-            title="Access Denied",
-            msg="Quantum states cannot be reset directly.",
-        )
-        exit()
+        # code: DQA-4
+        raise DirectQuantumAccessException(ScriptErrors.Position.extract(block), var.name, code="4")
 
     result = var.reset()
     self.scopes.set(var.name, var)

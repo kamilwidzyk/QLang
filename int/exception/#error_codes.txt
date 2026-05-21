@@ -18,7 +18,31 @@ Main place catcher needs to be updated
 
 
 AssignmentToExpressionException -> ATE
-    1: 
+    1: int/context/math/logic/and_eq_op.py
+        Left side of '&=' is not assignable
+    2: int/context/math/logic/or_eq_op.py
+        Left side of '|=' is not assignable
+    3: int/context/math/div_eq_expr.py
+        Left side of '/=' is not assignable
+    4: int/context/math/minus_eq_op.py
+        Left side of '-=' is not assignable
+    5: int/context/math/mod_eq_op.py
+        Left side of '%=' is not assignable
+    6: int/context/math/mul_eq_op.py
+        Left side of '*=' is not assignable
+    7: int/context/math/plus_eq_op.py
+        Left side of '+=' is not assignable
+    8: int/context/math/pow_eq_op.py
+        Left side of '**=' is not assignable
+    9: int/context/math/pre_post.py
+        '--x' -> x is not assignable
+    10: int/context/math/pre_post.py
+        'x--' -> x is not assignable
+    11: int/context/math/pre_post.py
+        '++x' -> x is not assignable
+    12: int/context/math/pre_post.py
+        'x++' -> x is not assignable
+    
 
 CantFindVariableException -> CFV
     1: int/context/expression/size_expr.py 
@@ -29,12 +53,22 @@ CantFindVariableException -> CFV
         Trying to get variable/value that does not exist
     4: int/context/expression/function_call.py
         Parent scope does not contain requested variable
+    5: int/context/io/io_statement.py
+        input() called with a variable that does not exist
+    6: int/context/operator/parent.py
+        '^' parent operator used on non-existing variable
+    7: int/context/operator/reference.py
+        Tried to get reference of a variable that does not exist
+    8: int/context/operator/reset.py
+        'reset' on variable that does not exist
 
 DivideByZeroException -> DBZ
-    1:
+    1: int/context/math/div_eq_expr.py
+        Right side of '/=' is 0 (division by 0)
 
 IndexNotIntException -> INI
-    1:
+    1: int/context/operator/reset.py
+        Index is not int in reset operator
 
 InformationLeakException -> IL
     1:
@@ -59,6 +93,10 @@ DirectQuantumAccessException -> DQA
         Attempted direct read of quantum state in parenthness
     2: int/context/expression/variable_expression.py 
         Tried getting the value of 'state'
+    3: int/context/io/io_statement.py
+        'state' used as variable for input()
+    4: int/context/operator/reset.py
+        Tried using 'reset' on 'state' variable
     
 RepeatedKeywordArgException -> RKA
     1: int/context/function/function_call.py 
@@ -76,6 +114,8 @@ TooMuchArgumentException -> TMA
         num() called with more than 1 arg
     3: int/context/function/function_call.py
         parent() called with more than 1 arg
+    4: int/context/function/function_call.py
+        seed() called with more than 1 arg
 
 UnknownArgException -> UA
     1: int/context/function/function_call.py 
@@ -88,13 +128,48 @@ KeywordArgumentsNotSupportedException -> KANS
         parent() called with named arguments
     3: int/context/function/function_call.py
         parent() called with named arguments
+    4: int/context/function/function_call.py
+        seed() called with named arguments
+    
 
 BuiltinExpectsValueException -> BEV
     1: int/context/function/function_call.py 
         num() needs to be called with 'a number or a numeric string'
+    2: int/context/function/functon_call.py
+        parent() needs 1 arg: variable name or nested parent call
+    3: int/context/function/function_call.py
+        seed() needs 1 arg: a number
     
 NoParentScopeException -> NPS
     1: int/context/function/function_call.py
         No more scopes to go up
+    2: int/context/operator/parent.py
+        Tried to access higher scopes that do not exist
 
-Last checked: int/context/function/function_call.py line 168
+NoFunctionToCallException -> NFTC
+    1: int/context/function/function_call.py
+        Function is not declared
+
+VariableCallException -> VC
+    1: int/context/function/function_call.py
+        Attempted calling a variable
+
+IncompatibleTypeException -> IT
+    1: int/context/function/function_call.py
+        Function was given a wrong type of argument
+
+FunctionRedeclarationException -> FR
+    1: int/context/function/function_declaration.py
+        Trying to declare a function that already exists
+
+TestModeException -> TM
+    1: int/context/io/io_statement.py
+        input() is not supported in TEST MODE
+
+ObsNotIndexedException -> ONI
+    1: int/context/io/io_statement.py
+        variable of type 'obs' used with index for input()
+
+ExpectedAValueException -> EAV
+    1: int/context/math/mul_div_mod.py
+        Expression must be a string variable or text

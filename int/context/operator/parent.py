@@ -4,6 +4,7 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 from ...variable import Variable
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.no_parent_scope import NoParentScopeException
 from ...scope import Scope
 
 
@@ -41,12 +42,14 @@ def handle_operator_parent(self: Place, block: Any, parent: Any, pos: ScriptErro
     scope = self.scopes.current
     for _ in range(depth):
         if scope.parent is None:
-            raise CantFindVariableException(ScriptErrors.Position.extract(var_block.ID()), var_name)
+            # code NPS-2
+            raise NoParentScopeException(ScriptErrors.Position.extract(block), code="2")
         scope = scope.parent
 
     # check variable existence in that specific ancestor scope
     if var_name not in scope.vars:
-        raise CantFindVariableException(ScriptErrors.Position.extract(var_block.ID()), var_name)
+        # code: CFV-6
+        raise CantFindVariableException(ScriptErrors.Position.extract(var_block.ID()), var_name, code="6")
 
     variable = scope.vars[var_name]
 

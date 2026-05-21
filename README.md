@@ -1,3 +1,6 @@
+Lista rzeczy do poprawy:
+    - input() ma przyjmować 'text'
+
 # Dokumentacja
 
 Dokumentacja będzie w katalogu docs\
