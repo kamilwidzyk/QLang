@@ -144,7 +144,7 @@ ioStmt
 
 // Zakres przyjmowanych wartości do input
 constraint
-    : expr '..' expr
+    : expr DOTDOT expr
     | 'range' '(' expr ',' expr ')'
     ;
 
@@ -498,6 +498,7 @@ RBRACK:   ']';
 COMMA:    ',';
 SEMI:     ';';
 COLON:    ':';
+DOTDOT:   '..';
 DOT:      '.';
 QUESTION: '?';
 BANG:     '!';
@@ -512,7 +513,7 @@ STRING     : '"' (~["\r\n])* '"'
 
 INT_NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
 NUMBER: FLOAT_NUMBER | INT_NUMBER;
-fragment FLOAT_NUMBER: [0-9]+ '.' [0-9]* ([eE] [+-]? [0-9]+)?
+fragment FLOAT_NUMBER: [0-9]+ '.' [0-9]+ ([eE] [+-]? [0-9]+)?
 | '.' [0-9]+ ([eE] [+-]? [0-9]+)?
 | [0-9]+ [eE] [+-]? [0-9]+
 ;

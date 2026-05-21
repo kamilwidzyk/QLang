@@ -1,5 +1,3 @@
-Lista rzeczy do poprawy:
-    - input() ma przyjmować 'text'
 
 # Dokumentacja
 

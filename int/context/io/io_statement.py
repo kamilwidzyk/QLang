@@ -139,9 +139,6 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 var_name=var_name,
                 code="3"
             )
-        
-        if variable.type == TYPE_TEXT:
-            raise NotImplementedError("Input for text variables is not implemented yet.")
 
         # check if variable can be indexed
         if index is not None and variable.type == "Obs":
@@ -161,7 +158,10 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
 
         if variable.type == "Num":
             max_val = float('inf') if constraint_max is None else max_val
-            min_val = float('-inf') if constraint_min is None else min_val
+            min_val = float('-inf') if constraint_min is None else min_val  # if no constraints, allow any number
+        elif variable.type == TYPE_TEXT:
+            max_val = float('inf') if constraint_max is None else max_val
+            min_val = 0 if constraint_min is None else min_val
         else:
             max_val = variable.data.max_val() if constraint_max is None else max_val
             min_val = 0 if constraint_min is None else min_val
@@ -176,7 +176,31 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
 
             if console_in is None:
                 continue
-            
+
+            # check text input first
+            if variable.type == TYPE_TEXT:
+                text_len = len(console_in)
+
+                # Get actual values if they are Expressions
+                resolved_min = convert_value(min_val) if isinstance(min_val, Expression) else min_val
+                resolved_max = convert_value(max_val) if isinstance(max_val, Expression) else max_val
+
+                if text_len >= resolved_min and text_len <= resolved_max: # if text length is within the allowed range, accept the input
+                    value = console_in # valid value received -> end of loop
+                    break
+
+                # Text input format violation
+                invalid = [
+                    "That's not gonna work.", "What even is that input.", "Try again, but correctly.",
+                    "I can't work with that.", "Rejected.", "Input denied.", "Nice try, but no.",
+                    "Be serious.", "No idea what that is.", "Nah.", "Hard no.", "Rejected in 0ms.",
+                    "Absolutely not.", "Fail.", "Not today.", "Not a chance.", "Try harder.",
+                    "Wrong.", "No.", "Nope.", "That's a no.", "Do better.",
+                    "Denied.", "I can't let that slide."
+                ]
+                self.console.write(f"[{random.sample(invalid, 1)[0]} I need text of length {resolved_min}-{resolved_max}] ")
+                continue
+
             # check formatting
             if format is not None:
                 if format == "BIN" and console_in.startswith("0b"):
@@ -219,7 +243,10 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
             self.console.write(f"[{random.sample(invalid, 1)[0]} I need a number in range {min_val}-{max_val} in {format_str} format] ")
 
         # set value to the variable and update variable in the scope
-        value_type = TYPE_FLOAT if variable.type == "Num" else TYPE_INT
+        if variable.type == TYPE_TEXT:
+            value_type = TYPE_TEXT
+        else:
+            value_type = TYPE_FLOAT if variable.type == "Num" else TYPE_INT
         variable.set(Expression(value_type, value))
         self.scopes.set(var_name, variable)
 
@@ -464,4 +491,3 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
 
     elif stmt_type == "input":
         handle_input()
-        
