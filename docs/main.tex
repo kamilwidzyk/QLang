@@ -13,20 +13,17 @@
 \usepackage{listings}
 \tcbuselibrary{listings}
 \usepackage{caption}
-\captionsetup{language=english}
+\captionsetup{justification=raggedright}
 \usepackage[hidelinks, colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
 \usepackage{xparse}
 \usepackage{xstring}
 \usepackage{ragged2e}
-
-%%% Command for linking clickable section references: \link[section]{<label>}
 
 \makeatletter
 \newcommand{\getrefname}[1]{%
   \getrefbykeydefault{#1}{name}{}%
 }
 \makeatother
-
 
 \NewDocumentCommand{\link}{O{} m}{%
     \IfStrEq{#1}{section}{%
@@ -35,9 +32,6 @@
         \hyperref[#2]{\getrefname{#2}}%
     }%
 }
-
-
-%%% Font import and color definitions
 
 \setmainfont{Nunito-Regular.ttf}[
     Path=fonts/Nunito/,
@@ -68,13 +62,9 @@
     BoldFont=MartianMono-Bold.ttf
 ]
 
-%%% Un-Polish the TOC title
-
 \addto\captionspolish{%
   \renewcommand{\contentsname}{Contents}
 }
-
-%%% Custom tcolorbox style for code listings
 
 \newtcblisting{codebox}{
     colback=codebg,
@@ -111,7 +101,7 @@
 %%%%%%%%%%%%%%%%%%%%   Title page   %%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\pagenumbering{gobble} % Suppress page numbers on the title page
+\pagenumbering{gobble}
 
 \vspace*{4cm}
 \begin{figure}[ht]
@@ -122,24 +112,20 @@
 \vspace{3cm}
 
 \begin{center}
-
     \textbf{\fontsize{26}{19}\selectfont QLang Programming Language} \\
     \vspace{0.8cm}
     \color{gray}\textbf{\fontsize{16}{19}\selectfont Language Specification \& Documentation}
-
 \end{center}
 
 \vspace{4cm}
 
 \begin{center}
-
     \textbf{\fontsize{14}{17}\selectfont Created by:} \\
     \vspace{0.5cm}
     \textbf{\fontsize{15}{17}\selectfont \color{gray}Kamil Widzyk} \\
     \textbf{\fontsize{15}{17}\selectfont \color{gray}Maciej Świątek} \\
     \vspace{0.1cm}
     \textbf{\fontsize{15}{17}\selectfont \color{gray}Jan Wida}
-
 \end{center}
 
 \vspace{2cm}
@@ -148,48 +134,34 @@
 \hfill
 {\noindent\fontsize{11}{15}\selectfont \color{gray} Version 1.0}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%   Introduction page   %%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\newpage
-\pagenumbering{arabic} % Start page numbering from 1
-\input{intro/intro}
-
-
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Table of Contents   %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
+\pagenumbering{arabic}
 \tableofcontents
 
-
-
-
-\newpage
-
-
-
-
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Chapter 1   %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\section{Test section}
+\input{chapter-1-intro/chapter_introduction}
 
-\noindent Żeby kompilacja się nie wysypała to trzeba make\_auto.bat uruchomić w głównym katalogu projektu, a nie w katalogu docs. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Chapter 2   %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\textbf{gdfgfdgdfgdfgdfg}
+\newpage
+\input{chapter-2-language-basics/language_basics}
 
-
-\input{error_codes/qlang/test.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Errors   %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
 \section{Errors}\label{sec:errors}
 \input{error_codes/error_codes}
-
 
 \end{document}

@@ -1,0 +1,63 @@
+\section{Introduction}\label{sec:introduction}
+
+QLang is a high-level programming language designed for quantum computing. 
+It provides a simple and intuitive syntax for expressing quantum algorithms and operations, 
+making it accessible to both beginners and experienced programmers in the field of quantum computing.
+
+% ─────────────────────────────────────────────
+\subsection{Overview}\label{sec:overview}
+
+A QLang program is made up of top-level statements and \texttt{place}
+declarations. A place is QLang's primary unit of encapsulation, similar to a
+class or module in classical languages. Each place can define functions and
+execute statements. The special \emph{global scope}, code written outside any
+place, acts as a default place called \texttt{global}.
+
+The language supports four built-in variable types: \texttt{state},
+\texttt{obs}, \texttt{num}, and \texttt{text}. Quantum-specific operations,
+gates such as \texttt{H}, \texttt{X}, \texttt{CNOT}, and the \texttt{measure}
+keyword, are first-class constructs in QLang, not library calls.
+
+QLang is interpreted. Source files (extension \texttt{.ql})
+are parsed by an ANTLR4-generated parser and executed by the QLang interpreter
+written in Python.
+
+
+% ─────────────────────────────────────────────
+\subsection{Quick Example}\label{sec:quick-example}
+
+The following complete QLang program creates a Bell state (a maximally
+entangled two-qubit state), measures both qubits, and prints the results:
+
+\input{chapter-1-intro/qlang/bell_state.tex}
+
+After running, both measurements will always agree, both \texttt{0} or both
+\texttt{1}, which is the defining property of a Bell state. This example
+demonstrates how QLang lets you express a complete quantum protocol in just a
+few lines.
+
+% ─────────────────────────────────────────────
+\subsection{Design Principles}\label{sec:design-principles}
+
+\subsubsection{Classical and Quantum Code in One Language}
+
+QLang does not separate quantum and classical concerns into different APIs or
+files. A variable of type \texttt{obs} (classical integer) and a variable of
+type \texttt{state} (qubit) can appear side-by-side in the same scope.
+Measurement bridges the quantum and classical worlds by collapsing a
+\texttt{state} into an \texttt{obs} value.
+
+\subsubsection{Structured Error Reporting}
+
+When the interpreter encounters an error, whether a syntax mistake, an
+undefined variable, or an illegal runtime operation, it displays a detailed
+error box that highlights the exact source location, shows surrounding context
+lines, and explains the cause.
+
+\subsubsection{Modular Structure via Places}
+
+Each \texttt{place} in a QLang program represents a logically isolated system.
+In the future, places are intended to support message-passing communication via
+\texttt{send} and \texttt{receive} primitives, enabling the expression of
+distributed quantum protocols such as quantum teleportation or entanglement
+distribution across nodes.
