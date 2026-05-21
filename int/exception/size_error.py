@@ -1,13 +1,15 @@
 
 from ..script_errors import ScriptErrors
 
+# code: SE-?
 
 class SizeErrorException(Exception):
-    def __init__(self, pos: ScriptErrors.Position):
+    def __init__(self, pos: ScriptErrors.Position, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Size Error"
         self.msg = "I can't make a variable of this size"
         self.pos = pos
+        self.code = "SE-" + code
         super().__init__(self.msg)
 
     def show(self, script_errors: ScriptErrors):

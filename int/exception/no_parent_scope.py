@@ -1,15 +1,15 @@
 
 from ..script_errors import ScriptErrors
 
-# code: IL-?
+# code: NPS-?
 
-class InformationLeakException(Exception):
-    def __init__(self, pos: ScriptErrors.Position, var_name, new_value, bits, code: str = "?"):
+class NoParentScopeException(Exception):
+    def __init__(self, pos: ScriptErrors.Position, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
-        self.title = "Spillover"
-        self.msg = f"Information from '{var_name}' started leaking. {new_value} will not fit in {bits} bits."
+        self.title = "No Parent Scope"
+        self.msg = "You are already at the top. Can't go higher."
         self.pos = pos
-        self.code = "IL-" + code
+        self.code = "NPS-" +code
         super().__init__(self.msg)
 
     def show(self, script_errors: ScriptErrors):

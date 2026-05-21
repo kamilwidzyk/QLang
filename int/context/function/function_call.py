@@ -22,6 +22,14 @@ from ...expression import (
     TYPE_TEXT
 )
 from ...variable import Variable
+from ...exception.repeated_keyword_arg import RepeatedKeywordArgException
+from ...exception.missing_arg import MissingArgException
+from ...exception.too_much_args import TooMuchArgumentsException
+from ...exception.unknown_args import UnknownArgException
+from ...exception.kwargs_not_supported import KeywordArgumentsNotSupportedException
+from ...exception.builtin_expects_value import BuiltinExpectsValueException
+from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.no_parent_scope import NoParentScopeException
 
 class FunctionReturn(Exception):
     """Control flow exception raised when a function returns a value."""
@@ -133,21 +141,42 @@ def _resolve_parent_scope(current_scope: Scope, depth: int = 1):
 
 def _resolve_parent_value(self: Place, block: Any, args: Any, current_scope: Scope):
     if not isinstance(args, list) or len(args) != 1:
-        return None, "parent() expects exactly one variable name argument."
+        # code TMA-3
+        raise TooMuchArgumentsException(
+            pos=ScriptErrors.Position.extract(block),
+            func_name="parent",
+            taken_args=len(args) if isinstance(args, list) else 0,
+            expected_args=1,
+            code="3"
+        )
 
     arg = block.argList().arg(0)
     if arg.namedArg() is not None:
-        return None, "parent() does not accept named arguments."
+        # code KANS-3
+        raise KeywordArgumentsNotSupportedException(
+            pos=ScriptErrors.Position.extract(arg.namedArg()),
+            func_name="parent",
+            code="3"
+        )
     
     arg_block = arg.expr()
 
-    if isinstance(arg_block, QLangParser.VarExprContext):
+    if isinstance(arg_block, VarExprCtx):
         var_name = arg_block.ID().getText()
         target_scope = _resolve_parent_scope(current_scope, 1)
         if target_scope is None:
-            return None, f"No parent scope to read '{var_name}' from."
+            # code NPS-1
+            raise NoParentScopeException(
+                pos=ScriptErrors.Position.extract(arg_block),
+                code="1"
+            )
         if var_name not in target_scope.vars:
-            return None, f"I can't find '{var_name}' in parent scope."
+            # code CFV-4
+            raise CantFindVariableException(
+                pos=ScriptErrors.Position.extract(arg_block.ID()),
+                var_name=var_name + " (parent scope)",
+                code="4"
+            )
         variable = target_scope.vars[var_name]
         if hasattr(variable, 'get'):
             return variable.get(), None
@@ -178,7 +207,12 @@ def _normalize_call_args(function_def: Function, positional_args: list, keyword_
     
     # Check for duplicate keyword args
     if len(keyword_args) != len(set(keyword_args.keys())):
-        raise ValueError(f"'{func_name}' got multiple values for keyword argument")
+        # code RKA-1
+        raise RepeatedKeywordArgException(
+            pos = ScriptErrors.Position.extract(function_def.definition_block),
+            func_name=func_name,
+            code="1"
+        )
     
     # Build the ordered values for regular params
     ordered_values = []
@@ -196,11 +230,24 @@ def _normalize_call_args(function_def: Function, positional_args: list, keyword_
             # Default value
             ordered_values.append(param.initial_value)
         else:
-            raise ValueError(f"'{func_name}' missing required argument: '{param.name}'")
+            # code MA-1
+            raise MissingArgException(
+                pos = ScriptErrors.Position.extract(function_def.definition_block),
+                func_name=func_name,
+                missing_arg=param.name,
+                code="1"
+            )
     
     # Check for extra positional args if no *args
     if used_positional < len(positional_args) and varargs_param is None:
-        raise ValueError(f"'{func_name}' takes {len(regular_params)} arguments but {len(positional_args) + len(keyword_args)} were given")
+        # code TMA-1
+        raise TooMuchArgumentsException(
+            pos = ScriptErrors.Position.extract(function_def.definition_block),
+            func_name=func_name,
+            taken_args=len(positional_args) + len(keyword_args),
+            expected_args=len(regular_params),
+            code="1"
+        )
     
     # Handle *args
     if varargs_param is not None:
@@ -211,7 +258,14 @@ def _normalize_call_args(function_def: Function, positional_args: list, keyword_
     expected_names = {param.name for param in regular_params}
     unexpected_kwargs = set(keyword_args.keys()) - expected_names
     if unexpected_kwargs:
-        raise ValueError(f"'{func_name}' got unexpected keyword argument(s): {', '.join(unexpected_kwargs)}")
+        for unknown_arg in unexpected_kwargs:
+            # code UA-1
+            raise UnknownArgException(
+                pos = ScriptErrors.Position.extract(function_def.definition_block),
+                func_name=func_name,
+                unknown_arg=unknown_arg,
+                code="1"
+            )
     
     return ordered_values
 
@@ -259,32 +313,32 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
         # num() doesn't support keyword args
         if keyword_args:
-            self.script_errors.showError(
+            # code KANS-1
+            raise KeywordArgumentsNotSupportedException(
                 pos=block_pos,
-                error_type="RUNTIME ERROR",
-                title="ExecutionError",
-                msg="num() doesn't accept keyword arguments.",
+                func_name="num",
+                code="1"
             )
-            exit()
 
         if len(positional_args) != 1:
-            self.script_errors.showError(
+            # code TMA-2
+            raise TooMuchArgumentsException(
                 pos=block_pos,
-                error_type="RUNTIME ERROR",
-                title="ExecutionError",
-                msg="num() expects exactly one argument.",
+                func_name="num",
+                taken_args=len(positional_args),
+                expected_args=1,
+                code="2"
             )
-            exit()
 
         cast_value = _parse_num_cast_value(positional_args[0])
         if cast_value is None:
-            self.script_errors.showError(
+            # code BEV-1
+            raise BuiltinExpectsValueException(
                 pos=block_pos,
-                error_type="RUNTIME ERROR",
-                title="Type Error",
-                msg="num() expects a number or a numeric string.",
+                func_name="num",
+                expects="a number or a numeric string",
+                code="1"
             )
-            exit()
 
         return cast_value
 
@@ -296,13 +350,12 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     if func_name == "parent":
         # parent() doesn't support keyword args
         if keyword_args:
-            self.script_errors.showError(
+            # code KANS-2
+            raise KeywordArgumentsNotSupportedException(
                 pos=block_pos,
-                error_type="RUNTIME ERROR",
-                title="ExecutionError",
-                msg="parent() doesn't accept keyword arguments.",
+                func_name="parent",
+                code="2"
             )
-            exit()
         
         value, error_message = _resolve_parent_value(self, block, positional_args, self.scopes.current)
         if error_message is not None:

@@ -1,9 +1,6 @@
 from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
-from ...consts import *
-from ...obs import Obs, ObsRegister
-
 from ...expression import Expression, TYPE_LIST
 
 if TYPE_CHECKING:

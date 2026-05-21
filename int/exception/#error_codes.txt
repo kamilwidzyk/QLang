@@ -1,0 +1,100 @@
+Error code format: <exception>-<code>    (eq. ATE-3)
+<exception> is short of exception name(if possible, this needs to be unique)
+<code> - starts from 1 and goes up with every place the exception can be raised at(file path + line number)
+
+This list will later be used to make documentation of the error codes
+
+List format:
+<exception> -> <exception short>
+    <code>: <file_path> 
+        <Explain when the exception is raised and why>
+
+# code: ATE-3   
+Those comments are written above the raised exception,
+Use 'Find in files' to find the place of the code
+
+Some of the below error are not displayed correcly(or not displayed at all)
+Main place catcher needs to be updated
+
+
+AssignmentToExpressionException -> ATE
+    1: 
+
+CantFindVariableException -> CFV
+    1: int/context/expression/size_expr.py 
+        Trying to read size of not existing variable
+    2: int/context/expression/type_expr.py 
+        Trying to read type of not existing variable
+    3: int/context/expression/variable_expression.py 
+        Trying to get variable/value that does not exist
+    4: int/context/expression/function_call.py
+        Parent scope does not contain requested variable
+
+DivideByZeroException -> DBZ
+    1:
+
+IndexNotIntException -> INI
+    1:
+
+InformationLeakException -> IL
+    1:
+
+ModuloOverZeroException -> MOZ
+    1:
+
+OperatorTypeMismatchException -> OTM
+    1:
+
+SizeErrorException -> SE
+    1:
+
+TryingToModifyConstException -> TTMC
+    1:
+
+VariableRedefiniotionException -> VR
+    1:
+
+DirectQuantumAccessException -> DQA
+    1: int/context/expression/variable_expression.py 
+        Attempted direct read of quantum state in parenthness
+    2: int/context/expression/variable_expression.py 
+        Tried getting the value of 'state'
+    
+RepeatedKeywordArgException -> RKA
+    1: int/context/function/function_call.py 
+        One or more named args are repeated
+    
+MissingArgException -> MA
+    1: int/context/function/function_call.py 
+        Function call does not have all required args
+    2: 
+
+TooMuchArgumentException -> TMA
+    1: int/context/function/function_call.py 
+        Function call was given more args than it can take
+    2: int/context/function/function_call.py 
+        num() called with more than 1 arg
+    3: int/context/function/function_call.py
+        parent() called with more than 1 arg
+
+UnknownArgException -> UA
+    1: int/context/function/function_call.py 
+        Argument name that is not defined got used in call
+    
+KeywordArgumentsNotSupportedException -> KANS
+    1: int/context/function/function_call.py
+        num() called with named arguments
+    2: int/context/function/function_call.py 
+        parent() called with named arguments
+    3: int/context/function/function_call.py
+        parent() called with named arguments
+
+BuiltinExpectsValueException -> BEV
+    1: int/context/function/function_call.py 
+        num() needs to be called with 'a number or a numeric string'
+    
+NoParentScopeException -> NPS
+    1: int/context/function/function_call.py
+        No more scopes to go up
+
+Last checked: int/context/function/function_call.py line 168

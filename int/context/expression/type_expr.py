@@ -1,6 +1,7 @@
 from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
+from ...exception.cant_find_variable import CantFindVariableException
 
 if TYPE_CHECKING:
     from place import Place
@@ -14,7 +15,12 @@ def handle_type_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
         var_name = expr.ID().getText()
         indices = [self.handle_block(e, block) for e in expr.expr()]
         if var_name not in self.scopes.current.vars:
-            raise Exception(f"Variable {var_name} not found")
+            # code CFV-2
+            raise CantFindVariableException(
+                pos=ScriptErrors.Position.extract(expr.ID()), 
+                var_name=var_name,
+                code="2"
+            )
         var = self.scopes.current.vars[var_name]
         if indices:
             # For indexed, return base type

@@ -1,15 +1,15 @@
 
 from ..script_errors import ScriptErrors
 
-# code: IL-?
+# code: RKA-?
 
-class InformationLeakException(Exception):
-    def __init__(self, pos: ScriptErrors.Position, var_name, new_value, bits, code: str = "?"):
+class RepeatedKeywordArgException(Exception):
+    def __init__(self, pos: ScriptErrors.Position, func_name: str = "?", code: str = "?"):
         self.error_type = "RUNTIME ERROR"
-        self.title = "Spillover"
-        self.msg = f"Information from '{var_name}' started leaking. {new_value} will not fit in {bits} bits."
+        self.title = "Repeated Keyword Argument"
+        self.msg = f"{func_name} has too many options. I can't decide which one to choose."
         self.pos = pos
-        self.code = "IL-" + code
+        self.code = "RKA-" + code
         super().__init__(self.msg)
 
     def show(self, script_errors: ScriptErrors):

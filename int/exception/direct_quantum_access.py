@@ -1,15 +1,15 @@
 
 from ..script_errors import ScriptErrors
 
-# code: IL-?
+# code: DQA-?
 
-class InformationLeakException(Exception):
-    def __init__(self, pos: ScriptErrors.Position, var_name, new_value, bits, code: str = "?"):
+class DirectQuantumAccessException(Exception):
+    def __init__(self, pos: ScriptErrors.Position, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
-        self.title = "Spillover"
-        self.msg = f"Information from '{var_name}' started leaking. {new_value} will not fit in {bits} bits."
+        self.title = "Access Denied"
+        self.msg = "Tried to access Quantum state directly, good luck with that."
         self.pos = pos
-        self.code = "IL-" + code
+        self.code = "DQA-" +code
         super().__init__(self.msg)
 
     def show(self, script_errors: ScriptErrors):

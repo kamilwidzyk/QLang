@@ -1,13 +1,14 @@
 from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
-from ...consts import *
+from ...consts import ParenExprCtx, VarExprCtx, ParentExprCtx
 from ...expression import Expression, TYPE_NUM, TYPE_STATE
 from ...num import Num
 from ...variable import Variable
 from ...QLang.QLangParser import QLangParser
 
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ..operator.parent import handle_operator_parent
 
 if TYPE_CHECKING:
@@ -15,11 +16,11 @@ if TYPE_CHECKING:
 
 
 def is_variable_expression(block: Any) -> bool:
-    if isinstance(block, QLangParser.VarExprContext):
+    if isinstance(block, VarExprCtx):
         return True
-    if isinstance(block, QLangParser.ParentExprContext):
+    if isinstance(block, ParentExprCtx):
         return True
-    if isinstance(block, QLangParser.ParenExprContext):
+    if isinstance(block, ParenExprCtx):
         inner = block.expr()
         return inner is not None and is_variable_expression(inner)
     return False
@@ -27,7 +28,7 @@ def is_variable_expression(block: Any) -> bool:
 
 def handle_variable_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position, return_variable=False):
     # ID ('[' expr ']')* or ^...var or parenthesized variable expressions
-    if isinstance(block, QLangParser.ParentExprContext):
+    if isinstance(block, ParentExprCtx):
         variable = handle_operator_parent(self, block, parent, pos)
 
         if return_variable:
@@ -38,27 +39,30 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
         if isinstance(variable, Variable):
             if variable.type == TYPE_STATE:
-                self.script_errors.showError(
+                # code: DQA-1
+                raise DirectQuantumAccessException(
                     pos=pos,
-                    error_type="RUNTIME ERROR",
-                    title="Access Denied",
-                    msg="Quantum state values cannot be accessed directly. Use gates or measure.",
-                )
-                exit()
+                    code="1"
+                )   
             if variable.type == TYPE_NUM:
                 return variable.get_value()
             return variable.get()
 
         return variable
 
-    if isinstance(block, QLangParser.ParenExprContext):
+    if isinstance(block, ParenExprCtx):
         return handle_variable_expression(self, block.expr(), block, pos, return_variable)
 
     # ID ('[' expr ']')*
     var_name = block.ID().getText()
 
     if not self.scopes.exists(var_name):
-        raise CantFindVariableException(ScriptErrors.Position.extract(block), var_name)
+        # code: CFV-3
+        raise CantFindVariableException(
+            pos=ScriptErrors.Position.extract(block), 
+            var_name=var_name,
+            code="3"
+        )
 
     variable = self.scopes.get(var_name)
 
@@ -88,13 +92,11 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
     if isinstance(variable, Variable):
         if variable.type == TYPE_STATE:
-            self.script_errors.showError(
+            # code: DQA-2
+            raise DirectQuantumAccessException(
                 pos=pos,
-                error_type="RUNTIME ERROR",
-                title="Access Denied",
-                msg="Quantum state values cannot be accessed directly. Use gates or measure.",
+                code="2"
             )
-            exit()
         if variable.type == TYPE_NUM:
             return variable.get_value()
         return variable.get()
@@ -102,7 +104,7 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
     if isinstance(variable, Num):
         return variable.get()
 
-    if type(variable) == int:
+    if variable is int:
         return variable
 
     if isinstance(variable, Expression):
@@ -110,73 +112,3 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
     return variable
 
-    # Check if it can be read
-    if variable.type in ["StateRegister", "State"]:
-        self.script_errors.showError(
-            pos=parent_pos,
-            error_type="RUNTIME ERROR",
-            title="Access Denied",
-            msg="You can't access a quantum state like that. Try measuring it first.")
-        exit()
-
-    if index is not None:
-        # Check if variable supports index (Dodano NumArray)
-        if variable.type not in ["ObsRegister", "NumArray"]:
-            self.script_errors.showError(
-                pos=parent_pos,
-                error_type="RUNTIME ERROR",
-                title="Access denied",
-                msg="There is nothing more, just a single value. You cannot index this variable.")
-            exit()
-
-        # Check if index is int (Zabezpieczenie przed floatami jako index)
-        if int(index) != index:
-            self.script_errors.showError(
-                pos=parent_pos,
-                error_type="RUNTIME ERROR",
-                title="QuantizationError",
-                msg="Try looking at the items, not between them. Index must be an integer.")
-            exit()
-
-        # Check if index is >= 0
-        if index < 0:
-            self.script_errors.showError(
-                pos=parent_pos,
-                error_type="RUNTIME ERROR",
-                title="BoundaryBreach",
-                msg=f"You attempted to access index {index}. Aren't you scared of going into the unknown.")
-            exit()
-
-        if variable.type == "NumArray":
-            try:
-                return variable.get(int(index))
-            except IndexError as e:
-                self.script_errors.showError(
-                    pos=parent_pos,
-                    error_type="RUNTIME ERROR",
-                    title="BoundaryBreach",
-                    msg=str(e))
-                exit()
-
-        # Return the value from ObsRegister as 0/1 (not bool)
-        return 1 if variable[int(index)] else 0
-
-
-    if variable.type == "Obs":
-        return 1 if variable.get() else 0
-
-    if variable.type == "ObsRegister":
-        return variable.get()
-
-    if variable.type == "Num":
-        return variable.get()
-
-    if variable.type == "NumArray":
-        return variable.values
-
-    self.script_errors.showError(
-        pos=parent_pos,
-        error_type="RUNTIME ERROR",
-        title="Type Error",
-        msg=f"What is this variable of type '{variable.type}' doing here?")
-    exit()

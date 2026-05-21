@@ -1,15 +1,15 @@
 
 from ..script_errors import ScriptErrors
 
-# code: IL-?
+# code: MA-?
 
-class InformationLeakException(Exception):
-    def __init__(self, pos: ScriptErrors.Position, var_name, new_value, bits, code: str = "?"):
+class MissingArgException(Exception):
+    def __init__(self, pos: ScriptErrors.Position, func_name: str = "?", missing_arg: str = "?", code: str = "?"):
         self.error_type = "RUNTIME ERROR"
-        self.title = "Spillover"
-        self.msg = f"Information from '{var_name}' started leaking. {new_value} will not fit in {bits} bits."
+        self.title = "Missing Argument"
+        self.msg = f"{func_name} is missing required argument: {missing_arg}"
         self.pos = pos
-        self.code = "IL-" + code
+        self.code = "MA-" + code
         super().__init__(self.msg)
 
     def show(self, script_errors: ScriptErrors):

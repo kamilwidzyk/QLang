@@ -2,12 +2,15 @@
 from ..script_errors import ScriptErrors
 
 
+# code: VR-?
+
 class VariableRedefiniotionException(Exception):
-    def __init__(self, pos: ScriptErrors.Position):
+    def __init__(self, pos: ScriptErrors.Position, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "SuperpositionError"
-        self.msg = f"A variable cannot be in superposition. Pick one definition and stick to it."
+        self.msg = "A variable cannot be in superposition. Pick one definition and stick to it."
         self.pos = pos
+        self.code = "VR-" + code
         super().__init__(self.msg)
 
     def show(self, script_errors: ScriptErrors):

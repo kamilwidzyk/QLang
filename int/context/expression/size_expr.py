@@ -1,8 +1,6 @@
 from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
-from ...consts import *
-from ...obs import Obs, ObsRegister
 
 from ...exception.cant_find_variable import CantFindVariableException
 from ...variable import TYPE_LIST, TYPE_ARRAY, Variable
@@ -16,7 +14,12 @@ def handle_expression_size_getter(self: Place, block: Any, parent: Any, pos: Scr
     var_name = block.ID().getText()
 
     if not self.scopes.exists(var_name):
-        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), var_name)
+        # code: CFV-1
+        raise CantFindVariableException(
+            pos=ScriptErrors.Position.extract(block.ID()), 
+            var_name=var_name,
+            code="1"
+        )
 
     # there might be something calculated wrong
     var = self.scopes.get(var_name)

@@ -1,15 +1,15 @@
 
 from ..script_errors import ScriptErrors
 
-# code: IL-?
+# code: UA-?
 
-class InformationLeakException(Exception):
-    def __init__(self, pos: ScriptErrors.Position, var_name, new_value, bits, code: str = "?"):
+class UnknownArgException(Exception):
+    def __init__(self, pos: ScriptErrors.Position, func_name: str = "?", unknown_arg: str = "?", code: str = "?"):
         self.error_type = "RUNTIME ERROR"
-        self.title = "Spillover"
-        self.msg = f"Information from '{var_name}' started leaking. {new_value} will not fit in {bits} bits."
+        self.title = "Unknown Argument"
+        self.msg = f"Where did you get '{unknown_arg}'? '{func_name}' does not take that."
         self.pos = pos
-        self.code = "IL-" + code
+        self.code = "UA-" + code
         super().__init__(self.msg)
 
     def show(self, script_errors: ScriptErrors):

@@ -1,15 +1,15 @@
 
 from ..script_errors import ScriptErrors
 
-# code: IL-?
+# code: BEV-?
 
-class InformationLeakException(Exception):
-    def __init__(self, pos: ScriptErrors.Position, var_name, new_value, bits, code: str = "?"):
+class BuiltinExpectsValueException(Exception):
+    def __init__(self, pos: ScriptErrors.Position, func_name: str = "?", expects: str = "?", code: str = "?"):
         self.error_type = "RUNTIME ERROR"
-        self.title = "Spillover"
-        self.msg = f"Information from '{var_name}' started leaking. {new_value} will not fit in {bits} bits."
+        self.title = "Built-in function Misuse"
+        self.msg = f"Built-in function {func_name} expects {expects}."
         self.pos = pos
-        self.code = "IL-" + code
+        self.code = "BEV-" +code
         super().__init__(self.msg)
 
     def show(self, script_errors: ScriptErrors):

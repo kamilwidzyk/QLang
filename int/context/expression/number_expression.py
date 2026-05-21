@@ -1,9 +1,7 @@
 from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
-from ...consts import *
-from ...expression import Expression
-from ...obs import Obs, ObsRegister
+from ...expression import Expression, TYPE_FLOAT, TYPE_INT
 
 if TYPE_CHECKING:
     from place import Place
