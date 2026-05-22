@@ -228,7 +228,11 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                         break # valid value received -> end of loop
                 except:
                     pass # not a number
-            
+
+
+            resolved_min = convert_value(min_val) if isinstance(min_val, Expression) else min_val
+            resolved_max = convert_value(max_val) if isinstance(max_val, Expression) else max_val
+
             # user input is invalid, show a message what is expected on the input
             format_str = {None: "decimal", "BIN": "binary", "HEX": "hexadecimal"}[format]
             invalid = [
@@ -240,7 +244,7 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
                 "Denied.", "I can't let that slide."
             ]
 
-            self.console.write(f"[{random.sample(invalid, 1)[0]} I need a number in range {min_val}-{max_val} in {format_str} format] ")
+            self.console.write(f"[{random.sample(invalid, 1)[0]} I need a number in range {resolved_min}-{resolved_max} in {format_str} format] ")
 
         # set value to the variable and update variable in the scope
         if variable.type == TYPE_TEXT:
