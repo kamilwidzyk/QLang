@@ -399,6 +399,30 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
         return seed_value
 
+    if func_name == "random":
+        # random() doesn't support keyword args
+        if keyword_args:
+            # code KANS-5
+            raise KeywordArgumentsNotSupportedException(
+                pos=block_pos,
+                func_name="random",
+                code="5"
+            )
+
+        # random() expects no positional args
+        if len(positional_args) != 0:
+            # code TMA-5
+            raise TooMuchArgumentsException(
+                pos=block_pos,
+                func_name="random",
+                taken_args=len(positional_args),
+                expected_args=0,
+                code="5"
+            )
+
+        # Return a float expression in range [0, 1)
+        return Expression(TYPE_FLOAT, random.random())
+
     # Check if the function exists
     if not self.scopes.exists(func_name):
         # code NFTC-1
