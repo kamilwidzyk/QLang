@@ -1,9 +1,8 @@
-num matrix[4][4];            // two-dimensional 4x4 array
+obs values[10];          // array of 10 obs variables
+values[0] = 1;
+values[9] = 99;
 
-// Size inferred automatically from the initialiser
-num a[?] = [1, 2, 3, 4, 5]; // size is 5, inferred from the list
-println(#a);                 // 5
+num matrix[4][4];        // two-dimensional 4x4 array
 
-// Runtime-computed size
-num n = 8;
-num dynamic[n];              // size determined at runtime
+obs n[8] = 5;
+obs dynamic[n];          // size determined at runtime

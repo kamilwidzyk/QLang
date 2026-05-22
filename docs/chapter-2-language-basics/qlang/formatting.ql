@@ -1,7 +1,3 @@
-num x = 42;
-num y = 3.14159;
+obs x[8] = 42;
 println("The answer is %d" % x);
-println("x = %d, y = %.2f" % [x, y]);  // list of values
-
-text fmt = "Hello, %s!";
-println(fmt % "world");
+println("Pi is approximately %.2f" % 3.14159);

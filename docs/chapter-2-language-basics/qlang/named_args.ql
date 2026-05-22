@@ -1,15 +1,5 @@
-function rect(num width, num height = 1) {
-    return width * height;
+function power(obs base[8], obs exp[8]) {
+    return base ** exp;
 }
 
-// Positional arguments
-println(rect(5, 3));           // 15
-
-// Mixed: positional + named
-println(rect(5, height = 3));  // 15
-
-// All named, any order
-println(rect(height = 4, width = 6));  // 24
-
-// Using default value
-println(rect(7));              // 7
+println(power(exp = 3, base = 2));   // 8

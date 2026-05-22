@@ -12,15 +12,15 @@ top-level items. Each item is one of the following:
 
 \begin{itemize}
     \item A \texttt{place} declaration.
-    \item A function declaration (at global place).
-    \item A statement (at global place).
+    \item A function declaration (at global scope).
+    \item A statement (at global scope).
 \end{itemize}
 
-Items are executed in the order they appear. The global place is the implicit
+Items are executed in the order they appear. The global scope is the implicit
 default place and is always present. When a named place is declared, its body
 executes when the program starts.
 
-
+\input{chapter-2-language-basics/qlang/basics.tex}
 
 % ─────────────────────────────────────────────
 \subsection{Data Types}\label{sec:data-types}
@@ -39,7 +39,7 @@ quantum computation:
     to a classical value via the \texttt{measure} keyword. \\
 \hline
 \texttt{obs} &
-    An observation, a classical integer. Stores the result of a measured state or
+    An observation, a classical integer. Stores the result of a measurement or
     any integer value. Supports arithmetic, comparison, and bitwise operations.
     Bit-width is specified as \texttt{obs x[N]}. \\
 \hline
@@ -204,7 +204,8 @@ QLang provides three output statements:
 \begin{itemize}
     \item \texttt{print(...)} — prints values without a trailing newline.
     \item \texttt{println(...)} — prints values followed by a newline.
-    \item \texttt{debug(x)} 
+    \item \texttt{debug(x)} — prints detailed internal information about the
+          variable \texttt{x}, useful for inspecting quantum states.
 \end{itemize}
 
 Both \texttt{print} and \texttt{println} accept an optional format specifier

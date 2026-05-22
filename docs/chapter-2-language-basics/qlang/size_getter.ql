@@ -1,2 +1,2 @@
-num items[?] = [10, 20, 30, 40, 50];
-println(#items);    // 5
+obs items[10];
+obs len = #items;    // len == 10
