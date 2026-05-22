@@ -1,4 +1,4 @@
-obs x[8] = 75;
+num x = 75;
 
 if (x > 100) {
     println("Large");
@@ -8,13 +8,20 @@ if (x > 100) {
     println("Small");
 }
 
+// if without braces
+if (x > 0) println("Positive");
+
+// Ternary operator
+text label = x > 50 ? "big" : "small";
+println(label);
+
 // For loop with step
 for i from 0 to 20 step 5 {
     println(i);      // 0, 5, 10, 15
 }
 
 // While loop
-obs n[8] = 1;
+num n = 1;
 while (n < 128) {
     n *= 2;
 }
