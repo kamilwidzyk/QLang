@@ -116,6 +116,8 @@ TooMuchArgumentException -> TMA
         parent() called with more than 1 arg
     4: int/context/function/function_call.py
         seed() called with more than 1 arg
+    5: int/context/function/function_call.py
+        radnom() called with more than 1 arg
 
 UnknownArgException -> UA
     1: int/context/function/function_call.py 
@@ -130,6 +132,8 @@ KeywordArgumentsNotSupportedException -> KANS
         parent() called with named arguments
     4: int/context/function/function_call.py
         seed() called with named arguments
+    5: int/context/function/function_call.py
+        random() called with named args
     
 
 BuiltinExpectsValueException -> BEV

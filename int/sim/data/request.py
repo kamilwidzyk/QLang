@@ -16,6 +16,7 @@ class QuantumCommand:
     CMD_MEASURE = "MEASURE"
     CMD_REMOVE = "REMOVE"
     CMD_ALIAS = "ALIAS"
+    CMD_SEED = "SEED"
 
     def is_cmd(self, cmd: str):
         return self.cmd == cmd
@@ -59,6 +60,10 @@ class QuantumCommand:
     @classmethod
     def alias(cls, id: QuantumID, prefix: QuantumPrefix) -> QuantumCommand:
         return QuantumCommand(QuantumCommand.CMD_ALIAS, [id, prefix])
+
+    @classmethod
+    def seed(cls, seed_value: int) -> QuantumCommand:
+        return QuantumCommand(QuantumCommand.CMD_SEED, [seed_value])
 
 
 

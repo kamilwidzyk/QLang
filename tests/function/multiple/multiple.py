@@ -16,7 +16,7 @@ def test_function_multiple_args() -> bool:
 
     print(place_log["global"])
     
-    expected_output = "x=5 #b=2\nb[0]=10\nb[1]=15\nx=3 #b=0\nx=7 #b=3\nb[0]=6\nb[1]=9\nb[2]=12\n"
+    expected_output = "x=5 #b=2\nb[0]=10\nb[1]=15\nx=3 #b=0\nx=7 #b=3\nb[0]=6\nb[1]=9\nb[2]=12\n15\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))

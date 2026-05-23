@@ -160,6 +160,20 @@ def test_measurement_history_and_removal():
     assert history[2].startswith(f"MEASURE {b} = ")
 
 
+def test_prefix_seed_sequence():
+    sim = QuantumSimulator()
+    sim.set_seed(QuantumPrefix("A"), 123)
+
+    a = sim.create_qubit(QuantumPrefix("A"))
+    b = sim.create_qubit(QuantumPrefix("A"))
+
+    sim.apply_gate(a, QuantumGates.H)
+    sim.apply_gate(b, QuantumGates.H)
+
+    assert int(sim.measure(a)) == 0
+    assert int(sim.measure(b)) == 1
+
+
 def test_error_paths():
     sim = QuantumSimulator()
     q = sim.create_qubit(QuantumPrefix("Q"))
@@ -189,6 +203,7 @@ def run_all_tests():
         test_bell_pair_correlation,
         test_cz_graph_state_stabilizers,
         test_measurement_history_and_removal,
+        test_prefix_seed_sequence,
         test_error_paths,
     ]
 

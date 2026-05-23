@@ -397,6 +397,9 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
                 code="3"
             )
 
+        if getattr(self, "quantum_client", None) is not None:
+            self.quantum_client.seed(seed_value.value)
+
         return seed_value
 
     if func_name == "random":

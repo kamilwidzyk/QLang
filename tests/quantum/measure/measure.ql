@@ -1,3 +1,5 @@
+seed(42);
+
 num res[2];
 num iter = 100; // this will be increased after most of the logs are removed
 // Measure default state -> always 0
@@ -56,6 +58,17 @@ for i from 0 to iter{
 }
 
 println("[6] 0=%d 1=%d" % res); // [6] 75/25
+
+// expected output:
+// 
+// [1] 0=100 1=0
+// [2] 0=0 1=100
+// [3] 0=0 1=100
+// [4] 0=56 1=44
+// [5] 0=57 1=43
+// [6] 0=75 1=25
+//
+
 
 
 

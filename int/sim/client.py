@@ -96,6 +96,14 @@ class QuantumClient:
         
         return response.get_content()
     
+    def seed(self, seed_value: int) -> None | str:
+        cmd = QuantumCommand.seed(seed_value)
+        response = self._send_command(cmd)
+        if response.is_error():
+            return response.get_error()
+
+        return None
+
     def remove_qubit(self, id: QuantumID) -> bool | str:
         cmd = QuantumCommand.remove(id)
         response = self._send_command(cmd)

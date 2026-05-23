@@ -71,6 +71,11 @@ class QuantumServer:
                 id = req.command.args[0]
                 result = self.sim.measure(id)
                 return QuantumResponse.ok(result)
+            if req.command.is_cmd(QuantumCommand.CMD_SEED):
+                seed_value = int(req.command.args[0])
+                prefix = QuantumPrefix(req.place_name)
+                self.sim.set_seed(prefix, seed_value)
+                return QuantumResponse.ok(None)
             if req.command.is_cmd(QuantumCommand.CMD_REMOVE):
                 id = req.command.args[0]
                 success = self.sim.remove_qubit(id)

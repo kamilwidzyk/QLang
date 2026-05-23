@@ -88,6 +88,21 @@ def test_single_client_server_roundtrip():
         stop_quantum_server(command_queue, server_process)
 
 
+def test_client_server_prefix_seed():
+    command_queue, response_queues, server_process = start_quantum_server(["Lab"])
+
+    try:
+        client = QuantumClient("Lab", command_queue, response_queues["Lab"])
+        assert client.seed(123) is None
+
+        qubit = client.create_state()
+        client.apply_gate(qubit, QuantumGates.H)
+
+        assert int(client.measure(qubit)) == 0
+    finally:
+        stop_quantum_server(command_queue, server_process)
+
+
 def test_client_server_error_paths():
     command_queue, response_queues, server_process = start_quantum_server(["Lab"])
 
@@ -154,6 +169,7 @@ def test_two_client_processes_bell_pair():
 def run_all_tests():
     tests = [
         test_single_client_server_roundtrip,
+        test_client_server_prefix_seed,
         test_client_server_error_paths,
         test_two_client_processes_bell_pair,
     ]

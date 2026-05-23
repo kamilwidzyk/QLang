@@ -32,6 +32,9 @@ from .exceptions.quantum_state_already_exists import QuantumStateAlreadyExistsEx
 
 
 
+
+
+
     
 
 
@@ -78,6 +81,7 @@ class QuantumSimulator:
         self.aliases: Dict[QuantumID, QuantumID] = {}
         # canonical original id -> list of aliases (new names)
         self.canonical_aliases: Dict[QuantumID, List[QuantumID]] = {}
+        self._prefix_rngs: Dict[QuantumPrefix, random.Random] = {}
         self._x: List[List[int]] = []
         self._z: List[List[int]] = []
         self._phase: List[int] = []
@@ -158,7 +162,12 @@ class QuantumSimulator:
             if row_index is None:
                 result = self._deterministic_measure(column)
             else:
-                result = QuantumMeasurement(random.randrange(2))
+                prefix = self._extract_prefix(id)
+                rng = self._prefix_rngs.get(prefix)
+                if rng is not None:
+                    result = QuantumMeasurement(rng.randrange(2))
+                else:
+                    result = QuantumMeasurement(random.randrange(2))
                 self._random_measure(column, row_index, result)
 
             self.entanglement.split(id)
@@ -392,6 +401,15 @@ class QuantumSimulator:
             rows.append(f"{kind}{row % n}: {sign}{''.join(paulis)}")
         return rows
     
+    def set_seed(self, prefix: QuantumPrefix, seed: int) -> None:
+        self._prefix_rngs[prefix] = random.Random(seed)
+
+    def _extract_prefix(self, id: QuantumID) -> QuantumPrefix:
+        full_id = str(id)
+        if "/" in full_id:
+            return QuantumPrefix(full_id.split("/", 1)[0])
+        return QuantumPrefix(full_id)
+
     def _get_state(self, id: QuantumID):
         # resolve aliases first
         canonical = id

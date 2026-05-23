@@ -5,8 +5,17 @@ function a(num x, ...b){
     }
 }
 
+function sum(...nums){
+    num total = 0;
+    for i from 0 to #nums {
+        total = total + nums[i];
+    }
+    return total;
+}
+
 a(5, 10, 15); // x=5 #b=2\nb[0]=10\nb[1]=15\n
 a(3); // x=3 #b=0\n
 a(7, 6, 9, 12); // x=7 #b=3\nb[0]=6\nb[1]=9\nb[2]=12\n
+println(sum(1, 2, 3, 4, 5)); // 15
 
-// expected output: x=5 #b=2\nb[0]=10\nb[1]=15\nx=3 #b=0\nx=7 #b=3\nb[0]=6\nb[1]=9\nb[2]=12\n
+// expected output: x=5 #b=2\nb[0]=10\nb[1]=15\nx=3 #b=0\nx=7 #b=3\nb[0]=6\nb[1]=9\nb[2]=12\n15\n
