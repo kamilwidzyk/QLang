@@ -6,6 +6,7 @@ from .text import Text
 from .state import State
 from .script_errors import ScriptErrors
 from .exception.trying_to_modify_const import TryingToModifyConstException
+from .index_types import SimpleIndex, RangeIndex, ListIndex
 
 # Class enclosing every variable
 # Supports making arrays with multiple dimensions
@@ -136,6 +137,14 @@ class Variable:
                 target = self.get_data_at_index(self.data, self.index[:-1])
 
             last_index = self.index[-1]
+
+            # Range/List index assignment is not supported
+            if isinstance(last_index, (RangeIndex, ListIndex)):
+                raise TypeError("Cannot assign to a slice or index list")
+
+            # Resolve SimpleIndex
+            if isinstance(last_index, SimpleIndex):
+                last_index = last_index.resolve(len(target) if hasattr(target, '__len__') else 0)
             
             if isinstance(target, Text):
                 # Handle string indexing
@@ -158,8 +167,13 @@ class Variable:
                     # Need to set back in the parent structure
                     parent = self.data
                     for idx in self.index[:-2]:
+                        if isinstance(idx, SimpleIndex):
+                            idx = idx.resolve(len(parent) if hasattr(parent, '__len__') else 0)
                         parent = parent[idx]
-                    parent[self.index[-2]] = target
+                    prev_idx = self.index[-2]
+                    if isinstance(prev_idx, SimpleIndex):
+                        prev_idx = prev_idx.resolve(len(parent) if hasattr(parent, '__len__') else 0)
+                    parent[prev_idx] = target
                 return
             
             element = target[last_index] if isinstance(target, list) else target
@@ -302,9 +316,43 @@ class Variable:
             raise TypeError("Variable is not subscriptable")
 
     def get_data_at_index(self, data, indexes):
-        for idx in indexes:
-            data = data[idx]
-        return data
+        if not indexes:
+            return data
+            
+        idx = indexes[0]
+        length = len(data) if hasattr(data, '__len__') else 0
+        
+        if isinstance(idx, SimpleIndex):
+            resolved = idx.resolve(length)
+            return self.get_data_at_index(data[resolved], indexes[1:])
+            
+        elif isinstance(idx, RangeIndex):
+            start, end = idx.resolve(length)
+            if isinstance(data, Text):
+                sliced_data = data.value[start:end]
+            else:
+                sliced_data = data[start:end]
+                
+            if len(indexes) == 1:
+                if isinstance(data, Text):
+                    return Text(sliced_data)
+                return sliced_data
+            else:
+                return [self.get_data_at_index(item, indexes[1:]) for item in sliced_data]
+                
+        elif isinstance(idx, ListIndex):
+            resolved = idx.resolve(length)
+            if len(indexes) == 1:
+                if isinstance(data, Text):
+                    return Text(''.join(data.value[i] for i in resolved))
+                elif isinstance(data, str):
+                    return ''.join(data[i] for i in resolved)
+                return [data[i] for i in resolved]
+            else:
+                return [self.get_data_at_index(data[i], indexes[1:]) for i in resolved]
+        else:
+            # Legacy plain int index
+            return self.get_data_at_index(data[idx], indexes[1:])
 
     def _list_shape(self, data):
         if not isinstance(data, list):
@@ -317,6 +365,8 @@ class Variable:
         if self.index is not None and len(self.index) > 0:
             print("Getting variable", self.name, " at index ", self.index)
             data = self.get_data_at_index(self.data, self.index)
+            if isinstance(data, Text):
+                return Expression(TYPE_STRING, data.value)
             if isinstance(data, list):
                 return Expression(TYPE_LIST, data, shape=self._list_shape(data))
             if isinstance(data, bool):

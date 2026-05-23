@@ -61,7 +61,11 @@ varParam: ID ('[' INT_NUMBER ']')?;             /** Zapis zmiennej jako parametr
 varParamDefault: ID ('[' INT_NUMBER ']')* ('=' expr)?; /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym rozmiarem i przypisaniem wartości domyślnej */
 
 // Do użycia zmiennej w wyrażeniach
-index: '[' expr ']';                 /** Indeks obliczony z dowolnego wyrażenia */
+index
+    : '[' expr DOTDOT expr ']'             /** Zakres indeksów [a..b] inclusive..exclusive */
+    | '[' '[' expr (',' expr)* ']' ']'     /** Lista indeksów [[a, b, c]] */
+    | '[' expr ']'                         /** Indeks obliczony z dowolnego wyrażenia */
+    ;
 var: ID index*;                      /** Użycie zmiennej z możliwym indeksem */
 
 sizeGetter: '#' ID;                  /** Pobranie rozmiaru zmiennej/listy argumentów */
@@ -110,11 +114,15 @@ assignStmt: var '=' expr;
 functionDecl: FUNCTION ID '(' paramList ')' block;
 
 // Lista parametrów funkcji
-paramList: param? (',' param)* multipleParam?;
+paramList
+    : param (',' param)* (',' multipleParam)?
+    | multipleParam
+    | /* empty */
+    ;
 param: varType varParamDefault;
 // Parametr wielokrotny przyjmujący dowolną liczbę argumentów,
 // dostępny potem w funkcji jako tablica o nazwie ID
-multipleParam: ',' '...' ID;
+multipleParam: '...' ID;
 
 // Wywołanie funkcji
 functionCallStmt:  ID '(' argList? ')';
@@ -185,7 +193,7 @@ expr
     | 'reset' var                        # ResetExpr
     | NUM '(' argList? ')'               # NumCastExpr
     | ID '(' argList? ')'                # FuncCallExpr
-    | ID ('[' expr ']')*                 # VarExpr
+    | ID index*                           # VarExpr
     | INT_NUMBER                         # IntNumExpr
     | NUMBER                             # NumExpr
     | BOOL_VAL                           # BoolExpr
@@ -204,6 +212,8 @@ expr
 // ^a (parent::a)
 // ^^a (parent::parent::a)
 
+
+// Zrobione
 // Do zrobienia: ustawianie stałego seed do random + funkcja random
 // 
 // seed(n) - ustawia globalny pythonowy seed na stałą wartość

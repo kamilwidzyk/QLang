@@ -7,6 +7,8 @@ from ...exception.cant_find_variable import CantFindVariableException
 from ...exception.information_leak import InformationLeakException
 from ...exception.index_not_int import IndexNotIntException
 
+from ...index_types import SimpleIndex, RangeIndex, ListIndex
+
 from ...expression import Expression, TYPE_INT, TYPE_STATE
 from ...variable import Variable
 
@@ -14,13 +16,41 @@ from ...variable import Variable
 if TYPE_CHECKING:
     from place import Place
 
-def handle_index(self: Place, block: Any, parent: Any) -> Expression:
-    # index: '[' expr ']'; 
-    index = self.handle_block(block.expr(), block); 
+def handle_index(self: Place, block: Any, parent: Any):
+    """
+    Parse an index context and return a SimpleIndex, RangeIndex, or ListIndex.
+    
+    Grammar:
+        index
+            : '[' expr DOTDOT expr ']'         -> RangeIndex
+            | '[' '[' expr (',' expr)* ']' ']' -> ListIndex
+            | '[' expr ']'                     -> SimpleIndex
+            ;
+    """
+    # Detect which alternative was matched
+    if block.DOTDOT() is not None:
+        # Range index: [expr..expr]
+        start_expr = self.handle_block(block.expr(0), block)
+        end_expr = self.handle_block(block.expr(1), block)
+        return RangeIndex(int(start_expr.value), int(end_expr.value))
+    
+    # Check for list index: [[expr, expr, ...]]
+    # List index has 2 LBRACK tokens
+    lbrack_tokens = block.LBRACK()
+    if lbrack_tokens is not None and len(lbrack_tokens) >= 2:
+        # List index: [[a, b, c]]
+        indices = []
+        for expr in block.expr():
+            val = self.handle_block(expr, block)
+            indices.append(int(val.value))
+        return ListIndex(indices)
+    
+    # Simple index: [expr]
+    index = self.handle_block(block.expr(0), block)
     if index.type != TYPE_INT:
         raise IndexNotIntException(ScriptErrors.Position.extract(block))
 
-    return index.value
+    return SimpleIndex(index.value)
 
 def handle_var(self: Place, block: Any, parent: Any) -> Variable:
     # var: ID index*; 

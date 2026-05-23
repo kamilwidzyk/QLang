@@ -54,9 +54,10 @@ def handle_operator_parent(self: Place, block: Any, parent: Any, pos: ScriptErro
     variable = scope.vars[var_name]
 
     # handle indexing if present
+    from ..variable.assigment import handle_index
     index_list = []
     for idx in var_block.index():
-        index_list.append(self.handle_block(idx.expr(), var_block).value)
+        index_list.append(handle_index(self, idx, var_block))
 
     # If it's a Variable instance, set its index for later access
     if isinstance(variable, Variable):

@@ -177,3 +177,7 @@ ObsNotIndexedException -> ONI
 ExpectedAValueException -> EAV
     1: int/context/math/mul_div_mod.py
         Expression must be a string variable or text
+
+IndexOutOfRangeException -> IOR
+    1: int/variable.py
+        Index out of range during array or text access

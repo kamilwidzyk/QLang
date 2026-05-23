@@ -9,17 +9,10 @@ from ...exception.cant_find_variable import CantFindVariableException
 from ...exception.index_not_int import IndexNotIntException
 from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ...variable import TYPE_INT, TYPE_STATE
+from ..variable.assigment import handle_index
 
 if TYPE_CHECKING:
     from place import Place
-
-
-def handle_index(self: "Place", block: Any, parent: Any) -> int:
-    index = self.handle_block(block.expr(), block)
-    if index.type != TYPE_INT:
-        # code: INI-1
-        raise IndexNotIntException(ScriptErrors.Position.extract(block), code="1")
-    return index.value
 
 
 def handle_var(self: "Place", block: Any, parent: Any) -> Variable:

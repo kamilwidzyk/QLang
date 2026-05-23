@@ -27,6 +27,7 @@ from .exception.size_error import SizeErrorException
 from .exception.trying_to_modify_const import TryingToModifyConstException
 from .exception.variable_redefinition import VariableRedefiniotionException
 from .exception.index_not_int import IndexNotIntException
+from .exception.index_out_of_range import IndexOutOfRangeException
 
 ######################## CONTEXT HANDLERS #############################
 from .context.statement              import handle_statement
@@ -303,6 +304,9 @@ class Place:
             e.show(self.script_errors)
             exit()
         except IndexNotIntException as e:
+            e.show(self.script_errors)
+            exit()
+        except IndexOutOfRangeException as e:
             e.show(self.script_errors)
             exit()
 

@@ -10,6 +10,7 @@ from ...QLang.QLangParser import QLangParser
 from ...exception.cant_find_variable import CantFindVariableException
 from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ..operator.parent import handle_operator_parent
+from ..variable.assigment import handle_index
 
 if TYPE_CHECKING:
     from place import Place
@@ -68,17 +69,20 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
     index = []
     
-    for expr in block.expr():
+    for idx_ctx in block.index():
         index.append(
-            self.handle_block(expr, block).value
+            handle_index(self, idx_ctx, block)
         )
 
     # For lists (like varargs), handle indexing directly
     if isinstance(variable, list):
         if index:
+            from ...index_types import SimpleIndex
             result = variable
             for idx in index:
-                result = result[int(idx)]
+                if isinstance(idx, SimpleIndex):
+                    idx = idx.resolve(len(result))
+                result = result[int(idx) if not isinstance(idx, int) else idx]
             return Expression("value", result) if not isinstance(result, Expression) else result
         return variable
 
