@@ -9,7 +9,7 @@ from ...exception.index_not_int import IndexNotIntException
 
 from ...index_types import SimpleIndex, RangeIndex, ListIndex
 
-from ...expression import Expression, TYPE_INT, TYPE_STATE
+from ...expression import Expression, TYPE_INT, TYPE_STATE, TYPE_BOOL
 from ...variable import Variable
 
 
@@ -47,10 +47,10 @@ def handle_index(self: Place, block: Any, parent: Any):
     
     # Simple index: [expr]
     index = self.handle_block(block.expr(0), block)
-    if index.type != TYPE_INT:
+    if index.type not in (TYPE_INT, TYPE_BOOL):
         raise IndexNotIntException(ScriptErrors.Position.extract(block))
 
-    return SimpleIndex(index.value)
+    return SimpleIndex(int(index.value))
 
 def handle_var(self: Place, block: Any, parent: Any) -> Variable:
     # var: ID index*; 
