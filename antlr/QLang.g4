@@ -213,13 +213,6 @@ expr
 // ^^a (parent::parent::a)
 
 
-// Zrobione
-// Do zrobienia: ustawianie stałego seed do random + funkcja random
-// 
-// seed(n) - ustawia globalny pythonowy seed na stałą wartość
-// random() - zwraca losową wartość 0-1
-//
-
 // Do zrobienia: biblioteka standardowa(to chyba będzie lepsze, bo będzie można zobaczyć implementację) lub funkcje wbudowane
 
 // Do zrobienia: Konwersja typów
@@ -298,22 +291,6 @@ expr
 // <unit> = s | ms | min | seconds | second | minute | minutes | hour | hours ....
 //
 
-// Proponowane: zakresy indeksów, listy indeksów, ujemne indeksy
-//
-// Ujemny indeks: liczenie od tyłu, -1(ostatni elememt), -2(przed ostatni)
-//
-// zakres indeksów: wycięcie kawałka listy/stringa: [a..b] // początek inclusive, koniec exclusive
-// text a =    "1234567890";
-// // indeksy:  0123456789
-// //              ^^^
-// text b = a[3..6]; 
-// print(b); // 456;
-//
-// Listy indeksów: wybór podanych indekstów z listy/stringa: [[a, b, c]]
-// text a =   "1234567890";
-// // indeksy: 0123456789
-// text b = a[[1, 4, 7]];
-// print(b); // 258
 //
 // Dla list z nazwami(których jeszcze nie ma):
 // list a = [x: 0, y: 1, z: 2, a: 3, b: 4];
