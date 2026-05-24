@@ -207,12 +207,6 @@ expr
 
 
 
-// Do zrobienia: operator ^ID (parent)
-//
-// ^a (parent::a)
-// ^^a (parent::parent::a)
-
-
 // Do zrobienia: biblioteka standardowa(to chyba będzie lepsze, bo będzie można zobaczyć implementację) lub funkcje wbudowane
 
 // Do zrobienia: Konwersja typów
@@ -328,41 +322,6 @@ expr
 // 
 // function add(any a, any b){ return a + b; }
 
-// Proponowane: dodanie zawartości z pliku/'import' kodu
-//
-// <<<"sciezka_do_pliku">>> 
-// <<<""sciezka_do_pliku"">> // podwójne apostrofy
-//
-// wyrażenie będzie dosłownie zastąpione zawartością pliku niezależnie gdzie zostanie to użyte(umożliwia wykonanie kodu z pliku)
-// wersja z podwójnymi apostrofami:
-//      - ładuje dane z pliku i zapisuje je jako stringa
-//      - zamienia " na \" i inne espace chary
-//      - nie pozwala na wyjście ze stringa i wykonanie kodu z pliku
-//      - program musi sam wydobyć dane z tego stringa
-//
-// Ładowanie listy z pliku:
-// Zawartość pliku 'lista.ql': [1, 2, 3, 4, 5] 
-// Załadowanie do zmiennej:
-//      list x = <<<"lista.txt">>>;
-//
-// Import funkcji
-// Zawartość pliku 'func.ql': function add(any x, any y){ return x + y; }
-// <<<"func.txt">>>
-// num x = add(5, 10);
-//
-// Import stringa z pliku:
-// Zawartość pliku 'str.txt': ala ma kota
-// text t = <<<""str.txt"">>>;
-//
-// Import kawałków kodu:
-// Zawartość pliku 'printXY.ql': println("x: %d, y: %d", x, y);
-// num x = foo();
-// num y = bar();
-// <<<"printXY.ql">>>
-//
-// Rozszerzenie pliku nie ma znaczenia ale dla danych
-// tekstowych ładowanych jako string ma być inne niż .ql
-// a dla plików ładowanych jako kod QLang ma być .ql
 
 
 // --- KOMUNIKACJA ---

@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
+import os
 import random
 
 from ...script_errors import ScriptErrors
@@ -8,6 +9,7 @@ from ...consts import *
 from ...function import Function
 from ...scope import Scope
 from ...QLang.QLangParser import QLangParser
+from ...imports import parse_ql_text, preprocess_text
 from ...expression import (
     Expression,
     TYPE_INT,
@@ -33,6 +35,7 @@ from ...exception.no_parent_scope import NoParentScopeException
 from ...exception.no_function_to_call import NoFunctionToCallException
 from ...exception.variable_call import VariableCallException
 from ...exception.incompatible_type import IncompatibleTypeException
+from ...exception.place_decl_not_allowed import PlaceDeclarationNotAllowedException
 
 class FunctionReturn(Exception):
     """Control flow exception raised when a function returns a value."""
@@ -79,6 +82,43 @@ def _set_seed(value: Any):
     _current_seed = seed_value
     random.seed(_current_seed)
     return Expression(TYPE_INT, _current_seed)
+
+
+def _coerce_import_path(value: Any, func_name: str, pos) -> str:
+    if isinstance(value, Expression):
+        value = value.extract_raw_value()
+
+    if not isinstance(value, str):
+        # code BEV-4
+        raise BuiltinExpectsValueException(
+            pos=pos,
+            func_name=func_name,
+            expects="a file path string",
+            code="4"
+        )
+
+    return value
+
+
+def  _import_source_functions(self: Place, file_path: str, pos):
+    with open(file_path, 'r', encoding='utf-8') as handle:
+        source_text = handle.read()
+
+    processed_text = preprocess_text(source_text, os.path.dirname(file_path))
+    tree = parse_ql_text(processed_text)
+
+    for top_level_item in tree.topLevelItem():
+        if top_level_item.placeDecl() is not None:
+            # code PDNA-1
+            raise PlaceDeclarationNotAllowedException(
+                pos=ScriptErrors.Position.extract(top_level_item.placeDecl()),
+                file_name=file_path,
+                code="1"
+            )
+
+        if top_level_item.functionDecl() is not None:
+            self.handle_block(top_level_item.functionDecl(), top_level_item.functionDecl())
+
 
 if TYPE_CHECKING:
     from place import Place
@@ -425,6 +465,29 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
         # Return a float expression in range [0, 1)
         return Expression(TYPE_FLOAT, random.random())
+
+    if func_name == "__ql_import_source__":
+        if keyword_args:
+            # code KANS-6
+            raise KeywordArgumentsNotSupportedException(
+                pos=block_pos,
+                func_name=func_name,
+                code="6"
+            )
+
+        if len(positional_args) != 1:
+            # code TMA-6
+            raise TooMuchArgumentsException(
+                pos=block_pos,
+                func_name=func_name,
+                taken_args=len(positional_args),
+                expected_args=1,
+                code="6"
+            )
+
+        file_path = _coerce_import_path(positional_args[0], func_name, block_pos)
+        _import_source_functions(self, file_path, block_pos)
+        return None
 
     # Check if the function exists
     if not self.scopes.exists(func_name):

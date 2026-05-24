@@ -1,3 +1,4 @@
+import os
 import sys
 import multiprocessing
 
@@ -7,6 +8,7 @@ from antlr4.error.ErrorListener import ErrorListener
 from .QLang.QLangLexer import QLangLexer
 from .QLang.QLangParser import QLangParser
 
+from .imports import preprocess_text
 from .logger import init_log, log, log_level, log_test, enable_test_mode
 from .logger import INIT
 from .logger import WARNING, DEBUG
@@ -79,9 +81,11 @@ def main():
 
     # Open file, read it(text is needed later)
     input_text = str(open(input_filename, encoding='utf-8').read())
-    input_stream = InputStream(input_text)
+    input_dir = os.path.dirname(os.path.abspath(input_filename))
+    processed_text = preprocess_text(input_text, input_dir)
+    input_stream = InputStream(processed_text)
 
-    log_test("INPUT_TEXT=" + input_text)
+    log_test("INPUT_TEXT=" + processed_text)
 
     # Create error listener for lexer and parser
     error_listener = QLangErrorListener()

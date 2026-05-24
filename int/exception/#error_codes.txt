@@ -117,7 +117,9 @@ TooMuchArgumentException -> TMA
     4: int/context/function/function_call.py
         seed() called with more than 1 arg
     5: int/context/function/function_call.py
-        radnom() called with more than 1 arg
+        random() called with more than 1 arg
+    6: int/context/function/function_call.py
+        __ql_import_source__ called with more than 1 arg
 
 UnknownArgException -> UA
     1: int/context/function/function_call.py 
@@ -134,6 +136,8 @@ KeywordArgumentsNotSupportedException -> KANS
         seed() called with named arguments
     5: int/context/function/function_call.py
         random() called with named args
+    6: int/context/function/function_call.py    
+        __ql_import_source__ got called with named args
     
 
 BuiltinExpectsValueException -> BEV
@@ -143,6 +147,8 @@ BuiltinExpectsValueException -> BEV
         parent() needs 1 arg: variable name or nested parent call
     3: int/context/function/function_call.py
         seed() needs 1 arg: a number
+    4: int/context/function/function_call.py
+        << >> expects a file path string
     
 NoParentScopeException -> NPS
     1: int/context/function/function_call.py
@@ -181,3 +187,7 @@ ExpectedAValueException -> EAV
 IndexOutOfRangeException -> IOR
     1: int/variable.py
         Index out of range during array or text access
+
+PlaceDeclarationNotAllowedException -> PDNA
+    1: int/context/function/function_call.py
+        Imported file contains place declarations
