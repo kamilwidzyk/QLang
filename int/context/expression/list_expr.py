@@ -26,34 +26,31 @@ def _list_shape(values: list):
     return [len(values)] + first_shape
 
 def handle_expression_list_empty(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    print("list empty")
-    raise NotImplementedError()
+    return Expression(TYPE_LIST, [], shape=[0])
+
 
 def handle_expression_list_non_empty(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    print("list non empty")
-    raise NotImplementedError()
+    lst = []
+    for x in block.expr():
+        result = self.handle_block(x, block)
+        lst.append(result if isinstance(result, Expression) else Expression(TYPE_LIST, result) if isinstance(result, list) else result)
+    return Expression(TYPE_LIST, lst, shape=_list_shape(lst))
 
 
 def handle_expression_list_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    print("list expr: " + block.getText())
     for x in block.getChildren():
         result = self.handle_block(x, block)
-        print("Result: " + str(result))
         return result
 
 def handle_expression_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    print("list: " + block.getText())
     lst = []
+    exprs = block.expr() if hasattr(block, 'expr') else []
+    if exprs is None:
+        exprs = []
 
-    for x in block.expr():
-        print("List element text: " + x.getText())
-        
+    for x in exprs:
         result = self.handle_block(x, block)
-        print("List element result: " + str(result) + str(result.get()))
-        lst.append(result)
-        print(lst)
-        # return self.handle_block(x, block)
-    print(lst)
-    
+        lst.append(result if isinstance(result, Expression) else Expression(TYPE_LIST, result) if isinstance(result, list) else result)
+
     return Expression(TYPE_LIST, lst, shape=_list_shape(lst))
     

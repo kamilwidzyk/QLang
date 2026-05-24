@@ -12,7 +12,7 @@ class ObsRegister:
     Represents observation register
 
     Bits are stored as:
-        index 0 = Most Significant Bit
+        index 0 = Least Significant Bit
     """
     obs: List[Obs]
     size: int
@@ -59,7 +59,10 @@ class ObsRegister:
             ValueError: number is negative or not int
         """
         if isinstance(new_value, Expression):
-            new_value = new_value.get_value()
+            if new_value.type == TYPE_LIST:
+                new_value = new_value.value
+            else:
+                new_value = new_value.get_value()
 
         if isinstance(new_value, list):
             if len(new_value) != self.size:
@@ -86,7 +89,7 @@ class ObsRegister:
         if(new_value > self.max_val()):
             raise OverflowError(f"Value {new_value} will not fit into {self.size} bits")
 
-        bits = [(new_value >> i) & 1 == 1 for i in reversed(range(self.size))]
+        bits = [((new_value >> i) & 1) == 1 for i in range(self.size)]
         for i in range(self.size):
             self[i] = bits[i]
 
@@ -96,7 +99,8 @@ class ObsRegister:
         """
         result = 0
         for i in range(self.size):
-            result = (result << 1) | self[i]
+            if self[i]:
+                result |= 1 << i
         return result
 
     def get_value(self) -> int:

@@ -145,6 +145,12 @@ class Place:
         """
         self.block.append(code)
 
+    def has_code(self) -> bool:
+        """
+        Returns True when this place contains at least one top-level member.
+        """
+        return len(self.block) > 0
+
     def is_valid_name(self, name: str) -> bool:
         """
         Checks if given name is a valid name.
@@ -359,7 +365,11 @@ class Place:
             member = place_member.getChild(0) 
             self.handle_block(member, None)
 
-        
+        if not self.console.test_mode:
+            self.console.write("-----[END]-----\n")
+            self.console.write("Press Return key to close...")
+            self.console.read("")
+            self.console.close()
 
     def run(self, quantum_network=None, quantum_command_queue=None, quantum_response_queue=None):
         """
@@ -376,6 +386,8 @@ class Place:
         """
         Waits for execution to finish
         """
+        if not hasattr(self, "proc"):
+            return
         self.proc.join()
         log(PLACE, INFO, f"Place {self.name} stopped")
 

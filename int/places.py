@@ -164,6 +164,9 @@ class Places:
         Starts execution of all places at once
         """
         for place in self.places.values():
+            if place.name == "global" and not place.has_code():
+                log(PLACE, DEBUG, "Skipping empty global place")
+                continue
             if(self.test_mode):
                 place.enable_test_mode()
             response_queue = None

@@ -189,7 +189,7 @@ expr
     | list                               # ListExpr
     | varUnknown                         # VarUnknownExpr
     | sizeGetter                         # SizeGetterExpr
-    | (MEASURE | MEASUREX) var           # MeasureExpr
+    | (MEASURE | MEASUREX) (var | list)  # MeasureExpr
     | availableExpr                      # AvailableExprAlt
     | 'reset' var                        # ResetExpr
     | NUM '(' argList? ')'               # NumCastExpr

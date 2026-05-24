@@ -19,8 +19,9 @@ def is_string_or_text(expr) -> bool:
         or isinstance(expr, Text) or (isinstance(expr, Variable) and expr.type == TYPE_TEXT)
 
 def is_list(expr) -> bool:
-    return (isinstance(expr, Expression) and expr.type == TYPE_LIST) \
-        or (isinstance(expr, Variable) and expr.type in [TYPE_LIST, TYPE_ARRAY]) \
+    return (isinstance(expr, Expression) and (expr.type == TYPE_LIST or isinstance(expr.value, list))) \
+        or (isinstance(expr, Variable) and (expr.type in [TYPE_LIST, TYPE_ARRAY] or expr.is_list)) \
+        or isinstance(expr, list) \
         or (hasattr(expr, 'data') and isinstance(expr.data, list))
 
 def extract_string(expr) -> str:
@@ -35,21 +36,47 @@ def extract_string(expr) -> str:
     
 def extract_list(expr) -> list:
     ret_val = None
-    if isinstance(expr, Expression) and expr.type == TYPE_LIST:
-        ret_val =  expr.value
-    elif isinstance(expr, Variable) and expr.type in [TYPE_LIST, TYPE_ARRAY]:
+    if isinstance(expr, Expression) and (expr.type == TYPE_LIST or isinstance(expr.value, list)):
+        ret_val = expr.value
+    elif isinstance(expr, Variable) and (expr.type in [TYPE_LIST, TYPE_ARRAY] or expr.is_list):
         ret_val = expr.data
+    elif isinstance(expr, list):
+        ret_val = expr
     elif hasattr(expr, 'data') and isinstance(expr.data, list):
         ret_val = expr.data
     else:
         raise ValueError("Expected a list expression")
     
     if isinstance(ret_val, list):
-        return [x.get_value() for x in ret_val]
+        return [x.get_value() if isinstance(x, Expression) else x for x in ret_val]
     return ret_val
 
 def flatten_expressions_list(lst):
     return [x.get_value() if isinstance(x, Expression) else x for x in lst]
+
+
+def _list_shape(values):
+    if not isinstance(values, list):
+        return []
+    if len(values) == 0:
+        return [0]
+
+    def item_shape(item):
+        if isinstance(item, Expression) and item.type == TYPE_LIST:
+            if isinstance(item.shape, list):
+                return item.shape
+            if isinstance(item.shape, int):
+                return [item.shape]
+            return []
+        if isinstance(item, list):
+            return _list_shape(item)
+        return []
+
+    first_shape = item_shape(values[0])
+    for element in values[1:]:
+        if item_shape(element) != first_shape:
+            return None
+    return [len(values)] + first_shape
 
 # NOT
 def do_operation_not(right): # !right
@@ -115,14 +142,12 @@ def do_operation_add(left, right): # left + right
         print("Converted list: " + str(converted_list))
         print("Flat list: " + str(flat_list))
 
-        
-
         list_str = make_list_str(flat_list)
         result = left_str + list_str
         return Expression(TYPE_STRING, result)
     
     if is_string_or_text(right) and is_list(left):
-        # string + list
+        # list + string
         right_str = extract_string(right)
         print("Right string: " + right_str)
         print("Left list (raw): " + str(left))
@@ -134,11 +159,20 @@ def do_operation_add(left, right): # left + right
         print("Converted list: " + str(converted_list))
         print("Flat list: " + str(flat_list))
 
-
         list_str = make_list_str(flat_list)
         result = list_str + right_str
         return Expression(TYPE_STRING, result)
-    
+
+    if is_list(left):
+        left_list = extract_list(left)
+        if is_list(right):
+            right_list = extract_list(right)
+            combined = left_list + right_list
+        else:
+            right_val = right.get_value() if hasattr(right, 'get_value') else right
+            combined = left_list + [right_val]
+        return Expression(TYPE_LIST, combined, shape=_list_shape(combined))
+
     if is_string_or_text(left) and hasattr(right, 'get_value'):
         # string + other
         left_str = extract_string(left)

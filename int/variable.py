@@ -180,7 +180,12 @@ class Variable:
                     parent[prev_idx] = target
                 return
             
-            element = target[last_index] if isinstance(target, list) else target
+            if isinstance(target, list):
+                element = target[last_index]
+            elif isinstance(target, ObsRegister):
+                element = target.obs[last_index]
+            else:
+                element = target
 
             if isinstance(element, list):
                 if new_value.type != TYPE_LIST:
@@ -262,7 +267,12 @@ class Variable:
                 target = self.get_data_at_index(self.data, self.index[:-1])
 
             last_index = self.index[-1]
-            element = target[last_index]
+            if isinstance(target, list):
+                element = target[last_index]
+            elif isinstance(target, ObsRegister):
+                element = target.obs[last_index]
+            else:
+                element = target[last_index]
             reset_value = self._get_initial_value_at_index(self.index)
 
             if isinstance(element, list):

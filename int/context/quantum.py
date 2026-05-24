@@ -4,6 +4,7 @@ from ..expression import Expression, TYPE_BOOL, TYPE_LIST, TYPE_STATE
 from ..script_errors import ScriptErrors
 from ..state import State
 from ..sim.data.gates import QuantumGate, QuantumGates
+from .expression.variable_expression import handle_variable_expression, is_variable_expression
 from .variable.assigment import handle_var
 
 if TYPE_CHECKING:
@@ -54,6 +55,22 @@ def _resolve_state(self: "Place", var_ctx: Any, pos: ScriptErrors.Position):
     _runtime_error(self, pos, "Type Error", "Select exactly one state element.")
 
 
+def _resolve_state_value(self: "Place", value: Any, pos: ScriptErrors.Position):
+    if isinstance(value, Expression):
+        if value.type == TYPE_STATE and isinstance(value.value, State):
+            return value.value
+        if value.type == TYPE_LIST:
+            return [_resolve_state_value(self, item, pos) for item in value.value]
+
+    if isinstance(value, State):
+        return value
+
+    if isinstance(value, list):
+        return [_resolve_state_value(self, item, pos) for item in value]
+
+    _runtime_error(self, pos, "Type Error", "Quantum operation requires a state or list of states.")
+
+
 def _gate_from_text(text: str) -> QuantumGate:
     return GATE_BY_TEXT[text]
 
@@ -85,7 +102,25 @@ def handle_gate_statement(self: "Place", block: Any, parent: Any, pos: ScriptErr
 
 
 def handle_measure_expr(self: "Place", block: Any, parent: Any, pos: ScriptErrors.Position) -> Expression:
-    state = _resolve_state(self, block.var(), pos)
+    if block.list_() is not None:
+        expr_block = block.list_()
+        values = []
+
+        for expr_ctx in expr_block.expr():
+            if is_variable_expression(expr_ctx):
+                var_or_expr = handle_variable_expression(self, expr_ctx, block, pos, return_variable=True)
+                if isinstance(var_or_expr, Expression):
+                    values.append(var_or_expr)
+                elif hasattr(var_or_expr, "type") and var_or_expr.type == TYPE_STATE:
+                    values.append(var_or_expr.get())
+                else:
+                    values.append(var_or_expr)
+            else:
+                values.append(self.handle_block(expr_ctx, block))
+
+        state = _resolve_state_value(self, Expression(TYPE_LIST, values, shape=[len(values)]), pos)
+    else:
+        state = _resolve_state(self, block.var(), pos)
 
     if isinstance(state, list):
         if block.MEASUREX() is not None:

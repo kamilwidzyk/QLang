@@ -140,3 +140,17 @@ class Console:
         except (ConnectionResetError, BrokenPipeError):
             log(IN_OUT, ERROR, f"Console '{self.title}' closed or connection lost. Interrupting this place.")
             exit()
+
+    def close(self):
+        """
+        Close the console window.
+        """
+        if self.test_mode:
+            if self.log_file and not self.log_file.closed:
+                self.log_file.close()
+            return
+
+        if self.conn:
+            self.conn.sendall(f"EXIT:{self.SEP}".encode('utf-8'))
+            self.conn.close()
+            self.conn = None

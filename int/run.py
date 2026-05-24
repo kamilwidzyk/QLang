@@ -134,6 +134,7 @@ def main():
     log_test("PLACE_END")
 
     quantum_network, quantum_network_manager = create_quantum_network()
+    quantum_network.valid_places = set(places.list_names())
     places.quantum_network = quantum_network
     quantum_command_queue = multiprocessing.Queue()
     quantum_response_queues = {

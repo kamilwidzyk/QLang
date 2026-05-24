@@ -40,6 +40,28 @@ def _is_quantum_type(var_type: str) -> bool:
     return var_type == TYPE_STATE
 
 
+def _extract_place_name(value: Any):
+    while hasattr(value, 'get_value'):
+        value = value.get_value()
+    if isinstance(value, Text):
+        return value.value
+    return value
+
+
+def _resolve_place_id(self: Place, identifier: str, pos: ScriptErrors.Position) -> str:
+    if self.quantum_network is not None and identifier in getattr(self.quantum_network, 'valid_places', set()):
+        return identifier
+
+    if self.scopes.exists(identifier):
+        variable = self.scopes.get(identifier)
+        resolved = _extract_place_name(variable)
+        if isinstance(resolved, str):
+            return resolved
+        return str(resolved)
+
+    return identifier
+
+
 def _type_from_token(token_text: str) -> str:
     if token_text == 'obs':
         return TYPE_OBS
@@ -73,6 +95,13 @@ def _derive_packet_size(variable: Any, explicit_size: int | None = None) -> int:
     if explicit_size is not None:
         return explicit_size
     if isinstance(variable, Variable):
+        if variable.index is not None and len(variable.index) > 0:
+            variable = variable.get()
+    if isinstance(variable, Expression):
+        if variable.type == TYPE_LIST and isinstance(variable.value, (list, tuple)):
+            return len(variable.value)
+        return 1
+    if isinstance(variable, Variable):
         if variable.type == TYPE_STATE:
             if variable.is_list:
                 return len(variable.data)
@@ -96,6 +125,9 @@ def _serialize_value(value: Any) -> Any:
         return [_serialize_value(v) for v in value]
 
     if isinstance(value, Expression):
+        return _serialize_value(value.get_value())
+
+    if isinstance(value, State):
         if value.type == TYPE_LIST:
             return _serialize_value(value.value)
         return value.value
@@ -187,7 +219,7 @@ def _deserialize_payload(self: Place, payload: Any, var_type: str) -> Any:
     return payload
 
 
-def _get_receive_filters(block: Any) -> tuple[str | None, str | None]:
+def _get_receive_filters(self: Place, block: Any, pos: ScriptErrors.Position) -> tuple[str | None, str | None]:
     src_id = None
     msg_id = None
     receive_filters = block.receiveFilter() if hasattr(block, 'receiveFilter') else block.receiveOpt()
@@ -196,14 +228,14 @@ def _get_receive_filters(block: Any) -> tuple[str | None, str | None]:
             if opt.STRING() is not None:
                 src_id = _parse_string_token(opt.STRING().getText())
             elif opt.ID() is not None:
-                src_id = opt.ID().getText()
+                src_id = _resolve_place_id(self, opt.ID().getText(), pos)
         if (hasattr(opt, 'NAMED') and opt.NAMED()) or (hasattr(opt, 'AS') and opt.AS()):
             if opt.STRING() is not None:
                 msg_id = _parse_string_token(opt.STRING().getText())
     return src_id, msg_id
 
 
-def _get_available_filters(block: Any) -> tuple[bool | None, str | None, str | None]:
+def _get_available_filters(self: Place, block: Any, pos: ScriptErrors.Position) -> tuple[bool | None, str | None, str | None]:
     quantum = None
     src_id = None
     msg_id = None
@@ -215,7 +247,7 @@ def _get_available_filters(block: Any) -> tuple[bool | None, str | None, str | N
             if filt.STRING() is not None:
                 src_id = _parse_string_token(filt.STRING().getText())
             elif filt.ID() is not None:
-                src_id = filt.ID().getText()
+                src_id = _resolve_place_id(self, filt.ID().getText(), pos)
         elif filt.NAMED() is not None and filt.STRING() is not None:
             msg_id = _parse_string_token(filt.STRING().getText())
     return quantum, src_id, msg_id
@@ -252,7 +284,7 @@ def handle_send_statement(self: Place, block: Any, parent: Any, pos: ScriptError
     msg_id = None
     if block.AS() is not None:
         if block.ID() is not None:
-            target_id = block.ID().getText()
+            target_id = _resolve_place_id(self, block.ID().getText(), pos)
             msg_id = _parse_string_token(block.STRING(0).getText())
         elif block.TO() is None:
             msg_id = _parse_string_token(block.STRING(0).getText())
@@ -261,26 +293,31 @@ def handle_send_statement(self: Place, block: Any, parent: Any, pos: ScriptError
             msg_id = _parse_string_token(block.STRING(1).getText())
     else:
         if block.ID() is not None:
-            target_id = block.ID().getText()
+            target_id = _resolve_place_id(self, block.ID().getText(), pos)
         elif block.STRING(0) is not None:
             target_id = _parse_string_token(block.STRING(0).getText())
 
-    if isinstance(variable, list):
-        payload = _serialize_value(variable)
+    if isinstance(variable, Variable) and variable.index is not None and len(variable.index) > 0:
+        expr = variable.get()
+        payload = _serialize_value(expr.get_value()) if isinstance(expr, Expression) else _serialize_value(expr)
+        packet_size = _derive_packet_size(expr, size)
+        quantum_flag = _is_quantum_type(variable.type)
     else:
-        payload = _serialize_variable(variable)
+        if isinstance(variable, list):
+            payload = _serialize_value(variable)
+        else:
+            payload = _serialize_variable(variable)
+        packet_size = _derive_packet_size(variable, size)
+        quantum_flag = _is_quantum_type(variable.type)
 
-    packet_size = _derive_packet_size(variable, size)
     self.quantum_network.send(
         src_id=self.name,
         msg_id=msg_id,
         target_id=target_id,
-        quantum=_is_quantum_type(variable.type),
+        quantum=quantum_flag,
         size=packet_size,
         data=payload,
     )
-
-    self.scopes.delete(var_name)
 
 
 def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
@@ -302,7 +339,7 @@ def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: Script
     if len(dimensions) == 0:
         dimensions = [0]
 
-    src_id, msg_id = _get_receive_filters(block)
+    src_id, msg_id = _get_receive_filters(self, block, pos)
     quantum = _is_quantum_type(var_type)
 
     packet_size = dimensions[0] if dimensions[0] != 0 else 1
@@ -354,7 +391,7 @@ def handle_available_expression(self: Place, block: Any, parent: Any, pos: Scrip
             code="3"
         )
 
-    quantum, src_id, msg_id = _get_available_filters(block)
+    quantum, src_id, msg_id = _get_available_filters(self, block, pos)
     is_available = self.quantum_network.peek(
         target_id=self.name,
         src_id=src_id,
