@@ -16,7 +16,7 @@ from .index_types import SimpleIndex, RangeIndex, ListIndex
 # dimensions is a list of array dimensions, [0] for single value
 # 
 class Variable:
-    def __init__(self, name: str, type: str, dimensions: list[int], index: list[int] = None, quantum_client=None, is_const: bool = False):
+    def __init__(self, name: str, type: str, dimensions: list[int], index: list[int] = None, quantum_client=None, is_const: bool = False, initial_data=None):
         self.name = name
         self.type = type
         self.dimensions = dimensions
@@ -44,6 +44,10 @@ class Variable:
         else:
             log(INTERNAL, FATAL, "Attempted to create instance of Variable with unknown type of " + str(type))
             exit()
+
+        if initial_data is not None:
+            self.data = initial_data
+            self.is_list = isinstance(initial_data, list)
 
     def _create_array_of(self, cls, dimensions, size=None):
         if not dimensions:

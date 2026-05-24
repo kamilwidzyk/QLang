@@ -1,0 +1,365 @@
+from __future__ import annotations
+
+from typing import Any, TYPE_CHECKING
+
+from int.exception.internal import InternalException
+from int.exception.network_only_var import NetworkNotVariableException
+
+from ..exception.packet_size_must_be import PacketSizeNotIntegerException
+from ..exception.invalid_payload import PacketPayloadInvalidException
+from ..exception.cant_find_variable import CantFindVariableException
+
+from ..script_errors import ScriptErrors
+from ..consts import *
+from ..expression import Expression, TYPE_BOOL, TYPE_INT, TYPE_LIST, TYPE_NUM, TYPE_OBS, TYPE_STATE, TYPE_TEXT
+from ..variable import Variable
+from ..obs import Obs, ObsRegister
+from ..text import Text
+from ..num import Num
+from ..state import State, StateRegister
+from ..QLang.QLangParser import QLangParser
+from .expression.variable_expression import handle_variable_expression, is_variable_expression
+
+if TYPE_CHECKING:
+    from ..place import Place
+
+
+def _parse_string_token(token_text: str) -> str:
+    text = token_text[1:-1]
+    text = text.replace('\\n', '\n')
+    text = text.replace('\\t', '\t')
+    text = text.replace('\\r', '\r')
+    text = text.replace('\\\\', '\\')
+    text = text.replace("\\'", "'")
+    text = text.replace('\\"', '"')
+    text = text.replace('\\`', '`')
+    return text
+
+
+def _is_quantum_type(var_type: str) -> bool:
+    return var_type == TYPE_STATE
+
+
+def _type_from_token(token_text: str) -> str:
+    if token_text == 'obs':
+        return TYPE_OBS
+    if token_text == 'state':
+        return TYPE_STATE
+    if token_text == 'num':
+        return TYPE_NUM
+    if token_text == 'text':
+        return TYPE_TEXT
+    return token_text
+
+
+def _evaluate_size(self: Place, size_block: Any) -> int:
+    expr = self.handle_block(size_block.expr(), size_block)
+    if expr.type != TYPE_INT:
+        # code PSNI-1
+        raise PacketSizeNotIntegerException(
+            ScriptErrors.Position.extract(size_block), 
+            code="1")
+
+    if expr.value <= 0:
+        # code PSNI-2
+        raise PacketSizeNotIntegerException(
+            ScriptErrors.Position.extract(size_block), 
+            code="2")
+
+    return expr.value
+
+
+def _derive_packet_size(variable: Any, explicit_size: int | None = None) -> int:
+    if explicit_size is not None:
+        return explicit_size
+    if isinstance(variable, Variable):
+        if variable.type == TYPE_STATE:
+            if variable.is_list:
+                return len(variable.data)
+            return 1
+        if variable.type == TYPE_OBS and variable.is_list:
+            return len(variable.data)
+        if variable.type in [TYPE_NUM, TYPE_TEXT] and variable.is_list:
+            return len(variable.data)
+        if variable.type in [TYPE_NUM, TYPE_TEXT]:
+            return 1
+        if hasattr(variable.data, '__len__'):
+            return len(variable.data)
+        return 1
+    if isinstance(variable, (list, tuple)):
+        return len(variable)
+    return 1
+
+
+def _serialize_value(value: Any) -> Any:
+    if isinstance(value, list):
+        return [_serialize_value(v) for v in value]
+
+    if isinstance(value, Expression):
+        if value.type == TYPE_LIST:
+            return _serialize_value(value.value)
+        return value.value
+
+    if isinstance(value, State):
+        return {'__qstate__': True, 'uid': value.uid}
+
+    if isinstance(value, StateRegister):
+        return {'__qregister__': [state.uid for state in value.states]}
+
+    if isinstance(value, Obs):
+        return {'__obs__': int(value.get())}
+
+    if isinstance(value, ObsRegister):
+        return {'__obsreg__': [int(bit.get()) for bit in value.obs]}
+
+    if isinstance(value, Num):
+        return value.get_value()
+
+    if isinstance(value, Text):
+        return value.value
+
+    return value
+
+
+def _serialize_variable(variable: Variable) -> Any:
+    if variable.is_list:
+        return _serialize_value(variable.data)
+    return _serialize_value(variable.data)
+
+
+def _deserialize_state_payload(payload: Any) -> Any:
+    if isinstance(payload, list):
+        return [_deserialize_state_payload(item) for item in payload]
+
+    if isinstance(payload, dict) and payload.get('__qstate__'):
+        return State(client=None, uid=payload['uid'])
+
+    # code: PPI-1
+    raise PacketPayloadInvalidException(
+        ScriptErrors.Position.extract(payload) if hasattr(payload, 'start') else ScriptErrors.Position(0, 0), 
+        code="1"
+    )
+
+def _deserialize_value(self: Place, payload: Any, var_type: str) -> Any:
+    if var_type == TYPE_STATE:
+        if isinstance(payload, dict) and payload.get('__qstate__'):
+            return State(client=self.quantum_client, uid=payload['uid'])
+        if isinstance(payload, list):
+            return [_deserialize_value(self, item, TYPE_STATE) for item in payload]
+        
+        # code: PPI-2
+        raise PacketPayloadInvalidException(
+                ScriptErrors.Position.extract(payload) if hasattr(payload, 'start') else ScriptErrors.Position(0, 0), 
+                code="2"
+            )
+
+    if var_type == TYPE_OBS:
+        if isinstance(payload, dict) and payload.get('__obs__') is not None:
+            return payload['__obs__']
+        if isinstance(payload, dict) and payload.get('__obsreg__') is not None:
+            return payload['__obsreg__']
+        if isinstance(payload, list):
+            return payload
+        return payload
+
+    if var_type == TYPE_NUM:
+        return payload
+
+    if var_type == TYPE_TEXT:
+        return payload
+
+    return payload
+
+
+def _deserialize_payload(self: Place, payload: Any, var_type: str) -> Any:
+    if var_type == TYPE_STATE:
+        return _deserialize_value(self, payload, TYPE_STATE)
+
+    if var_type == TYPE_OBS:
+        return _deserialize_value(self, payload, TYPE_OBS)
+
+    if var_type == TYPE_NUM:
+        return _deserialize_value(self, payload, TYPE_NUM)
+
+    if var_type == TYPE_TEXT:
+        return _deserialize_value(self, payload, TYPE_TEXT)
+
+    return payload
+
+
+def _get_receive_filters(block: Any) -> tuple[str | None, str | None]:
+    src_id = None
+    msg_id = None
+    receive_filters = block.receiveFilter() if hasattr(block, 'receiveFilter') else block.receiveOpt()
+    for opt in receive_filters:
+        if opt.FROM():
+            if opt.STRING() is not None:
+                src_id = _parse_string_token(opt.STRING().getText())
+            elif opt.ID() is not None:
+                src_id = opt.ID().getText()
+        if (hasattr(opt, 'NAMED') and opt.NAMED()) or (hasattr(opt, 'AS') and opt.AS()):
+            if opt.STRING() is not None:
+                msg_id = _parse_string_token(opt.STRING().getText())
+    return src_id, msg_id
+
+
+def _get_available_filters(block: Any) -> tuple[bool | None, str | None, str | None]:
+    quantum = None
+    src_id = None
+    msg_id = None
+    for filt in block.availableFilter():
+        if filt.varType() is not None:
+            var_type = filt.varType().getText()
+            quantum = _is_quantum_type(_type_from_token(var_type))
+        elif filt.FROM() is not None:
+            if filt.STRING() is not None:
+                src_id = _parse_string_token(filt.STRING().getText())
+            elif filt.ID() is not None:
+                src_id = filt.ID().getText()
+        elif filt.NAMED() is not None and filt.STRING() is not None:
+            msg_id = _parse_string_token(filt.STRING().getText())
+    return quantum, src_id, msg_id
+
+
+def handle_send_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    if self.quantum_network is None:
+        # code: I-1
+        raise InternalException(
+            pos=pos,
+            msg='Quantum network is not initialized.',
+            code="1"
+        )
+
+    expr_ctx = block.expr()
+    if not is_variable_expression(expr_ctx):
+        # code: NNV-1
+        raise NetworkNotVariableException(
+                ScriptErrors.Position.extract(expr_ctx), 
+                code="1"
+            )
+
+    variable = handle_variable_expression(self, expr_ctx, block, ScriptErrors.Position.extract(expr_ctx), return_variable=True)
+    var_name = variable.name
+    if not self.scopes.exists(var_name):
+        # code: CFV-9
+        raise CantFindVariableException(
+            ScriptErrors.Position.extract(expr_ctx), 
+            var_name, code="9")
+
+    size = None
+
+    target_id = None
+    msg_id = None
+    if block.AS() is not None:
+        if block.ID() is not None:
+            target_id = block.ID().getText()
+            msg_id = _parse_string_token(block.STRING(0).getText())
+        elif block.TO() is None:
+            msg_id = _parse_string_token(block.STRING(0).getText())
+        else:
+            target_id = _parse_string_token(block.STRING(0).getText())
+            msg_id = _parse_string_token(block.STRING(1).getText())
+    else:
+        if block.ID() is not None:
+            target_id = block.ID().getText()
+        elif block.STRING(0) is not None:
+            target_id = _parse_string_token(block.STRING(0).getText())
+
+    if isinstance(variable, list):
+        payload = _serialize_value(variable)
+    else:
+        payload = _serialize_variable(variable)
+
+    packet_size = _derive_packet_size(variable, size)
+    self.quantum_network.send(
+        src_id=self.name,
+        msg_id=msg_id,
+        target_id=target_id,
+        quantum=_is_quantum_type(variable.type),
+        size=packet_size,
+        data=payload,
+    )
+
+    self.scopes.delete(var_name)
+
+
+def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    if self.quantum_network is None:
+        # code: I-2
+        raise InternalException(
+            pos=pos,
+            msg='Quantum network is not initialized.',
+            code="2"
+        )
+
+    var_type = _type_from_token(block.varType().getText())
+    var_name = block.ID().getText() if hasattr(block, 'ID') else block.varNoAssign().ID().getText()
+    dimensions = []
+    size_vars = block.sizeVar() if hasattr(block, 'sizeVar') else block.varNoAssign().sizeVar()
+    for size_var in size_vars:
+        dimensions.append(_evaluate_size(self, size_var))
+
+    if len(dimensions) == 0:
+        dimensions = [0]
+
+    src_id, msg_id = _get_receive_filters(block)
+    quantum = _is_quantum_type(var_type)
+
+    packet_size = dimensions[0] if dimensions[0] != 0 else 1
+    if isinstance(packet_size, int) and packet_size <= 0:
+        # code: PSNI-3
+        raise PacketSizeNotIntegerException(
+            ScriptErrors.Position.extract(size_vars[0]) if size_vars else pos, 
+            code="3"
+        )
+
+    payload = self.quantum_network.wait_for(
+        target_id=self.name,
+        src_id=src_id,
+        msg_id=msg_id,
+        quantum=quantum,
+        size=packet_size,
+    )
+
+    if var_type == TYPE_STATE:
+        received_data = _deserialize_value(self, payload, TYPE_STATE)
+        var = Variable(var_name, var_type, dimensions, quantum_client=self.quantum_client, initial_data=received_data)
+    else:
+        var = Variable(var_name, var_type, dimensions, quantum_client=self.quantum_client)
+        deserialized = _deserialize_value(self, payload, var_type)
+        if dimensions != [0]:
+            var.set(Expression(TYPE_LIST, deserialized))
+        else:
+            if var_type == TYPE_OBS:
+                var.set(Expression(TYPE_BOOL, bool(deserialized)))
+            elif var_type == TYPE_NUM:
+                var.set(Expression(TYPE_NUM, deserialized))
+            elif var_type == TYPE_TEXT:
+                var.set(Expression(TYPE_TEXT, deserialized))
+            else:
+                var.set(Expression(TYPE_INT, deserialized))
+
+    self.scopes.create(var_name, var)
+
+
+def handle_available_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    if hasattr(block, 'availableExpr'):
+        block = block.availableExpr()
+
+    if self.quantum_network is None:
+        # code: I-3
+        raise InternalException(
+            pos=pos,
+            msg='Quantum network is not initialized.',
+            code="3"
+        )
+
+    quantum, src_id, msg_id = _get_available_filters(block)
+    is_available = self.quantum_network.peek(
+        target_id=self.name,
+        src_id=src_id,
+        msg_id=msg_id,
+        quantum=quantum,
+        size=None,
+    )
+    return Expression(TYPE_BOOL, is_available)

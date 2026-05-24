@@ -61,6 +61,8 @@ CantFindVariableException -> CFV
         Tried to get reference of a variable that does not exist
     8: int/context/operator/reset.py
         'reset' on variable that does not exist
+    9: int/context/network.py
+        Variable to send does not exist
 
 DivideByZeroException -> DBZ
     1: int/context/math/div_eq_expr.py
@@ -191,3 +193,29 @@ IndexOutOfRangeException -> IOR
 PlaceDeclarationNotAllowedException -> PDNA
     1: int/context/function/function_call.py
         Imported file contains place declarations
+
+PacketSizeNotIntegerException -> PSNI
+    1: int/context/network.py
+        Packet size must be an integer
+    2: int/context/network.py
+        Packet size must be positive
+    3: int/context/network.py
+        Attempted to receive a packet size that is not positive int
+
+PacketPayloadInvalidException -> PPI
+    1: int/context/network.py
+        Quantum state cannot be deserialized (invalid packet)
+    2: int/context/network.py
+        Received packet does not match type state
+
+InternalException -> I
+    1: int/context/network.py
+        Quantum network used before initialized
+    2: int/context/network.py
+        Receive attempted before quantum network was initialized
+    3: int/context/network.py
+        Available attempted before quantum netowrk was initialized
+    
+NetworkNotVariableException -> NNV
+    1: int/context/network.py
+        Only variable can be send thru the network

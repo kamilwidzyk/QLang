@@ -118,3 +118,21 @@ class ScopeManager:
                 scope.vars[name] = value
                 return
             scope = scope.parent
+
+    def delete(self, name: str) -> bool:
+        """
+        Delete a variable from the current or parent scope.
+
+        Parameters:
+            name(str): Variable name
+
+        Returns:
+            True if the variable was deleted, False if it did not exist
+        """
+        scope = self.current
+        while scope:
+            if name in scope.vars:
+                del scope.vars[name]
+                return True
+            scope = scope.parent
+        return False

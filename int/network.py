@@ -174,6 +174,29 @@ class QuantumNetwork:
                 
                 self.condition.wait()
 
+    def peek(self, target_id: str, src_id: str | None, msg_id: str | None, quantum: bool | None, size: int | None) -> bool:
+        """
+        Check whether a matching packet exists without removing it.
+        """
+        with self.condition:
+            for packet in self.packet_pool:
+                if size is not None and packet.size != size:
+                    continue
+                if quantum is not None and packet.quantum != quantum:
+                    continue
+                if packet.target_id is not None and packet.target_id != target_id:
+                    continue
+                if src_id is not None and packet.src_id != src_id:
+                    continue
+                if msg_id is not None and packet.msg_id is not None and msg_id != packet.msg_id:
+                    continue
+                if msg_id is not None and packet.msg_id is None:
+                    continue
+                if packet.msg_id is None and msg_id is not None:
+                    continue
+                return True
+            return False
+
 
 
 

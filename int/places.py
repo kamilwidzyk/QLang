@@ -110,6 +110,7 @@ class Places:
     """
     places: Dict[str, Place] = {}
     test_mode: bool = False
+    quantum_network = None
     quantum_command_queue = None
     quantum_response_queues = None
 
@@ -168,7 +169,7 @@ class Places:
             response_queue = None
             if self.quantum_response_queues is not None:
                 response_queue = self.quantum_response_queues[place.name]
-            place.run(self.quantum_command_queue, response_queue)
+            place.run(self.quantum_network, self.quantum_command_queue, response_queue)
         log(PLACE, SUCCESS, "All places running")
 
     def wait_for_end(self):

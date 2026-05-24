@@ -120,4 +120,9 @@ ResetExprCtx = QLangParser.ResetExprContext
 # Parent '^' operator
 ParentExprCtx = QLangParser.ParentExprContext
 
+#################### NETWORK ####################
+SendStmtCtx = QLangParser.SendStmtContext
+ReceiveDeclCtx = QLangParser.ReceiveDeclContext
+AvailableExprContext = QLangParser.AvailableExprAltContext
+
 

@@ -16,6 +16,7 @@ from .logger import WARNING, DEBUG
 from .script_errors import ScriptErrors
 
 from .places import divideIntoPlaces
+from .network import create_quantum_network
 from .sim.server import start_server
 
 
@@ -132,6 +133,8 @@ def main():
         log_test(f"PLACE_CODE={places.places[place].block}")
     log_test("PLACE_END")
 
+    quantum_network, quantum_network_manager = create_quantum_network()
+    places.quantum_network = quantum_network
     quantum_command_queue = multiprocessing.Queue()
     quantum_response_queues = {
         place_name: multiprocessing.Queue()

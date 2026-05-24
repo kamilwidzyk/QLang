@@ -8,11 +8,11 @@
 		{ "include": "#numbers"},
 		{ "include": "#storage" },
 		{ "include": "#word_operators"},
-		{ "include": "#function_calls"},
 		{ "include": "#constant"},
 		{ "include": "#operators" },
 		{ "include": "#keywords_control"},
 		{ "include": "#keywords_function"},
+		{ "include": "#function_calls"},
 		{ "include": "#builtin_functions" }
 	],
 	"repository": {
@@ -20,7 +20,7 @@
 			"patterns": [
 				{
 					"name": "support.type.builtin.qlang",
-					"match": "\\b(H|superpose|X|not|S|shift|Y|dual_not|Z|phase_not|CNOT|entangle|CZ|entangle_phase|reset|measure|measureX)\\b"
+					"match": "\\b(H|superpose|X|not|S|shift|Y|dual_not|Z|phase_not|CNOT|entangle|CZ|entangle_phase|reset|measure|measureX|send|receive|available)\\b"
 
 				}
 			]
@@ -45,7 +45,7 @@
 			"patterns": [
 				{
 					"name": "keyword.control.qlang",
-					"match": "\\b(if|else if|elif|else|while|for|from|to|step|return|break|continue)\\b"
+					"match": "\\b(if|else if|elif|else|while|for|from|to|step|return|break|continue|named|as)\\b"
 				}
 			]
 		},
@@ -116,8 +116,15 @@
 			},
 			"end": "\\)",
 			"patterns": [
+				{ "include": "#comments" },
 				{ "include": "#strings" },
 				{ "include": "#numbers" },
+				{ "include": "#storage" },
+				{ "include": "#word_operators" },
+				{ "include": "#constant" },
+				{ "include": "#keywords_control" },
+				{ "include": "#keywords_function" },
+				{ "include": "#builtin_functions" },
 				{ "include": "#named_args" },
 				{ "include": "#operators" }
 			]

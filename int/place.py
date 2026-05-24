@@ -98,6 +98,7 @@ from .context.operator.reset import handle_reset_expr
 from .context.quantum import handle_gate_statement, handle_measure_expr
 from .context.operator.parent import handle_operator_parent
 from .context.operator.const import handle_operator_const
+from .context.network import handle_send_statement, handle_receive_declaration, handle_available_expression
 
 class Place:
     """
@@ -129,6 +130,8 @@ class Place:
         self.declared_at = declared_at
         self.scopes = ScopeManager()
         self.quantum_client = None
+        self.quantum_network = None
+        self.quantum_network = None
         
     def enable_test_mode(self):
         self.test_mode = True
@@ -231,6 +234,9 @@ class Place:
             ParenExprCtx:           handle_parentheses,
             ConstraintCtx:          handle_constraint,
             AssigmentStmtCtx:       handle_assigment,
+            SendStmtCtx:            handle_send_statement,
+            ReceiveDeclCtx:         handle_receive_declaration,
+            AvailableExprContext:   handle_available_expression,
             
             #################### Operators ####################
             # Not
@@ -279,7 +285,6 @@ class Place:
             for type in HANDLERS.keys():
                 if isinstance(block, type):
                     # Handler found, send the block to it
-                    print(type)
                     handle_args = (self, block, parent, pos)
                     return HANDLERS[type](*handle_args)
         except AssignmentToExpressionException as e:
@@ -315,12 +320,13 @@ class Place:
         log(PLACE, FATAL, "Handler for block not found, type: " + block.__class__.__name__)
         exit()
 
-    def process_target(self, quantum_command_queue=None, quantum_response_queue=None):
+    def process_target(self, quantum_network=None, quantum_command_queue=None, quantum_response_queue=None):
         """
         Place execution entry point
         """
         sys.setrecursionlimit(4_000_000)
         sys.stdout.reconfigure(encoding='utf-8')
+        self.quantum_network = quantum_network
         if quantum_command_queue is not None and quantum_response_queue is not None:
             self.quantum_client = QuantumClient(self.name, quantum_command_queue, quantum_response_queue)
 
@@ -355,13 +361,13 @@ class Place:
 
         
 
-    def run(self, quantum_command_queue=None, quantum_response_queue=None):
+    def run(self, quantum_network=None, quantum_command_queue=None, quantum_response_queue=None):
         """
         Starts execution of this place inside a separate process
         """
         self.proc = Process(
             target=self.process_target,
-            args=(quantum_command_queue, quantum_response_queue),
+            args=(quantum_network, quantum_command_queue, quantum_response_queue),
         )
         self.proc.start()
         log(PLACE, INFO, f"Place {self.name} started")

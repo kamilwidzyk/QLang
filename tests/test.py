@@ -7,6 +7,10 @@ import colorama
 
 SYNTAX_ERRORS = "[--- TEST ---](D) SYNTAX_ERRORS=1"
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 def path_from_root(rel_path: str) -> str:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
