@@ -16,6 +16,26 @@ from ...variable import Variable
 if TYPE_CHECKING:
     from place import Place
 
+
+def _coerce_index_value(value):
+    if isinstance(value, Variable):
+        value = value.extract_raw_value()
+
+    if isinstance(value, Expression):
+        value = value.extract_raw_value()
+
+    if hasattr(value, "get_value"):
+        value = value.get_value()
+
+    if isinstance(value, list):
+        return [_coerce_index_value(item) for item in value]
+
+    if isinstance(value, (int, float, bool)):
+        return int(value)
+
+    return int(value)
+
+
 def handle_index(self: Place, block: Any, parent: Any):
     """
     Parse an index context and return a SimpleIndex, RangeIndex, or ListIndex.
@@ -42,15 +62,21 @@ def handle_index(self: Place, block: Any, parent: Any):
         indices = []
         for expr in block.expr():
             val = self.handle_block(expr, block)
-            indices.append(int(val.value))
+            index_values = _coerce_index_value(val)
+            if isinstance(index_values, list):
+                indices.extend(index_values)
+            else:
+                indices.append(index_values)
         return ListIndex(indices)
-    
+
     # Simple index: [expr]
     index = self.handle_block(block.expr(0), block)
-    if index.type not in (TYPE_INT, TYPE_BOOL):
-        raise IndexNotIntException(ScriptErrors.Position.extract(block))
+    index_value = _coerce_index_value(index)
 
-    return SimpleIndex(int(index.value))
+    if isinstance(index_value, list):
+        return ListIndex(index_value)
+
+    return SimpleIndex(index_value)
 
 def handle_var(self: Place, block: Any, parent: Any) -> Variable:
     # var: ID index*; 
