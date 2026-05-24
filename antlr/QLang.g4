@@ -190,6 +190,7 @@ expr
     | varUnknown                         # VarUnknownExpr
     | sizeGetter                         # SizeGetterExpr
     | (MEASURE | MEASUREX) var           # MeasureExpr
+    | availableExpr                      # AvailableExprAlt
     | 'reset' var                        # ResetExpr
     | NUM '(' argList? ')'               # NumCastExpr
     | ID '(' argList? ')'                # FuncCallExpr
@@ -206,6 +207,16 @@ expr
 
 
 
+
+availableExpr
+    : AVAILABLE availableFilter*
+    ;
+
+availableFilter
+    : varType
+    | FROM (STRING | ID)
+    | NAMED STRING
+    ;
 
 // Do zrobienia: biblioteka standardowa(to chyba będzie lepsze, bo będzie można zobaczyć implementację) lub funkcje wbudowane
 
@@ -329,10 +340,10 @@ expr
 // Wysłanie:
 //
 // send <zmienna/wartość> to <place> as <packet_name>; // argumenty <place> i <packet_name> są opcjonalne
-// 
+//
 // Sprawdzanie dostępności w buforze odbioru
-// 
-// if (available <typ> from <place> named <packet_name>){ // <typ> <place> <packet_name> są opcjonalne, możliwy(chyba) będzie regex do filtrowania
+//
+// if (available <typ> from <place> named <packet_name>) { // <typ> <place> <packet_name> są opcjonalne, możliwy(chyba) będzie regex do filtrowania
 //      <typ> x = receive <typ> from <place> named <packet_name>; // to będzie blokować do momentu odbioru pasującego pakietu
 // }
 //
@@ -340,18 +351,18 @@ expr
 // (nie ma możliwości odebrania przez place1 pakietów przeznaczonych dla place2)
 // (pakiety wysłane bez podania odbiorcy mogą być odebrane przez każdego - nie jest to broadcast, pakiet wysłany jest jeden)
 
-// To niżej będzie pozmieniane
 receiveDecl
-    : (STATE | OBS) ID ('[' expr ']')? RECEIVED receiveOpt*
+    : varType ID sizeVar* '=' RECEIVE receiveFilter*
     ;
 
-receiveOpt
-    : FROM (STRING | ID)
-    | AS STRING
+receiveFilter
+    : varType
+    | FROM (STRING | ID)
+    | NAMED STRING
     ;
 
 sendStmt
-    : SEND ID ('[' expr ']')? TO (STRING | ID) (AS STRING)?
+    : SEND expr (TO (STRING | ID))? (AS STRING)?
     ;
 
 // --- OPERACJE KWANTOWE ---
@@ -425,7 +436,9 @@ DEBUG: 'debug';
 INPUT: 'input';
 PLACE: 'place';
 SEND: 'send';
-RECEIVED: 'received';
+RECEIVE: 'receive';
+AVAILABLE: 'available';
+NAMED: 'named';
 AS: 'as';
 BIN: 'BIN';
 HEX: 'HEX';
