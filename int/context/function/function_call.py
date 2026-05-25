@@ -3,6 +3,7 @@ from typing import Any, TYPE_CHECKING
 
 import os
 import random
+import math
 
 from ...script_errors import ScriptErrors
 from ...consts import *
@@ -554,6 +555,76 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
                 self.console.hide()
 
         return Expression(TYPE_INT, int(enable_value.value))
+
+    if func_name in ["cut", "round", "floor", "ceil"]:
+        if keyword_args:
+            # code KANS-9
+            raise KeywordArgumentsNotSupportedException(
+                pos=block_pos,
+                func_name=func_name,
+                code="9"
+            )
+
+        if len(positional_args) == 0 or len(positional_args) > 2:
+            # code TMA-9
+            raise TooMuchArgumentsException(
+                pos=block_pos,
+                func_name=func_name,
+                taken_args=len(positional_args),
+                expected_args=2,
+                code="9"
+            )
+
+        try:
+            val_raw = positional_args[0].extract_raw_value()
+            if not isinstance(val_raw, (int, float)):
+                raise ValueError()
+            val = float(val_raw)
+        except (AttributeError, ValueError, TypeError):
+            # code BEV-7
+            raise BuiltinExpectsValueException(
+                pos=block_pos,
+                func_name=func_name,
+                expects="a number",
+                code="7"
+            )
+
+        if len(positional_args) == 2:
+            try:
+                decimals_raw = positional_args[1].extract_raw_value()
+                if not isinstance(decimals_raw, (int, float)):
+                    raise ValueError()
+                decimals = int(decimals_raw)
+            except (AttributeError, ValueError, TypeError):
+                # code BEV-8
+                raise BuiltinExpectsValueException(
+                    pos=block_pos,
+                    func_name=func_name,
+                    expects="a number for decimal places",
+                    code="8"
+                )
+        else:
+            decimals = 0
+
+        factor = 10.0 ** decimals
+        val_scaled = val * factor
+
+        if func_name == "cut":
+            res = math.trunc(val_scaled) / factor
+        elif func_name == "round":
+            if val_scaled > 0:
+                res = math.floor(val_scaled + 0.5) / factor
+            else:
+                res = math.ceil(val_scaled - 0.5) / factor
+        elif func_name == "floor":
+            res = math.floor(val_scaled) / factor
+        elif func_name == "ceil":
+            res = math.ceil(val_scaled) / factor
+
+        if decimals <= 0:
+            return Expression(TYPE_INT, int(res))
+        else:
+            return Expression(TYPE_FLOAT, float(res))
 
     if func_name == "__ql_import_source__":
         if keyword_args:

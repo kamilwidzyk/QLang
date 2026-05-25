@@ -126,6 +126,8 @@ TooMuchArgumentException -> TMA
         packet_log() called with more than 1 arg
     8: int/context/function/function_call.py
         show_console() called with more than 1 arg
+    9: int/context/function/function_call.py
+        cut(), round(), floor(), ceil() called with 0 or more than 2 args
 
 UnknownArgException -> UA
     1: int/context/function/function_call.py 
@@ -148,6 +150,8 @@ KeywordArgumentsNotSupportedException -> KANS
         packet_log() called with named args
     8: int/context/function/function_call.py
         show_console() called with named args
+    9: int/context/function/function_call.py
+        cut(), round(), floor(), ceil() called with named args
     
     
 
@@ -164,6 +168,10 @@ BuiltinExpectsValueException -> BEV
         packet_log() expects 0 or 1
     6: int/context/function/function_call.py
         show_console() expected 0 or 1
+    7: int/context/function/function_call.py
+        cut(), round(), floor(), ceil() expects first arg to be a number
+    8: int/context/function/function_call.py
+        cut(), round(), floor(), ceil() expects second arg to be a number for decimal places
     
     
 NoParentScopeException -> NPS
