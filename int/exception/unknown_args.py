@@ -1,9 +1,9 @@
 
 from ..script_errors import ScriptErrors
-
+from .exit_exception import ExitException
 # code: UA-?
 
-class UnknownArgException(Exception):
+class UnknownArgException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, func_name: str = "?", unknown_arg: str = "?", code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Unknown Argument"

@@ -29,6 +29,8 @@ from .exception.variable_redefinition import VariableRedefiniotionException
 from .exception.index_not_int import IndexNotIntException
 from .exception.index_out_of_range import IndexOutOfRangeException
 
+from .exception.exit_exception import ExitException
+
 ######################## CONTEXT HANDLERS #############################
 from .context.statement              import handle_statement
 
@@ -63,6 +65,7 @@ from .context.function.function_call          import handle_function_call
 from .context.function.arg_list               import handle_arg_list
 from .context.control.for_loop               import handle_for_loop
 from .context.control.while_loop             import handle_while
+from .context.control.iterate_loop           import handle_iterate
 from .context.math.power                  import handle_power
 from .context.io.format                 import handle_format
 from .context.control.if_condition           import handle_if, handle_short_if
@@ -131,7 +134,7 @@ class Place:
         self.scopes = ScopeManager()
         self.quantum_client = None
         self.quantum_network = None
-        self.quantum_network = None
+        self.packet_log_enabled = False
         
     def enable_test_mode(self):
         self.test_mode = True
@@ -223,6 +226,7 @@ class Place:
             ArgListCtx:             handle_arg_list,
             ForStmtCtx:             handle_for_loop,
             WhileStmtCtx:           handle_while,
+            IterateStmtCtx:         handle_iterate,
             PowExprCtx:             handle_power,
             FormatCtx:              handle_format,
             IfStmtCtx:              handle_if,
@@ -293,35 +297,11 @@ class Place:
                     # Handler found, send the block to it
                     handle_args = (self, block, parent, pos)
                     return HANDLERS[type](*handle_args)
-        except AssignmentToExpressionException as e:
-            e.show(self.script_errors)
-            exit()
-        except DivideByZeroException as e:
-            e.show(self.script_errors)
-            exit()
-        except TryingToModifyConstException as e:
-            e.show(self.script_errors)
-            exit()
-        except ModuloOverZeroException as e:
-            e.show(self.script_errors)
-            exit()
-        except OperatorTypeMismatchException as e:
-            e.show(self.script_errors)
-            exit()
-        except SizeErrorException as e:
-            e.show(self.script_errors)
-            exit()
-        except VariableRedefiniotionException as e:
-            e.show(self.script_errors)
-            exit()
-        except IndexNotIntException as e:
-            e.show(self.script_errors)
-            exit()
-        except IndexOutOfRangeException as e:
+        except ExitException as e:
             e.show(self.script_errors)
             exit()
 
-        print(block)
+        # print(block) # uncomment to debug which blocks are handled
         # Handler not found show error and exit
         log(PLACE, FATAL, "Handler for block not found, type: " + block.__class__.__name__)
         exit()

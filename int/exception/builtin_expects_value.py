@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: BEV-?
 
-class BuiltinExpectsValueException(Exception):
+class BuiltinExpectsValueException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, func_name: str = "?", expects: str = "?", code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Built-in function Misuse"

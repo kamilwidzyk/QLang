@@ -126,6 +126,21 @@ class Expression:
         if hasattr(val, 'get_value'):
             return val.get_value()
         return val
+
+    @staticmethod
+    def _to_primitive(value):
+        # Force-extract primitive numeric/string from wrappers.
+        if isinstance(value, Expression):
+            return Expression._to_primitive(value.get_value())
+        if hasattr(value, 'get_value'):
+            return Expression._to_primitive(value.get_value())
+        if hasattr(value, 'get'):
+            return Expression._to_primitive(value.get())
+        if hasattr(value, 'value'):
+            return Expression._to_primitive(value.value)
+        if hasattr(value, 'data'):
+            return Expression._to_primitive(value.data)
+        return value
     
     def _extract_value_from(value):
         from .variable import Variable
@@ -147,8 +162,76 @@ class Expression:
         return bool(self.get_value())
 
     def __get_other_value(self, other):
-        while hasattr(other, 'get_value'):
-            other = other.get_value()
+        # Deterministic unwrapping loop. Try common accessors in order until
+        # we reach a Python primitive (int/float/str/bool/list) or exhaust attempts.
+        for _ in range(10):
+            # Direct Expression objects -> primitive via get_value()
+            if isinstance(other, Expression):
+                other = other.get_value()
+                continue
+
+            # Objects exposing get_value() (Variable, Num, etc.)
+            if hasattr(other, 'get_value'):
+                try:
+                    new = other.get_value()
+                    if new is other:
+                        break
+                    other = new
+                    continue
+                except Exception:
+                    pass
+
+            # Objects exposing get() (Variables sometimes)
+            if hasattr(other, 'get'):
+                try:
+                    new = other.get()
+                    if new is other:
+                        break
+                    other = new
+                    continue
+                except Exception:
+                    pass
+
+            # Common value containers
+            if hasattr(other, 'value') and not isinstance(other, (int, float, str, bool, list)):
+                try:
+                    new = other.value
+                    if new is other:
+                        break
+                    other = new
+                    continue
+                except Exception:
+                    pass
+
+            if hasattr(other, 'data') and not isinstance(other, (int, float, str, bool, list)):
+                try:
+                    new = other.data
+                    if new is other:
+                        break
+                    other = new
+                    continue
+                except Exception:
+                    pass
+
+            break
+
+        return other
+
+        # Extra fallback: handle wrapped numeric types that slipped through
+        # (e.g., Num). Use name-check to avoid hard import cycles.
+        try:
+            if type(other).__name__ == 'Num':
+                if hasattr(other, 'get_value'):
+                    other = other.get_value()
+                elif hasattr(other, 'get'):
+                    other = other.get()
+                elif hasattr(other, 'value'):
+                    other = other.value
+                elif hasattr(other, 'data'):
+                    other = other.data
+        except Exception:
+            pass
+
         return other
     
     def __lt__(self, other):
@@ -223,11 +306,15 @@ class Expression:
 
             return Text.__mod__(left_text, other)
 
+        # Unwrap both operands to primitives to avoid wrapper objects (Num, Variable)
         other = self.__get_other_value(other)
-        result_type = get_max_type(self, other)
-        if result_type == TYPE_FLOAT:
-            return Expression(TYPE_FLOAT, float(self.get_value()) % float(other))
-        return Expression(TYPE_INT, int(self.get_value()) % int(other))
+        lhs = Expression._to_primitive(self.get_value())
+        rhs = Expression._to_primitive(other)
+
+        # Decide float vs int result
+        if isinstance(lhs, float) or isinstance(rhs, float):
+            return Expression(TYPE_FLOAT, float(lhs) % float(rhs))
+        return Expression(TYPE_INT, int(lhs) % int(rhs))
     
     def __pow__(self, other):
         other = self.__get_other_value(other)

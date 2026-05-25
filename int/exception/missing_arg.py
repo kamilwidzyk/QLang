@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: MA-?
 
-class MissingArgException(Exception):
+class MissingArgException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, func_name: str = "?", missing_arg: str = "?", code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Missing Argument"

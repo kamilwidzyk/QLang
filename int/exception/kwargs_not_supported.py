@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: KANS-?
 
-class KeywordArgumentsNotSupportedException(Exception):
+class KeywordArgumentsNotSupportedException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, func_name: str = "?", code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Keyword Arguments Not Supported"

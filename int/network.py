@@ -64,7 +64,7 @@ class QuantumNetwork:
         log(QNET, SUCCESS, "Network is up")
 
     def send(self, src_id: str, msg_id: str | None, target_id: str | None, 
-             quantum: bool, size: int, data: Any):
+             quantum: bool, size: int, data: Any, log_packet: bool = False):
         """
         Sends a packet from one place to another. 
         
@@ -76,6 +76,7 @@ class QuantumNetwork:
                                   Needs to be in valid_places
             quantum (bool): type of data sent, True=qubit False=classic
             size (int): data size in bits, used to match the packets to receiver sizes
+            log_packet (bool): if True, log this send from the source place
         """
         seq_val = None
 
@@ -96,16 +97,17 @@ class QuantumNetwork:
             self.packet_pool.append(packet)
             self.condition.notify_all()
         
-        info = "Unnamed packet " if msg_id is None else f"Packet named {STYLE_DEBUG_MAGENTA}{msg_id}{STYLE_DEBUG} "
-        info += f"sent from {STYLE_DEBUG_MAGENTA}{src_id}{STYLE_DEBUG} containing {STYLE_DEBUG_YELLOW}{size}{STYLE_DEBUG} "
-        info += "quantum " if quantum else "classical "
-        info += "bits"
-        info += " " if target_id is None else f" to {STYLE_DEBUG_MAGENTA}{target_id}{STYLE_DEBUG} "
-        info += f"({STYLE_DEBUG_CYAN}ID {seq_val}{STYLE_DEBUG})"
-        log(QNET, DEBUG, info)
+        if log_packet:
+            info = "Unnamed packet " if msg_id is None else f"Packet named {STYLE_DEBUG_MAGENTA}{msg_id}{STYLE_DEBUG} "
+            info += f"sent from {STYLE_DEBUG_MAGENTA}{src_id}{STYLE_DEBUG} containing {STYLE_DEBUG_YELLOW}{size}{STYLE_DEBUG} "
+            info += "quantum " if quantum else "classical "
+            info += "bits"
+            info += " " if target_id is None else f" to {STYLE_DEBUG_MAGENTA}{target_id}{STYLE_DEBUG} "
+            info += f"({STYLE_DEBUG_CYAN}ID {seq_val}{STYLE_DEBUG})"
+            log(QNET, DEBUG, info)
 
     
-    def wait_for(self, target_id: str, src_id: str | None, msg_id: str | None, quantum: bool, size: int) -> Any:
+    def wait_for(self, target_id: str, src_id: str | None, msg_id: str | None, quantum: bool, size: int, log_packet: bool = False) -> Any:
         """
         Waits for specified packet to arrive
 
@@ -115,16 +117,18 @@ class QuantumNetwork:
             msg_id (str|None): Optional packet type
             quantum (bool): type of data sent, True=qubit False=classic
             size (int): data size in bits, used to match the packet 
+            log_packet (bool): if True, log receive/wait activity for this place
         Returns:
             Content of the mathing packet
         """
-        info = "Waiting for "
-        info += "an unnamed packet " if msg_id is None else f"a packet named {STYLE_DEBUG_MAGENTA}{msg_id}{STYLE_DEBUG} "
-        info += f"sent from {STYLE_DEBUG_MAGENTA}{src_id}{STYLE_DEBUG} containing {STYLE_DEBUG_YELLOW}{size}{STYLE_DEBUG} "
-        info += "quantum " if quantum else "classical "
-        info += "bits"
-        info += " " if target_id is None else f" to {STYLE_DEBUG_MAGENTA}{target_id}{STYLE_DEBUG} "
-        log(QNET, DEBUG, info)
+        if log_packet:
+            info = "Waiting for "
+            info += "an unnamed packet " if msg_id is None else f"a packet named {STYLE_DEBUG_MAGENTA}{msg_id}{STYLE_DEBUG} "
+            info += f"sent from {STYLE_DEBUG_MAGENTA}{src_id}{STYLE_DEBUG} containing {STYLE_DEBUG_YELLOW}{size}{STYLE_DEBUG} "
+            info += "quantum " if quantum else "classical "
+            info += "bits"
+            info += " " if target_id is None else f" to {STYLE_DEBUG_MAGENTA}{target_id}{STYLE_DEBUG} "
+            log(QNET, DEBUG, info)
 
         with self.condition:
             while True:
@@ -159,16 +163,16 @@ class QuantumNetwork:
                     break
 
                 if match_index != -1:
-                    # log info
                     packet: Packet = self.packet_pool.pop(match_index)
 
-                    info = "Unnamed packet " if packet.msg_id is None else f"Packet named {STYLE_DEBUG_MAGENTA}{packet.msg_id}{STYLE_DEBUG} "
-                    info += f"received from {STYLE_DEBUG_MAGENTA}{packet.src_id}{STYLE_DEBUG} containing {STYLE_DEBUG_YELLOW}{packet.size}{STYLE_DEBUG} "
-                    info += "quantum " if packet.quantum else "classical "
-                    info += "bits"
-                    info += " " if packet.target_id is None else f" by {STYLE_DEBUG_MAGENTA}{packet.target_id}{STYLE_DEBUG} "
-                    info += f"({STYLE_DEBUG_CYAN} ID {packet.seq_id}{STYLE_DEBUG})"
-                    log(QNET, DEBUG, info)
+                    if log_packet:
+                        info = "Unnamed packet " if packet.msg_id is None else f"Packet named {STYLE_DEBUG_MAGENTA}{packet.msg_id}{STYLE_DEBUG} "
+                        info += f"received from {STYLE_DEBUG_MAGENTA}{packet.src_id}{STYLE_DEBUG} containing {STYLE_DEBUG_YELLOW}{packet.size}{STYLE_DEBUG} "
+                        info += "quantum " if packet.quantum else "classical "
+                        info += "bits"
+                        info += " " if packet.target_id is None else f" by {STYLE_DEBUG_MAGENTA}{packet.target_id}{STYLE_DEBUG} "
+                        info += f"({STYLE_DEBUG_CYAN} ID {packet.seq_id}{STYLE_DEBUG})"
+                        log(QNET, DEBUG, info)
 
                     return packet.data
                 

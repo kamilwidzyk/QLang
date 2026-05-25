@@ -45,7 +45,7 @@
 			"patterns": [
 				{
 					"name": "keyword.control.qlang",
-					"match": "\\b(if|else if|elif|else|while|for|from|to|step|return|break|continue|named|as)\\b"
+					"match": "\\b(if|else if|elif|else|while|for|from|to|step|return|break|continue|named|as|iterate|index)\\b"
 				}
 			]
 		},

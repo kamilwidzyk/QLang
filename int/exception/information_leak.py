@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: IL-?
 
-class InformationLeakException(Exception):
+class InformationLeakException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, var_name, new_value, bits, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Spillover"

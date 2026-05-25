@@ -1,10 +1,11 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 
 # code: MOZ-?
 
-class ModuloOverZeroException(Exception):
+class ModuloOverZeroException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Math Error"

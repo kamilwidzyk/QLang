@@ -20,6 +20,7 @@ class Variable:
         self.name = name
         self.type = type
         self.dimensions = dimensions
+        self.is_dynamic = any(isinstance(d, int) and d < 0 for d in dimensions)
         self.data = None
         self.is_list = False
         self.index = index # this is used when handler returns a Variable with access index
@@ -107,14 +108,8 @@ class Variable:
             self.data = Text("")
     
     def assign_values(self, data, values):
-        print("Assigning values to variable", self.name)
-        print("Data before assignment: ", data)
-        print("Values to assign: ", values)
         if isinstance(values, Expression):
             values = values.value
-        print("Data: ", data)
-        print()
-        print("Values: ", values)
         if isinstance(data, list):
             if not isinstance(values, list):
                 log(VARIABLE, FATAL, "Shape mismatch: expected list")
@@ -200,6 +195,12 @@ class Variable:
             if new_value.type != TYPE_LIST:
                 log(VARIABLE, FATAL, "List expression required")
                 exit()
+
+            if self.is_dynamic:
+                self.data = new_value.value
+                self.is_list = isinstance(self.data, list)
+                return
+
             self.assign_values(self.data, new_value.value)
         else:
             if isinstance(self.data, Text):
@@ -377,7 +378,6 @@ class Variable:
 
     def get(self):
         if self.index is not None and len(self.index) > 0:
-            print("Getting variable", self.name, " at index ", self.index)
             data = self.get_data_at_index(self.data, self.index)
             if isinstance(data, Text):
                 return Expression(TYPE_STRING, data.value)

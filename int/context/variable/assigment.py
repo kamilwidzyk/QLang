@@ -115,4 +115,3 @@ def handle_assigment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
     var.set(assign_val, pos=pos)
     
     self.scopes.set(var.name, var)
-    print(f"Assignment: name: {var.name}, val: {assign_val.value}")

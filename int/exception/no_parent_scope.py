@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: NPS-?
 
-class NoParentScopeException(Exception):
+class NoParentScopeException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "No Parent Scope"

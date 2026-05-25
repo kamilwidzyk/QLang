@@ -1,9 +1,9 @@
 
 from ..script_errors import ScriptErrors
-
+from .exit_exception import ExitException
 # code: TM-?
 
-class TestModeException(Exception):
+class TestModeException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, error, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "TEST MODE"

@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: NFTC-?
 
-class NoFunctionToCallException(Exception):
+class NoFunctionToCallException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, func_name, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "ExecutionError"

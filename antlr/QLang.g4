@@ -82,6 +82,7 @@ statement
     | ifStmt               # ifStatement
     | forStmt              # forStatement
     | whileStmt            # whileStatement
+    | iterateStmt          # iterateStatement
     | ioStmt ';'           # ioStatement
     | BREAK ';'            # breakStatement
     | CONTINUE ';'         # continueStatement
@@ -137,11 +138,9 @@ namedArg: ID '=' expr;
 ifStmt: IF '(' expr ')' (block | statement) ((ELSE_IF | ELIF) '(' expr ')' (block | statement))* (ELSE (block | statement))?;
 forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
 whileStmt: WHILE '(' expr ')' block;
+iterateStmt: ITERATE expr AS ID (INDEX ID)? block;
 
 // -------------------- WEJŚCIE / WYJŚCIE --------------------
-
-// Te funkcje prawdopodobnie będą usunięte i sprawdzane nazwami podczas wywołania
-// funkcji, lub przed startem programu zdefiniowane zostaną jako wbudowane funkcje
 
 ioStmt
     : PRINT '(' (expr (',' expr)*)? ')'
@@ -427,6 +426,8 @@ FROM: 'from';
 TO: 'to';
 STEP: 'step';
 WHILE: 'while';
+ITERATE: 'iterate';
+INDEX: 'index';
 BREAK: 'break';
 CONTINUE: 'continue';
 

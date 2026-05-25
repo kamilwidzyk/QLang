@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: ATE-?
 
-class AssignmentToExpressionException(Exception):
+class AssignmentToExpressionException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, code: str = "?"):
         self.error_type = "SYNTAX ERROR"
         self.title = "Can't assign to expression"

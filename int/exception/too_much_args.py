@@ -1,9 +1,9 @@
 
 from ..script_errors import ScriptErrors
-
+from .exit_exception import ExitException
 # code: TMA-?
 
-class TooMuchArgumentsException(Exception):
+class TooMuchArgumentsException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, func_name: str = "?", taken_args: int = 0, expected_args: int = 0, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Too Many Arguments"

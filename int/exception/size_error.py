@@ -1,9 +1,9 @@
 
 from ..script_errors import ScriptErrors
-
+from .exit_exception import ExitException
 # code: SE-?
 
-class SizeErrorException(Exception):
+class SizeErrorException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Size Error"

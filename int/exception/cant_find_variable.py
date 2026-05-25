@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: CFV-?
 
-class CantFindVariableException(Exception):
+class CantFindVariableException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, var_name, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "ExistenceError"

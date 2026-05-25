@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: OTM-?
 
-class OperatorTypeMismatchException(Exception):
+class OperatorTypeMismatchException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, left_type, right_type, operator, operator_worded, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Type Error"

@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: I-?
 
-class InternalException(Exception):
+class InternalException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, msg: str, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Internal Error"

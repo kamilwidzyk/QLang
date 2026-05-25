@@ -59,7 +59,4 @@ try:
                 sys.exit(0)
 finally:
     client.close()
-
-# do not exit(this will show the default cmd prompt)
-while(True):
-    time.sleep(1)
+    sys.exit(0)

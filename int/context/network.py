@@ -125,12 +125,17 @@ def _serialize_value(value: Any) -> Any:
         return [_serialize_value(v) for v in value]
 
     if isinstance(value, Expression):
-        return _serialize_value(value.get_value())
-
-    if isinstance(value, State):
-        if value.type == TYPE_LIST:
+        # Avoid calling `get_value()` for quantum `State` expressions
+        # because `State.get_value()` raises (state is opaque).
+        if value.type == TYPE_STATE:
+            # If the expression is a list of states, serialize each entry
+            if isinstance(value.value, list):
+                return _serialize_value(value.value)
+            # If the underlying value is a State, serialize its uid
+            if isinstance(value.value, State):
+                return {'__qstate__': True, 'uid': value.value.uid}
+            # Fallback: try to serialize the raw value
             return _serialize_value(value.value)
-        return value.value
 
     if isinstance(value, State):
         return {'__qstate__': True, 'uid': value.uid}
@@ -311,14 +316,14 @@ def handle_send_statement(self: Place, block: Any, parent: Any, pos: ScriptError
         quantum_flag = _is_quantum_type(variable.type)
 
     self.quantum_network.send(
-        src_id=self.name,
-        msg_id=msg_id,
-        target_id=target_id,
-        quantum=quantum_flag,
-        size=packet_size,
-        data=payload,
-    )
-
+            src_id=self.name,
+            msg_id=msg_id,
+            target_id=target_id,
+            quantum=quantum_flag,
+            size=packet_size,
+            data=payload,
+            log_packet=self.packet_log_enabled,
+        )
 
 def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     if self.quantum_network is None:
@@ -356,6 +361,7 @@ def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: Script
         msg_id=msg_id,
         quantum=quantum,
         size=packet_size,
+        log_packet=self.packet_log_enabled,
     )
 
     if var_type == TYPE_STATE:

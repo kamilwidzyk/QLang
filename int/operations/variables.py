@@ -55,5 +55,4 @@ def do_variable_assignment(place, variable, new_value, pos=None): # var = expr
     var_type = variable.type
     variable.set(new_value)
     place.scopes.set(var_name, variable)
-    print("DO variable assignment", var_name, var_type)
     return Expression(var_type, new_value.value)

@@ -101,7 +101,6 @@ def do_operation_plus(right): # +right
     return right
 
 def convert_value(value):
-    print("Converting value: ", value)
     result = None
     if isinstance(value, (Num, ObsRegister, Text)):
         result = convert_value(value.get_value())
@@ -120,7 +119,6 @@ def convert_value(value):
     if isinstance(value, Obs):
         result = 'T' if value.get_value() else 'F'
 
-    print("Converted value: ", result)
     return result
 
 # ADD
@@ -132,16 +130,9 @@ def do_operation_add(left, right): # left + right
     if is_string_or_text(left) and is_list(right):
         # string + list
         left_str = extract_string(left)
-        print("Left string: " + left_str)
-        print("Right list (raw): " + str(right))
-
         right_list = extract_list(right)
         converted_list = convert_value(right_list)
         flat_list = flatten_expressions_list(converted_list)
-        print("Right list: " + str(right_list))
-        print("Converted list: " + str(converted_list))
-        print("Flat list: " + str(flat_list))
-
         list_str = make_list_str(flat_list)
         result = left_str + list_str
         return Expression(TYPE_STRING, result)
@@ -149,16 +140,9 @@ def do_operation_add(left, right): # left + right
     if is_string_or_text(right) and is_list(left):
         # list + string
         right_str = extract_string(right)
-        print("Right string: " + right_str)
-        print("Left list (raw): " + str(left))
-
         left_list = extract_list(left)
         converted_list = convert_value(left_list)
         flat_list = flatten_expressions_list(converted_list)
-        print("Left list: " + str(left_list))
-        print("Converted list: " + str(converted_list))
-        print("Flat list: " + str(flat_list))
-
         list_str = make_list_str(flat_list)
         result = list_str + right_str
         return Expression(TYPE_STRING, result)
@@ -177,8 +161,6 @@ def do_operation_add(left, right): # left + right
         # string + other
         left_str = extract_string(left)
         right_val = convert_value(right.get_value())
-        print("Left string: " + left_str)
-        print("Right value: " + str(right_val))
         result = left_str + str(right_val)
         return Expression(TYPE_STRING, result)
     
@@ -186,9 +168,6 @@ def do_operation_add(left, right): # left + right
         # other + string
         right_str = extract_string(right)
         left_val = convert_value(left.get_value())
-
-        print("Left value: " + str(left_val))
-        print("Right string: " + right_str)
         result = str(left_val) + right_str
         return Expression(TYPE_STRING, result)
     
@@ -196,7 +175,6 @@ def do_operation_add(left, right): # left + right
         # String concatenation
         left_str = str(left.value) if left.value is not None else ""
         right_str = str(right.value) if right.value is not None else ""
-        print("concatenating strings: '" + left_str + "' + '" + right_str + "'")
         return Expression(TYPE_STRING, left_str + right_str)
     
     result_type = get_max_type(left, right)
@@ -231,10 +209,6 @@ def do_operation_mod(left, right): # left % right
     if is_string_or_text(left) and is_list(right):
         left_str = extract_string(left)
         right_list = extract_list(right)
-
-        print("Left string: " + left_str)
-        print("Right list: " + str(right_list))
-
         result = left_str % tuple(right_list)
         return Expression(TYPE_STRING, result)
     

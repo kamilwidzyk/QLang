@@ -101,8 +101,6 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
     if block.expr():
         initial_value = self.handle_block(block.expr(), block)
 
-    print(f"Variable declaration: name: {var_name}, dimensions: {dimensions}, initial_value: {initial_value}, type: {type}")
-
     if is_const and type == TYPE_STATE:
         self.script_errors.showError(
             pos=ScriptErrors.Position.extract(block),
@@ -129,7 +127,6 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
         exit()
 
     var = Variable(var_name, type, dimensions, quantum_client=self.quantum_client, is_const=is_const)
-    print(dimensions, initial_value)
     if initial_value is not None:
         if isinstance(initial_value, list):
             initial_value = _normalize_list_values(initial_value)
@@ -149,17 +146,12 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
             initial_value = Expression(TYPE_LIST, initial_value, shape=value_shape)
         elif isinstance(initial_value, Expression) and initial_value.type == TYPE_LIST:
-            print("Initial value is a list expression with shape:", initial_value.shape)
-            print("Size dynamic: ", is_dynamic)
             if(is_dynamic):
                 dimensions = initial_value.shape
                 var.dimensions = dimensions
             value_shape = initial_value.shape
             initial_value = Expression(TYPE_LIST, initial_value.value, shape=value_shape)
             var = Variable(var_name, type, value_shape, quantum_client=self.quantum_client, is_const=is_const)
-            print("Dimesions: ", dimensions)
-            print("Initial value shape: ", value_shape)
-            print("Initial value: ", initial_value)
             
             if isinstance(dimensions, int):
                 dimensions = [dimensions]

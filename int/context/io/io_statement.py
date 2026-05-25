@@ -35,7 +35,6 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
     # first child can be 'print', 'println' or 'input', 'debug'
 
     def convert_value(value):
-        print("Converting value: ", value)
         result = None
         if isinstance(value, (Num, ObsRegister, Text)):
             result = value.get_value()
@@ -57,7 +56,6 @@ def handle_io_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.
         while hasattr(result, 'get_value'):
             result = result.get_value()
 
-        print("Converted value: ", result)
         return result
     
     

@@ -466,6 +466,95 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
         # Return a float expression in range [0, 1)
         return Expression(TYPE_FLOAT, random.random())
 
+    if func_name == "packet_log":
+        # packet_log() doesn't support keyword args
+        if keyword_args:
+            # code KANS-7
+            raise KeywordArgumentsNotSupportedException(
+                pos=block_pos,
+                func_name="packet_log",
+                code="7"
+            )
+
+        if len(positional_args) != 1:
+            # code TMA-7
+            raise TooMuchArgumentsException(
+                pos=block_pos,
+                func_name="packet_log",
+                taken_args=len(positional_args),
+                expected_args=1,
+                code="7"
+            )
+
+        enable_value = _parse_num_cast_value(positional_args[0])
+        if enable_value is None:
+            # code BEV-5
+            raise BuiltinExpectsValueException(
+                pos=block_pos,
+                func_name="packet_log",
+                expects="0 or 1",
+                code="5"
+            )
+
+        if int(enable_value.value) not in [0, 1]:
+            # code BEV-5
+            raise BuiltinExpectsValueException(
+                pos=block_pos,
+                func_name="packet_log",
+                expects="0 or 1",
+                code="5"
+            )
+
+        self.packet_log_enabled = bool(int(enable_value.value))
+        return Expression(TYPE_INT, int(enable_value.value))
+
+    if func_name == "show_console":
+        # show_console() doesn't support keyword args
+        if keyword_args:
+            # code KANS-8
+            raise KeywordArgumentsNotSupportedException(
+                pos=block_pos,
+                func_name="show_console",
+                code="8"
+            )
+
+        if len(positional_args) != 1:
+            # code TMA-8
+            raise TooMuchArgumentsException(
+                pos=block_pos,
+                func_name="show_console",
+                taken_args=len(positional_args),
+                expected_args=1,
+                code="8"
+            )
+
+        enable_value = _parse_num_cast_value(positional_args[0])
+        if enable_value is None:
+            # code BEV-6
+            raise BuiltinExpectsValueException(
+                pos=block_pos,
+                func_name="show_console",
+                expects="0 or 1",
+                code="6"
+            )
+
+        if int(enable_value.value) not in [0, 1]:
+            # code BEV-6
+            raise BuiltinExpectsValueException(
+                pos=block_pos,
+                func_name="show_console",
+                expects="0 or 1",
+                code="6"
+            )
+
+        if getattr(self, "console", None) is not None:
+            if int(enable_value.value) == 1:
+                self.console.show()
+            else:
+                self.console.hide()
+
+        return Expression(TYPE_INT, int(enable_value.value))
+
     if func_name == "__ql_import_source__":
         if keyword_args:
             # code KANS-6

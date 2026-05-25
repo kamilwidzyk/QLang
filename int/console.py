@@ -21,6 +21,9 @@ class Console:
         self.FLAGS = 0x00000010 
         self.SEP = "\x1f"
 
+        self.line_buffer: list[str] = []
+        self.visible = False
+
         self.log_dir = "logs"
         log_test(f"CON_INIT_TITLE={self.title}")
         if not os.path.exists(self.log_dir):
@@ -67,12 +70,41 @@ class Console:
             s.bind(('', 0))
             return s.getsockname()[1]
 
+    def _cleanup_process(self, close_log: bool = False):
+        if self.conn:
+            try:
+                self.conn.close()
+            except Exception:
+                pass
+            self.conn = None
+
+        if self.process:
+            try:
+                if self.process.poll() is None:
+                    self.process.terminate()
+                    self.process.wait(timeout=1)
+            except Exception:
+                try:
+                    self.process.kill()
+                except Exception:
+                    pass
+            self.process = None
+
+        if close_log and self.log_file and not self.log_file.closed:
+            self.log_file.close()
+
     def launch(self):
         """
         Starts the console_worker.py script and connects to it via a socket
         """
         if self.test_mode:
             return
+
+        if self.process and self.process.poll() is None and self.conn:
+            self.visible = True
+            return
+
+        self._cleanup_process()
 
         python_exe = sys.executable
         command = f'title {self.title} && cls && python {self.child_path} {self.port}'
@@ -93,8 +125,12 @@ class Console:
         try:
             self.conn, _ = listener.accept()
             self.conn.settimeout(None)
+            self.visible = True
+            for text in self.line_buffer:
+                self.conn.sendall(f"PRINT:{text}{self.SEP}".encode('utf-8'))
         except socket.timeout:
             print(f"FAILED: {self.title} timed out.")
+            self._cleanup_process()
         finally:
             listener.close()
 
@@ -105,12 +141,17 @@ class Console:
         Parameters:
             text (str): Text to write
         """
+        self.log_to_file(text)
+        self.line_buffer.append(text)
+
         if self.test_mode:
-            self.log_to_file(text)
             return
 
-        if self.conn:
-            self.conn.sendall(f"PRINT:{text}{self.SEP}".encode('utf-8'))
+        if self.visible and self.conn:
+            try:
+                self.conn.sendall(f"PRINT:{text}{self.SEP}".encode('utf-8'))
+            except (BrokenPipeError, ConnectionResetError):
+                self._cleanup_process()
 
     def read(self, prompt="") -> str | None:
         """
@@ -141,6 +182,30 @@ class Console:
             log(IN_OUT, ERROR, f"Console '{self.title}' closed or connection lost. Interrupting this place.")
             exit()
 
+    def hide(self):
+        """
+        Hide the console window and retain all output history.
+        """
+        if self.test_mode:
+            self.visible = False
+            return
+
+        self.visible = False
+        self._cleanup_process(close_log=False)
+
+    def show(self):
+        """
+        Show the console window and replay all retained output.
+        """
+        if self.test_mode:
+            self.visible = True
+            return
+
+        if self.visible:
+            return
+
+        self.launch()
+
     def close(self):
         """
         Close the console window.
@@ -151,6 +216,8 @@ class Console:
             return
 
         if self.conn:
-            self.conn.sendall(f"EXIT:{self.SEP}".encode('utf-8'))
-            self.conn.close()
-            self.conn = None
+            try:
+                self.conn.sendall(f"EXIT:{self.SEP}".encode('utf-8'))
+            except Exception:
+                pass
+        self._cleanup_process(close_log=True)

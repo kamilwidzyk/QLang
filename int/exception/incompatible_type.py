@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: IT-?
 
-class IncompatibleTypeException(Exception):
+class IncompatibleTypeException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, func_name, param_name, param_type, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Type Error"

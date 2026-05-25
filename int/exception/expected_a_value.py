@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: EAV-?
 
-class ExpectedAValueException(Exception):
+class ExpectedAValueException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, expected: str, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Value Error"

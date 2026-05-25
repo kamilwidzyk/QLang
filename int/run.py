@@ -103,7 +103,6 @@ def main():
     parser.addErrorListener(error_listener)
     
     # Start the parse
-    print("Parsing started")
     tree = parser.program()
 
     # Create error logging class instane
@@ -124,7 +123,6 @@ def main():
         return
     
     log_test("SYNTAX_ERRORS=0")
-    print("No errors found")
 
     # Scan the tree and divide the code into multiple places that will run in parrael
     places = divideIntoPlaces(tree, scriptErrors, parser)

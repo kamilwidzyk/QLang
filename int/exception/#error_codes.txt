@@ -122,6 +122,10 @@ TooMuchArgumentException -> TMA
         random() called with more than 1 arg
     6: int/context/function/function_call.py
         __ql_import_source__ called with more than 1 arg
+    7: int/context/function/function_call.py
+        packet_log() called with more than 1 arg
+    8: int/context/function/function_call.py
+        show_console() called with more than 1 arg
 
 UnknownArgException -> UA
     1: int/context/function/function_call.py 
@@ -140,6 +144,11 @@ KeywordArgumentsNotSupportedException -> KANS
         random() called with named args
     6: int/context/function/function_call.py    
         __ql_import_source__ got called with named args
+    7: int/context/function/function_call.py
+        packet_log() called with named args
+    8: int/context/function/function_call.py
+        show_console() called with named args
+    
     
 
 BuiltinExpectsValueException -> BEV
@@ -151,6 +160,11 @@ BuiltinExpectsValueException -> BEV
         seed() needs 1 arg: a number
     4: int/context/function/function_call.py
         << >> expects a file path string
+    5: int/context/function/function_call.py
+        packet_log() expects 0 or 1
+    6: int/context/function/function_call.py
+        show_console() expected 0 or 1
+    
     
 NoParentScopeException -> NPS
     1: int/context/function/function_call.py

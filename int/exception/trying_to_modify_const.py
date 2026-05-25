@@ -1,8 +1,8 @@
 from ..script_errors import ScriptErrors
-
+from .exit_exception import ExitException
 # code: TTMC-?
 
-class TryingToModifyConstException(Exception):
+class TryingToModifyConstException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, var_name: str, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "TryingToModifyConst"

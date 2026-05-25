@@ -1,9 +1,10 @@
 
 from ..script_errors import ScriptErrors
+from .exit_exception import ExitException
 
 # code: IOR-?
 
-class IndexOutOfRangeException(Exception):
+class IndexOutOfRangeException(ExitException):
     def __init__(self, pos: ScriptErrors.Position, index_value, length, code: str = "?"):
         self.error_type = "RUNTIME ERROR"
         self.title = "Index Out of Range"

@@ -48,6 +48,7 @@ FunctionCallExprCtx = QLangParser.FuncCallExprContext
 ArgListCtx = QLangParser.ArgListContext
 ForStmtCtx = QLangParser.ForStmtContext
 WhileStmtCtx = QLangParser.WhileStmtContext
+IterateStmtCtx = QLangParser.IterateStmtContext
 PowExprCtx = QLangParser.PowExprContext
 FormatCtx = QLangParser.FormatContext
 IfStmtCtx = QLangParser.IfStmtContext
