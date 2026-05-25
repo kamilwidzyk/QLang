@@ -1,0 +1,102 @@
+\section{Quantum Computing}
+\label{sec:quantum-computing}
+
+This chapter introduces the quantum-specific features of QLang: the built-in
+quantum types, the primitive quantum gates available in the language, how
+measurement works, and two canonical example protocols: quantum
+teleportation and superdense coding.
+
+% ─────────────────────────────────────────────
+\subsection{Quantum Types: `state` and `obs`}
+\label{sec:quantum-types}
+
+QLang exposes two first-class types for quantum programming:
+
+\begin{itemize}
+	\item \texttt{state}: a quantum register (one or more qubits). A
+		\texttt{state} can be put into superposition and entangled with other
+		\texttt{state}s using the built-in gate primitives. A variable of type
+		\texttt{state} represents a live quantum system that only yields a
+		classical value when explicitly measured.
+	\item \texttt{obs}: a classical observation, integer, used to store the
+		result of a measurement or any classical integer value. Observations
+		are used for branching, control and classical post-processing after
+		measurement.
+\end{itemize}
+
+As in earlier chapters, a variable declaration can specify arrays and
+bit-widths. Example: \texttt{state q[2]} declares a two-qubit register.
+
+% ─────────────────────────────────────────────
+\subsection{Primitive Gates}
+\label{sec:quantum-gates}
+
+QLang provides primitive quantum gates as first-class language constructs.
+The supported gates are listed below.
+
+\begin{center}
+\begin{tabular}{|l|p{12cm}|}
+\hline
+\textbf{Gate} & \textbf{Description} \\
+\hline
+\texttt{H} / \texttt{SUPERPOSE} & Hadamard gate - creates superposition on a single qubit. \\
+\texttt{S} / \texttt{SHIFT} & Phase gate - introduces a phase shift on a single qubit. \\
+\texttt{X} / \texttt{NOT} & Pauli-X - flips the computational basis state. \\
+\texttt{Y} / \texttt{DUAL\_NOT} & Pauli-Y - combines a bit flip and a phase flip. \\
+\texttt{Z} / \texttt{PHASE\_NOT} & Pauli-Z - applies a relative phase flip between $|0\rangle$ and $|1\rangle$. \\
+\texttt{CNOT} / \texttt{ENTANGLE} & Controlled-NOT - entangles two qubits: syntax \texttt{CNOT a -> b}. \\
+\texttt{CZ} / \texttt{ENTANGLE\_PHASE} & Controlled-Z - applies a phase flip conditioned on the control qubit. \\
+\hline
+\end{tabular}
+\end{center}
+
+Gates act on \texttt{state} variables in-place. Multi-qubit gates use the
+arrow syntax (\texttt{->}) to indicate control-to-target relationships.
+
+% ─────────────────────────────────────────────
+\subsection{Measurement}
+\label{sec:measurement}
+
+Measurement forces a \texttt{state} to collapse into a classical outcome (\texttt{obs}). 
+When invoked, the operation returns a \texttt{bool} (\texttt{false} for $|0\rangle$, \texttt{true} 
+for $|1\rangle$), which is automatically mapped to integer \texttt{0} or \texttt{1} when assigned to 
+an \texttt{obs} variable.
+
+Examples:
+\begin{itemize}
+	\item \texttt{bool b = measure q;} — measure a single-qubit \texttt{q}
+		and capture the boolean outcome.
+	\item \texttt{obs a[2] = measure [q0, q1];} — measure two qubits and
+		store the results into an \texttt{obs} array (values 0 or 1).
+\end{itemize}
+\\
+\\
+The following example puts a qubit into superposition, measures it, and prints the measured value:
+
+\input{chapter-3-quantum-computing/qlang/measurement.tex}
+
+Measurement is nondeterministic when applied to superposed or entangled
+states.
+
+% ─────────────────────────────────────────────
+\Needspace{8\baselineskip}
+\subsection{Example: Quantum Teleportation}
+\label{sec:teleportation}
+
+    Quantum teleportation can send any qubit, but this
+    example is limited to sending either |0> or |1> for simplicity.
+\input{chapter-3-quantum-computing/qlang/teleportation.tex}
+
+% ─────────────────────────────────────────────
+\Needspace{8\baselineskip}
+\subsection{Example: Superdense Coding}
+\label{sec:superdense}
+
+This example demonstrates the superdense coding protocol, 
+    which allows \texttt{Alice} to send two classical bits of information 
+    to \texttt{Bob} using only one qubit, provided they share an entangled 
+    pair of qubits beforehand. \input{chapter-3-quantum-computing/qlang/superdense_coding.tex}
+
+% ─────────────────────────────────────────────
+% Notes and best-practices removed per request.
+

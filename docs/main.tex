@@ -11,13 +11,14 @@
 \usepackage{verbatim}
 \usepackage{xcolor}
 \usepackage{listings}
-\tcbuselibrary{listings}
+\tcbuselibrary{listings,breakable,skins}
 \usepackage{caption}
 \captionsetup{justification=raggedright}
 \usepackage[hidelinks, colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
 \usepackage{xparse}
 \usepackage{xstring}
 \usepackage{ragged2e}
+\usepackage{needspace}
 
 \makeatletter
 \newcommand{\getrefname}[1]{%
@@ -69,21 +70,27 @@
 \newtcblisting{codebox}{
     colback=codebg,
     colframe=black!10,
-    boxrule=0.5pt,
-    arc=4pt,
-    left=6pt,
-    right=6pt,
-    top=4pt,
-    bottom=4pt,
+    boxrule=0.4pt,
+    arc=3pt,
+    left=4pt,
+    right=4pt,
+    top=0pt,
+    bottom=0pt,
+    boxsep=0pt,
     listing only,
-    fontupper=\codefont\small,
+    breakable,
+    fontupper=\codefont\fontsize{7.5}{8.2}\selectfont,
     listing options={
         showstringspaces=false,
         columns=fullflexible,
         keepspaces=true,
         escapeinside={(*@}{@*)},
         keywordstyle=\color{keywordcolor}\bfseries,
-        stringstyle=\color{stringcolor}
+        stringstyle=\color{stringcolor},
+        basicstyle=\codefont\fontsize{7.5}{8.2}\selectfont,
+        breaklines=true,
+        breakatwhitespace=true,
+        breakautoindent=true
     }
 }
 
@@ -161,7 +168,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\section{Quantum Computing}\label{sec:quantum-computing}
+\input{chapter-3-quantum-computing/quantum-computing}
 
 
 \end{document}

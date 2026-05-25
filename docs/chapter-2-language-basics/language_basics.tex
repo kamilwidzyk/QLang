@@ -76,15 +76,25 @@ integer literal or an expression evaluated at runtime:
 
 \subsubsection{Constants}
 
-Variables declared with the \texttt{const} keyword cannot be reassigned after
-their initial value is set. Attempting to modify a constant at runtime produces
-an error.
+The \texttt{const} keyword can be applied to any variable declaration to
+prevent reassignment after initialisation.
+
+Variables can be declared as mutable first and then locked with the
+\texttt{const} keyword. Once a variable has been marked as constant, it cannot
+be reassigned anymore. Attempting to modify a constant at runtime produces an
+error.
+
+This allows patterns such as:
 
 \input{chapter-2-language-basics/qlang/constants.tex}
 
+For example, \texttt{num x = 10; x++; const x;} starts with a mutable
+variable, updates it, and then freezes it so later assignments are rejected.
+
 \subsubsection{The \texttt{\#} Size Getter}
 
-The \texttt{\#} prefix operator returns the declared length of an array:
+The \texttt{\#} prefix operator returns the declared length of an array or the
+length of a \texttt{text} string:
 
 \input{chapter-2-language-basics/qlang/size_getter.tex}
 
@@ -158,8 +168,10 @@ QLang supports standard \texttt{if} / \texttt{else if} (or \texttt{elif}) /
 \subsubsection{For Loop}
 
 The \texttt{for} loop iterates over a numeric range with an optional step.
-The syntax is \texttt{for <var> from <start> to <end> step <step>}. When
-\texttt{step} is omitted, the step defaults to~1.
+The syntax is \texttt{for <var> from <start> to <end> step <step>}. For a
+descending loop, \texttt{step = -1}; for an ascending loop, \texttt{step = 1}.
+When \texttt{step} is omitted, it defaults to \texttt{-1} for descending loops
+and \texttt{1} for ascending loops.
 
 \subsubsection{While Loop}
 
@@ -190,7 +202,10 @@ and makes call sites more self-documenting:
 \subsubsection{Variadic Parameters}
 
 A function can accept a variable number of arguments using the \texttt{...}
-prefix. Inside the function, these are available as an array:
+prefix, for example \texttt{function sum(...values)}. Variadic arguments do not
+have a type written before the name. They may also mix values of different
+types, depending on how the function uses them. Inside the function, these are
+available as an array:
 
 \input{chapter-2-language-basics/qlang/variadic.tex}
 
@@ -204,18 +219,16 @@ QLang provides three output statements:
 \begin{itemize}
     \item \texttt{print(...)} — prints values without a trailing newline.
     \item \texttt{println(...)} — prints values followed by a newline.
-    \item \texttt{debug(x)} 
+    \item \texttt{debug(x)} — prints debug information.
 \end{itemize}
-
-Both \texttt{print} and \texttt{println} accept an optional format specifier
-(\texttt{BIN} or \texttt{HEX}) as a second argument:
 
 \input{chapter-2-language-basics/qlang/output.tex}
 
 \subsubsection{Input}
 
-The \texttt{input} statement reads a value from the user into a variable.
-An optional constraint limits the accepted range, either with the range
-notation or the \texttt{range()} function:
+The \texttt{input} statement reads a value from the user into a variable. It
+can be used with numeric values as well as \texttt{text} strings. An optional
+constraint limits the accepted range, either with the range notation or the
+\texttt{range()} function:
 
 \input{chapter-2-language-basics/qlang/input.tex}

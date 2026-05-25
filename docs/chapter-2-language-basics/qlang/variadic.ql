@@ -1,4 +1,4 @@
-function sum(num ...values) {
+function sum(...values) {
     num s = 0;
     for i from 0 to #values {
         s += values[i];
@@ -10,7 +10,7 @@ println(sum(1, 2, 3));         // 6
 println(sum(10, 20, 30, 40));  // 100
 
 // Regular parameters can precede the variadic one
-function prefixed(num x, num ...rest) {
+function prefixed(num x, ...rest) {
     println("x=" + x + " count=" + #rest);
 }
 
