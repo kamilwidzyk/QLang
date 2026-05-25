@@ -33,6 +33,7 @@ TYPE_STATE = "State"
 TYPE_STATE_REGISTER = "StateRegister"
 TYPE_LIST = "list" # [expr, expr, ...]
 TYPE_ARRAY = "Array" # instance of multidimensional Variable
+TYPE_ANY = "any"
 
 from .text import Text
 

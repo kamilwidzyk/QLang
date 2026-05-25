@@ -22,7 +22,8 @@ from ...expression import (
     TYPE_LIST,
     TYPE_STATE,
     TYPE_STRING,
-    TYPE_TEXT
+    TYPE_TEXT,
+    TYPE_ANY
 )
 from ...variable import Variable
 from ...exception.repeated_keyword_arg import RepeatedKeywordArgException
@@ -151,6 +152,8 @@ def _is_arg_type_compatible(expected_type: str, value: Any) -> bool:
         return False
     if expected_type == "state":
         return value_type == TYPE_STATE
+    if expected_type == "any":
+        return True
     return True
 
 
@@ -716,7 +719,8 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
                 "num": TYPE_NUM,
                 "obs": TYPE_OBS,
                 "state": TYPE_STATE,
-                "text": TYPE_TEXT
+                "text": TYPE_TEXT,
+                "any": TYPE_ANY
             }.get(param.type, TYPE_NUM)
             
             # Handle dimensions

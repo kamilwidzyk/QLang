@@ -28,6 +28,12 @@ class Num:
                 self.is_float = new_value.is_float
             elif new_value.type in TYPE_INT:
                 self.is_float = False
+            val = new_value.value
+            while hasattr(val, 'get_value'):
+                val = val.get_value()
+            self.value = val
+        elif type(new_value).__name__ == 'Num':
+            self.is_float = new_value.is_float
             self.value = new_value.value
         else:
             self.is_float = False

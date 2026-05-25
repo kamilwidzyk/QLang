@@ -46,8 +46,8 @@ constDecl: CONST (varType constAssign (',' constAssign)* | ID);
 //
 reference: '@' ID;
 
-// Możliwe typy zmiennych: state(stan kwantowy), obs(obserwacja), num(liczba), text
-varType: STATE | OBS | NUM | TEXT;
+// Możliwe typy zmiennych: state(stan kwantowy), obs(obserwacja), num(liczba), text, any(dowolny)
+varType: STATE | OBS | NUM | TEXT | ANY;
 
 // Do deklaracji zmiennej z możliwym przypisaniem
 sizeVar: '[' (expr | '?') ']';               /** Rozmiar mogący zawierać zmienną */
@@ -321,16 +321,7 @@ availableFilter
 // wywołana funkcja nie może mieć dostępu do aktualnych wartości z miejsca wywołania, ewentualnie snapshot z momentu wywołania
 //
 
-// Proponowne: typ dowolny zmiennej ustalany na podstawie pierwszej przypisanej wartości
-//  
-//  any x = 0; // zmienna staje się 'num'
-//  any x = " "; // zmienna staje się 'text'
-//  any x = [1, 2, 3]; // zmienna staje się 'list' tej wielkości jakiej jest przypisana lista
-//
-// Będzie to przydatne przy odbieraniu pakietów, których zawartość może nie być zawsze taka sama lub funkcja zwracających różne typy wartości
-// Any będzie też można użyć w parametrach funkcji, np:
-// 
-// function add(any a, any b){ return a + b; }
+
 
 
 
@@ -393,6 +384,7 @@ STATE: 'state';
 OBS: 'obs';
 SUPERPOSED: 'superposed';
 NUM: 'num'; // Do float
+ANY: 'any';
 
 H: 'H';
 SUPERPOSE: 'superpose';

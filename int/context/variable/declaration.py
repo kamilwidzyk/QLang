@@ -6,7 +6,7 @@ import copy
 
 from ...obs import Obs, ObsRegister
 
-from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER, TYPE_STATE, TYPE_TEXT
+from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER, TYPE_STATE, TYPE_TEXT, TYPE_ANY
 from ...logger import log, VARIABLE, FATAL
 
 from ...exception.size_error import SizeErrorException
@@ -198,6 +198,8 @@ def handle_variable_declaration(self: Place, block: any, parent: Any, pos: Scrip
         var_type = TYPE_TEXT
     elif var_type == "state":
         var_type = TYPE_STATE
+    elif var_type == "any":
+        var_type = TYPE_ANY
     else:
         log(VARIABLE, FATAL, "Unsupported variable type: " + str(var_type))
         exit()
@@ -218,6 +220,8 @@ def handle_const_variable_declaration(self: Place, block: Any, parent: Any, pos:
         var_type = TYPE_TEXT
     elif var_type == "state":
         var_type = TYPE_STATE
+    elif var_type == "any":
+        var_type = TYPE_ANY
     else:
         log(VARIABLE, FATAL, "Unsupported variable type: " + str(var_type))
         exit()

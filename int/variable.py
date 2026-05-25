@@ -42,6 +42,8 @@ class Variable:
             self._create_array_of_state_register()
         elif type == TYPE_TEXT:
             self._create_array_of_text()
+        elif type == TYPE_ANY:
+            self.data = None
         else:
             log(INTERNAL, FATAL, "Attempted to create instance of Variable with unknown type of " + str(type))
             exit()
@@ -121,11 +123,34 @@ class Variable:
             for d, v in zip(data, values):
                 self.assign_values(d, v)
         else:
-            data.set(values)
+            val = values.extract_raw_value() if hasattr(values, 'extract_raw_value') else Expression._extract_value_from(values)
+            data.set(val)
 
     def set(self, new_value: Expression, allow_const_init: bool = False, pos: ScriptErrors.Position = None):
         if self.is_const and not allow_const_init:
             raise TryingToModifyConstException(pos or ScriptErrors.Position(0, 0), self.name)
+
+        if self.type == TYPE_ANY:
+            from .type_inference import infer_type_from_value
+            inferred_type = infer_type_from_value(new_value)
+            self.type = inferred_type
+            
+            if new_value.shape is not None:
+                self.dimensions = [new_value.shape] if isinstance(new_value.shape, int) else new_value.shape
+            self.is_list = isinstance(self.dimensions, list) and len(self.dimensions) > 0 and self.dimensions != [0]
+            
+            if inferred_type == TYPE_OBS:
+                self._create_array_of_obs()
+            elif inferred_type == TYPE_OBS_REGISTER:
+                self._create_array_of_obs_register()
+            elif inferred_type == TYPE_NUM:
+                self._create_array_of_num()
+            elif inferred_type == TYPE_STATE:
+                self._create_array_of_state()
+            elif inferred_type == TYPE_STATE_REGISTER:
+                self._create_array_of_state_register()
+            elif inferred_type == TYPE_TEXT:
+                self._create_array_of_text()
 
         if self.type == TYPE_STATE:
             raise TypeError("Quantum state cannot be assigned directly")
@@ -188,11 +213,12 @@ class Variable:
                     exit()
                 self.assign_values(element, new_value.value)
             else:
-                element.set(new_value.value)
+                val = new_value.value.extract_raw_value() if hasattr(new_value.value, 'extract_raw_value') else Expression._extract_value_from(new_value.value)
+                element.set(val)
             return
 
         if self.is_list:
-            if new_value.type != TYPE_LIST:
+            if new_value.type != TYPE_LIST and not (new_value.shape is not None and new_value.shape != [0]):
                 log(VARIABLE, FATAL, "List expression required")
                 exit()
 
@@ -207,7 +233,8 @@ class Variable:
                 # Setting entire string
                 self.data.value = str(new_value.value) if new_value.value is not None else ""
             else:
-                self.data.set(new_value.value)
+                val = new_value.value.extract_raw_value() if hasattr(new_value.value, 'extract_raw_value') else Expression._extract_value_from(new_value.value)
+                self.data.set(val)
 
     def _default_scalar_value(self):
         if self.type == TYPE_TEXT:
