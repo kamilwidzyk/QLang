@@ -88,6 +88,7 @@ statement
     | CONTINUE ';'         # continueStatement
     | RETURN expr? ';'     # returnStatement
     | block                # blockStatement
+    | functionDecl         # functionDeclStatement
     | expr ';'             # exprStatement 
     | equation ';'         # equationStatement
     | ';'                  # semicolonStatement

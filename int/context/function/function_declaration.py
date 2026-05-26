@@ -11,7 +11,10 @@ from ...exception.function_redeclaration import FunctionRedeclarationException
 
 def handle_function_declaration(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # functionDecl: FUNCTION ID '(' paramList? ')' block;
-    
+
+    if isinstance(block, FunctionDeclStatementCtx):
+        block = block.functionDecl()
+
     func_name = block.ID().getText()
     param_list = None
     if block.paramList():

@@ -221,6 +221,7 @@ class Place:
             VarExprCtx:             handle_variable_expression,
             PlaceMemberCtx:         handle_place_member,
             FunctionDeclCtx:        handle_function_declaration,
+            FunctionDeclStatementCtx: handle_function_declaration,
             ParamListCtx:           handle_param_list,
             ParamCtx:               handle_param,
             BlockCtx:               handle_block_ctx,

@@ -13,6 +13,7 @@ PlaceDeclCtx = QLangParser.PlaceDeclContext
 FunctionDeclCtx = QLangParser.FunctionDeclContext
 StatementCtx = QLangParser.StatementContext
 ConstDeclarationCtx = QLangParser.ConstDeclarationContext
+FunctionDeclStatementCtx = QLangParser.FunctionDeclStatementContext
 ConstDeclCtx = QLangParser.ConstDeclContext
 
 #################### VARIABLES ####################
