@@ -14,7 +14,8 @@ top-level items. Each item is one of the following:
     \item A \texttt{place} declaration.
     \item A function declaration (at global place).
     \item A statement (at global place).
-\end{itemize}
+\end{itemize} 
+% import dodac
 
 Items are executed in the order they appear. The global place is the implicit
 default place and is always present. When a named place is declared, its body
@@ -39,9 +40,9 @@ quantum computation:
     to a classical value via the \texttt{measure} keyword. \\
 \hline
 \texttt{obs} &
-    An observation, a classical integer. Stores the result of a measured state or
-    any integer value. Supports arithmetic, comparison, and bitwise operations.
-    Bit-width is specified as \texttt{obs x[N]}. \\
+    A classical observation. A scalar \texttt{obs} stores a boolean value;
+    a sized register \texttt{obs x[N]} stores an N-bit integer. Used for
+    branching, control, and classical post-processing after measurement. \\
 \hline
 \texttt{num} &
     A universal numeric type. It dynamically handles both integers 
@@ -101,9 +102,6 @@ length of a \texttt{text} string:
 % ─────────────────────────────────────────────
 \subsection{Operators}\label{sec:operators}
 
-QLang supports the standard set of classical operators as well as
-quantum-specific operations.
-
 \subsubsection{Arithmetic Operators}
 
 \begin{center}
@@ -115,8 +113,22 @@ quantum-specific operations.
 \texttt{-}  & Subtraction \\
 \texttt{*}  & Multiplication \\
 \texttt{/}  & Division \\
-\texttt{\%} & Modulo (remainder) \\
-\texttt{**} & Exponentiation (power) \\
+\texttt{\%} & Modulo \\
+\texttt{**} & Exponentiation \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Unary Operators}
+
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Operator} & \textbf{Description} \\
+\hline
+\texttt{+x}  & Unary plus, returns the value unchanged \\
+\texttt{-x}  & Unary minus, negates the value \\
+\texttt{!x}  & Logical NOT; returns \texttt{1} if \texttt{x} is zero, \texttt{0} otherwise \\
 \hline
 \end{tabular}
 \end{center}
@@ -133,20 +145,39 @@ quantum-specific operations.
 \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=} & Relational comparisons \\
 \texttt{\&\&}             & Logical AND \\
 \texttt{||}               & Logical OR \\
-\texttt{!}                & Logical NOT \\
 \hline
 \end{tabular}
 \end{center}
+
+\subsubsection{Increment and Decrement}
+
+\input{chapter-2-language-basics/qlang/increment.tex}
 
 \subsubsection{Compound Assignment Operators}
 
 In addition to plain assignment (\texttt{=}), QLang supports compound
 operators: \texttt{+=}, \texttt{-=}, \texttt{*=}, \texttt{/=}, \texttt{\%=},
-\texttt{**=}, \texttt{\&=}, \texttt{|=}.
+\texttt{**=}. The operators \texttt{\&=} and \texttt{|=} are logical compound
+assignments equivalent to \texttt{x = x \&\& y} and \texttt{x = x || y}
+respectively.
 
-\subsubsection{Increment and Decrement}
+All compound assignment operators return the new value of the variable,
+so they can be used inside expressions.
 
-\input{chapter-2-language-basics/qlang/increment.tex}
+\subsubsection{Assignment Expression}
+
+Plain assignment (\texttt{=}) is also an expression and returns the assigned
+value. Assigning to a non-variable expression is legal but has no effect and
+simply returns the right-hand side value.
+
+\subsubsection{The \texttt{reset} Operator}
+
+The \texttt{reset} operator restores a variable to its initial value as
+declared, or to the type default if no initial value was given. It works on
+scalars, strings, and multi-dimensional arrays. It returns the value after
+reset.
+
+\input{chapter-2-language-basics/qlang/reset.tex}
 
 \subsubsection{String Formatting Operator}
 
@@ -154,60 +185,82 @@ The \texttt{\%} operator, when the left operand is a \texttt{text} string,
 performs printf-style interpolation:
 
 \input{chapter-2-language-basics/qlang/formatting.tex}
+\subsubsection{The Parent Operator \texttt{\^{}}}
+
+The \texttt{\^{}} operator explicitly accesses a variable in an outer scope.
+Multiple carets chain upward, one level per caret. See
+Section~\ref{sec:parent-operator} for a full description.
 
 % ─────────────────────────────────────────────
 \subsection{Control Flow}\label{sec:control-flow}
 
 \subsubsection{Conditional Statements}
 
-QLang supports standard \texttt{if} / \texttt{else if} (or \texttt{elif}) /
-\texttt{else} branching:
+QLang supports standard \texttt{if} / \texttt{else if} / \texttt{else}
+branching:
 
 \input{chapter-2-language-basics/qlang/control_flow.tex}
 
 \subsubsection{For Loop}
 
 The \texttt{for} loop iterates over a numeric range with an optional step.
-The syntax is \texttt{for <var> from <start> to <end> step <step>}. For a
-descending loop, \texttt{step = -1}; for an ascending loop, \texttt{step = 1}.
-When \texttt{step} is omitted, it defaults to \texttt{-1} for descending loops
-and \texttt{1} for ascending loops.
+The syntax is \texttt{for <var> from <start> to <end> step <step>}. The
+loop variable is created automatically and is only accessible inside the
+loop body. When \texttt{step} is omitted, the interpreter infers it
+automatically: \texttt{+1} if \texttt{end > start}, \texttt{-1} otherwise.
+
+\input{chapter-2-language-basics/qlang/for_loop.tex}
 
 \subsubsection{While Loop}
 
-The \texttt{while} loop repeats its body as long as the condition holds.
+The \texttt{while} loop repeats its body as long as the condition is
+non-zero or \texttt{true}.
+
+\input{chapter-2-language-basics/qlang/while_loop.tex}
+
+\subsubsection{Iterate Loop}
+
+The \texttt{iterate} loop traverses every element of an array. The current
+element is bound to a named variable. An optional \texttt{index} clause
+provides a second variable that holds the current index.
+
+\input{chapter-2-language-basics/qlang/iterate_loop.tex}
 
 \subsubsection{Break and Continue}
 
 \texttt{break} exits the nearest enclosing loop immediately.
-\texttt{continue} skips the rest of the current iteration and proceeds to the
-next one.
+\texttt{continue} skips the rest of the current iteration and proceeds to
+the next one.
+
 
 % ─────────────────────────────────────────────
 \subsection{Functions}\label{sec:functions}
 
 Functions are declared with the \texttt{function} keyword. Parameters are
-typed, can have default values, and may be arrays. A function returns a value
+typed, can have default values, and may be arrays. Supported parameter types
+are \texttt{num}, \texttt{obs}, \texttt{state}, \texttt{text}, and
+\texttt{any}. A parameter of type \texttt{any} accepts a value of any type
+and infers the actual type at the call site. A function returns a value
 with the \texttt{return} statement.
 
 \input{chapter-2-language-basics/qlang/functions.tex}
 
 \subsubsection{Named Arguments}
 
-Arguments can be passed by name, which allows them to be supplied in any order
-and makes call sites more self-documenting:
+Arguments can be passed by name, which allows them to be supplied in any
+order and makes call sites more self-documenting:
 
 \input{chapter-2-language-basics/qlang/named_args.tex}
 
 \subsubsection{Variadic Parameters}
 
 A function can accept a variable number of arguments using the \texttt{...}
-prefix, for example \texttt{function sum(...values)}. Variadic arguments do not
-have a type written before the name. They may also mix values of different
-types, depending on how the function uses them. Inside the function, these are
-available as an array:
+prefix, for example \texttt{function sum(...values)}. Variadic arguments do
+not have a type written before the name and may mix values of different
+types. Inside the function they are available as an array:
 
 \input{chapter-2-language-basics/qlang/variadic.tex}
+
 
 % ─────────────────────────────────────────────
 \subsection{Input and Output}\label{sec:io}
@@ -219,16 +272,20 @@ QLang provides three output statements:
 \begin{itemize}
     \item \texttt{print(...)} — prints values without a trailing newline.
     \item \texttt{println(...)} — prints values followed by a newline.
-    \item \texttt{debug(x)} — prints debug information.
+    \item \texttt{debug(x)} — prints detailed diagnostic information,
+    including the internal type, shape, and for quantum states the gate
+    history and stabilizer representation.
 \end{itemize}
 
 \input{chapter-2-language-basics/qlang/output.tex}
 
 \subsubsection{Input}
 
-The \texttt{input} statement reads a value from the user into a variable. It
-can be used with numeric values as well as \texttt{text} strings. An optional
-constraint limits the accepted range, either with the range notation or the
-\texttt{range()} function:
+The \texttt{input} statement reads a value from the user into a variable.
+An optional constraint limits the accepted input. For numeric variables
+the constraint specifies a value range; for \texttt{text} variables it
+specifies the allowed length in characters. The constraint can be written
+with the range notation \texttt{min..max} or the \texttt{range()} function.
+The interpreter keeps prompting until a valid value is entered.
 
 \input{chapter-2-language-basics/qlang/input.tex}

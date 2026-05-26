@@ -1,4 +1,5 @@
 state q;
 H q;
-measure q;
-println(q);
+obs result[1];
+result = measure q;
+println(result);
