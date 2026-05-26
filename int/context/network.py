@@ -276,12 +276,6 @@ def handle_send_statement(self: Place, block: Any, parent: Any, pos: ScriptError
             )
 
     variable = handle_variable_expression(self, expr_ctx, block, ScriptErrors.Position.extract(expr_ctx), return_variable=True)
-    var_name = variable.name
-    if not self.scopes.exists(var_name):
-        # code: CFV-9
-        raise CantFindVariableException(
-            ScriptErrors.Position.extract(expr_ctx), 
-            var_name, code="9")
 
     size = None
 

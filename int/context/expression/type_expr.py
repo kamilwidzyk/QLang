@@ -35,4 +35,5 @@ def handle_type_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
     else:
         # For simple expr, handle normally but get type
         value = self.handle_block(expr, block)
+        # TODO: To jest do zrobienia
         return type(value).__name__  # or something, but for variables it's better
