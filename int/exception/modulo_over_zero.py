@@ -19,7 +19,8 @@ class ModuloOverZeroException(ExitException):
             pos=self.pos,
             error_type=self.error_type,
             title=self.title,
-            msg=self.msg
+            msg=self.msg,
+            code=self.code
         )
 
     

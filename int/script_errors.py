@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import colorama
 from typing import Any, Self, List
 
-from .logger import log, WARNING, SC_ER, DEBUG
+from .logger import log, WARNING, SC_ER, DEBUG, log_test, test_mode_enabled
 """
 Type of errors:
   > DEEP ERROR: This might not be related to your program, but to the interpreter.
@@ -211,8 +211,9 @@ class ScriptErrors:
             script (str): Content of QLang script file
         """
         self.lines = script.split('\n')
+        self.error_count = 0
 
-    def showError(self, pos: Position, error_type: str, title: str, msg: str):
+    def showError(self, pos: Position, error_type: str, title: str, msg: str, code: str = None):
         """
         This is the function that will get called when some error during the script execution occurs
 
@@ -223,8 +224,18 @@ class ScriptErrors:
             error_type (str): Type of the shows error(sytax/runtime/deep)
             title (str): Short title
             msg (str): Message to show
+            code (str): Optional error code
         """
-        log(SC_ER, DEBUG, f"Error parameters: start_line={pos.start.line} start_col={pos.start.col} end_line={pos.end.line} end_col={pos.end.col} msg={msg}")
+        log(SC_ER, DEBUG, f"Error parameters: start_line={pos.start.line} start_col={pos.start.col} end_line={pos.end.line} end_col={pos.end.col} code={code} msg={msg}")
+
+        if test_mode_enabled():
+            error_index = self.error_count
+            log_test(f"ERROR_LINE_START[{error_index}]={pos.start_line()}")
+            log_test(f"ERROR_LINE_END[{error_index}]={pos.end_line()}")
+            log_test(f"ERROR_COL_START[{error_index}]={pos.start_col()}")
+            log_test(f"ERROR_COL_END[{error_index}]={pos.end_col()}")
+            log_test(f"ERROR_CODE[{error_index}]={code if code is not None else ''}")
+            self.error_count += 1
 
         # Width is calculated based on the min of:
         #   - type + title
@@ -254,7 +265,8 @@ class ScriptErrors:
         """
 
         # minimal widths of each section
-        type_title_width = 3 + len(error_type) + 2 + len(title) + 3
+        header_text = error_type + ": " + (f"[{code}] " if code else "") + title
+        type_title_width = 3 + len(header_text) + 3
         msg_width = 3 + len(msg) + 3
         context_width = None # this will be calculated later
 
@@ -311,8 +323,9 @@ class ScriptErrors:
 
         print()
         print(style_red_border + "┏" + "━" * window_width + "┓")
-        print("┃   " + " "*type_margin_left + style_type + error_type + 
-              style_white_bright + ": " + title +  style_red_border + " "*type_margin_right + "   ┃")
+        header_text = error_type + ": " + (f"[{code}] " if code else "") + title
+        print("┃   " + " "*type_margin_left + style_type + header_text + 
+              style_red_border + " "*type_margin_right + "   ┃")
         print(style_red_border + "┡" + "━" * window_width + "┩")
         print("│   " + " "*msg_margin_left + style_white_normal + msg + " "*msg_margin_right + 
               style_red_border + "   │")

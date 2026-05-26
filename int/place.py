@@ -11,7 +11,7 @@ from .consts import *
 from .scope import ScopeManager
 from .sim.client import QuantumClient
 
-from .logger import log, PLACE, INFO, FATAL
+from .logger import log, PLACE, INFO, FATAL, enable_test_mode
 
 from antlr4 import *
 from antlr4.tree.Tree import TerminalNode
@@ -319,6 +319,7 @@ class Place:
         # Open console with title that includes place's name
         self.console = Console("Place: " + self.name)
         if(self.test_mode):
+            enable_test_mode()
             self.console.enable_test_mode()
         self.console.launch()
 
