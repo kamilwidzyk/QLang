@@ -89,13 +89,22 @@ def divideIntoPlaces(tree: antlr4.tree.ParseTree, script_errors: ScriptErrors, p
 
                 # Add every member to place 
                 for member in top_level.placeMember():
-                    places.add_code(place_name, 
-                                    get_original_text(member.getChild(0)))
+                    position = ScriptErrors.Position.extract(member.getChild(0))
+                    places.add_code(
+                        place_name,
+                        get_original_text(member.getChild(0)),
+                        position.start_line()
+                    )
 
             # Add everything else to 'global' place
             elif isinstance(top_level, FunctionDeclCtx) or \
                 isinstance(top_level, StatementCtx):
-                places.add_code("global", get_original_text(top_level))
+                position = ScriptErrors.Position.extract(top_level)
+                places.add_code(
+                    "global",
+                    get_original_text(top_level),
+                    position.start_line()
+                )
 
 
     log(PLACE, SUCCESS, "OK", only_msg=True)
@@ -129,15 +138,16 @@ class Places:
         new_place = Place(name, script_errors, declared_at)
         self.places[name] = new_place
 
-    def add_code(self, name: str, code: Any):
+    def add_code(self, name: str, code: Any, start_line: int = None):
         """
         Adds code to specified place
 
         Parameters:
             name (str): Name of the place to add code to
             code (Any): Code to add to the specified place
+            start_line (int | None): Optional starting line from the original input
         """
-        self.places[name].add_code(code)
+        self.places[name].add_code(code, start_line)
 
     def is_defined(self, name: str) -> bool:
         """

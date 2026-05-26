@@ -139,14 +139,18 @@ class Place:
     def enable_test_mode(self):
         self.test_mode = True
 
-    def add_code(self, code: Any):
+    def add_code(self, code: Any, start_line: int = None):
         """
         Adds code to this place
 
         Parameters:
-            code (Any): code to add to this place, type depends on code
+            code (Any): code to add to this place
+            start_line (int | None): Optional starting line from the original input
         """
-        self.block.append(code)
+        if start_line is None:
+            self.block.append(code)
+        else:
+            self.block.append((code, start_line))
 
     def has_code(self) -> bool:
         """
@@ -330,21 +334,35 @@ class Place:
         # Reconstruct place decl for the parser to not parse every member individually
         place_text = "place " + self.name + "{\n"
 
-        # Add every top-level block of code
+        # Add every top-level block of code, preserving original blank lines
+        prev_end_line = 0
         for bl in self.block:
-            place_text += bl + "\n"
+            if isinstance(bl, tuple) and len(bl) == 2:
+                code, start_line = bl
+                gap = start_line - prev_end_line - 1
+                if gap > 0:
+                    place_text += "\n" * gap
+                place_text += code + "\n"
+                prev_end_line = start_line + code.count("\n")
+            else:
+                place_text += bl + "\n"
 
         place_text += "};"
 
-        input_stream = InputStream(place_text)
-        lexer = QLangLexer(input_stream)
-        token_stream = CommonTokenStream(lexer)
-        parser = QLangParser(token_stream)
-        tree = parser.placeDecl()
+        prev_offset = ScriptErrors.Position.LINE_OFFSET
+        ScriptErrors.Position.LINE_OFFSET = -1
+        try:
+            input_stream = InputStream(place_text)
+            lexer = QLangLexer(input_stream)
+            token_stream = CommonTokenStream(lexer)
+            parser = QLangParser(token_stream)
+            tree = parser.placeDecl()
 
-        for place_member in tree.placeMember():
-            member = place_member.getChild(0) 
-            self.handle_block(member, None)
+            for place_member in tree.placeMember():
+                member = place_member.getChild(0)
+                self.handle_block(member, None)
+        finally:
+            ScriptErrors.Position.LINE_OFFSET = prev_offset
 
         if not self.console.test_mode:
             self.console.write("-----[END]-----\n")

@@ -60,7 +60,7 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
     if not self.scopes.exists(var_name):
         # code: CFV-3
         raise CantFindVariableException(
-            pos=ScriptErrors.Position.extract(block), 
+            pos=ScriptErrors.Position.extract(block.ID()), 
             var_name=var_name,
             code="3"
         )

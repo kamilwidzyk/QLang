@@ -36,14 +36,15 @@ class ScriptErrors:
             line: int = None
             col: int = None
 
-        start = Point()
-        end = Point()
+        LINE_OFFSET = 0
 
         def __init__(
                 self, start_line: int = None, start_col: int = None, 
                 end_line: int = None, end_col: int = None,
                 start_point: Point = None, end_point = None,
                 width: int = None):
+            self.start = self.Point()
+            self.end = self.Point()
             """
             Inits position by passing:
             A start point: as start_point or start_line and start_col
@@ -154,10 +155,10 @@ class ScriptErrors:
                 # Only start position is known
                 if end_token is None:
                     return cls(
-                        start_line=start_line,
-                        start_col=start_col,
-                        end_line=start_line,
-                        end_col=start_col
+                        start_line=start_line + cls.LINE_OFFSET,
+                        start_col=start_col + 1,
+                        end_line=start_line + cls.LINE_OFFSET,
+                        end_col=start_col + 1
                     )
                 
                 # Try to extract the text length
@@ -166,10 +167,10 @@ class ScriptErrors:
                 end_col = end_token.column + len(token_text)
 
                 return cls(
-                    start_line=start_line,
-                    start_col=start_col,
-                    end_line=end_line,
-                    end_col=end_col
+                    start_line=start_line + cls.LINE_OFFSET,
+                    start_col=start_col + 1,
+                    end_line=end_line + cls.LINE_OFFSET,
+                    end_col=end_col + 1
                 )
             except:
                 return cls(
@@ -250,7 +251,7 @@ class ScriptErrors:
         # line numbers are cyan/blue (width is calculated auto, min 3 chars, align right)
         """
         ┏━━━━━━━━━━━━...━━━━━━━━━━━━━┓
-        ┃     <type>: <title>        ┃ (Text is centered, padding 3)
+        ┃ [<code>]  <type>: <title>    ┃ (Text is centered, padding minimum 3)
         ┡━━━━━━━━━━━━...━━━━━━━━━━━━━┩
         │   <msg>                    │ (Text is centered, padding 3)
         ├───┬────────...─────────────┤
@@ -265,8 +266,8 @@ class ScriptErrors:
         """
 
         # minimal widths of each section
-        header_text = error_type + ": " + (f"[{code}] " if code else "") + title
-        type_title_width = 3 + len(header_text) + 3
+        header_text = error_type + ": " + title
+        type_title_width = max(3, len(code)+3+3) + len(header_text) + max(3, len(code)+3+3)
         msg_width = 3 + len(msg) + 3
         context_width = None # this will be calculated later
 
@@ -309,23 +310,29 @@ class ScriptErrors:
 
         style_red_border =  colorama.Style.BRIGHT + colorama.Fore.RED + colorama.Back.RESET
         style_type = colorama.Style.BRIGHT + colorama.Fore.YELLOW + colorama.Back.RESET
+        style_title = colorama.Style.BRIGHT + colorama.Fore.WHITE + colorama.Back.RESET
+        style_error_code = colorama.Style.BRIGHT + colorama.Fore.CYAN + colorama.Back.RESET
         style_white_bright = colorama.Style.BRIGHT + colorama.Fore.WHITE + colorama.Back.RESET
         style_white_normal = colorama.Style.NORMAL + colorama.Fore.WHITE + colorama.Back.RESET
         style_line_number = colorama.Style.NORMAL + colorama.Fore.CYAN + colorama.Back.RESET
         style_highlight = colorama.Style.BRIGHT + colorama.Fore.BLACK + colorama.Back.YELLOW
 
 
-        type_margin_left = (window_width - type_title_width) // 2
-        type_margin_right = window_width - type_title_width - type_margin_left
+        type_margin_left = max((window_width - len(header_text)) // 2, len(code)+3+3)
+        type_margin_right = max((window_width - len(header_text) - type_margin_left) - 2, len(code)+3+3 -2)
+        type_margin_left -= len(code) + 3
 
         msg_margin_left = (window_width - msg_width) // 2
         msg_margin_right = window_width - msg_width - msg_margin_left
 
         print()
         print(style_red_border + "┏" + "━" * window_width + "┓")
-        header_text = error_type + ": " + (f"[{code}] " if code else "") + title
-        print("┃   " + " "*type_margin_left + style_type + header_text + 
-              style_red_border + " "*type_margin_right + "   ┃")
+
+        print("┃ " + style_white_bright + "[" + style_error_code + code + style_white_bright + "] " + " "*type_margin_left + style_type + 
+                error_type + ": " + style_title + title + 
+                style_red_border + " "*type_margin_right + " ┃")
+
+
         print(style_red_border + "┡" + "━" * window_width + "┩")
         print("│   " + " "*msg_margin_left + style_white_normal + msg + " "*msg_margin_right + 
               style_red_border + "   │")
@@ -342,21 +349,21 @@ class ScriptErrors:
                 highlight_end = None # None = highlight to the end of this line
 
                 if pos.is_single_line() and line_number == pos.start_line():
-                    highlight_start = pos.start_col()
-                    highlight_end = pos.end_col()
+                    highlight_start = pos.start_col() - 1
+                    highlight_end = pos.end_col() - 1
                 elif not pos.is_single_line() and \
                      (line_number >= pos.start_line() and line_number <= pos.end_line()):
                     
                     if line_number == pos.start_line():
                         # This is the first line of highlight, start at specified col
                         # and highlight to the end of this line
-                        highlight_start = pos.start_col()
+                        highlight_start = pos.start_col() - 1
                         highlight_end = None
                     elif line_number == pos.end_line():
                         # This is the last line of highlight, start and the beginning
                         # and highlight to the specified col
                         highlight_start = 0
-                        highlight_end = pos.end_col()
+                        highlight_end = pos.end_col() - 1
                     else:
                         # This is a line in the middle
                         # highlight the whole line

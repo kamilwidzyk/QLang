@@ -319,8 +319,40 @@ if __name__ == "__main__":
     print(f"{colorama.Fore.BLACK}\n\n{colorama.Back.GREEN}          #####>-- Test results: --<#####          {colorama.Style.RESET_ALL}\n")
     passed_count = sum(1 for result in failed_passed.values() if result)
     total_count = len(failed_passed)
+    failed_count = total_count - passed_count
+
+    for key, value in failed_passed.copy().items():
+        splits = str(key).split(":")
+        file_path = splits[0]
+        function_name = splits[1]
+        is_errors = False
+        if file_path.startswith("tests\\errors\\"):
+            is_errors = True
+            new_key = f"{colorama.Fore.YELLOW}ERRORS {colorama.Style.RESET_ALL}" + str(key)[6:]
+
+        new_key = ""
+        if is_errors:
+            new_key += f"{colorama.Fore.YELLOW}ERRORS {colorama.Style.RESET_ALL}" 
+
+        new_key += file_path[6:]
+        new_key += f"{colorama.Fore.CYAN} -> {colorama.Style.RESET_ALL}"
+        new_key += function_name
+        new_key += f" {colorama.Style.DIM}{colorama.Fore.WHITE}[uv run python -m tests.test "
+        new_key += "\\".join(file_path[6:].split("\\")[:-1])
+        new_key += " "
+        new_key += function_name
+        new_key += f"]{colorama.Style.RESET_ALL}"
+
+        failed_passed[new_key] = failed_passed.pop(key)
+        
+
+
 
     for key, value in failed_passed.items():
         print(f"  {f'{colorama.Fore.GREEN}PASSED{colorama.Style.RESET_ALL}' if value else f'{colorama.Fore.RED}FAILED{colorama.Style.RESET_ALL}'} | {key}")
 
     print(f"\n{colorama.Fore.WHITE}{colorama.Style.BRIGHT}Summary: {passed_count}/{total_count} tests passed.\n{colorama.Style.RESET_ALL}")
+    if failed_count == 0:
+        print(f"{colorama.Back.GREEN}{colorama.Fore.BLACK}                 ALL TESTS PASSED                  {colorama.Style.RESET_ALL}\n")
+    else:
+        print(f"{colorama.Fore.RED}\t{total_count-passed_count} failed test!{colorama.Style.RESET_ALL}\n")

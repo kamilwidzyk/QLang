@@ -8,6 +8,7 @@ List format:
 <exception> -> <exception short>
     <code>: <file_path> 
         <Explain when the exception is raised and why>
+        TEST: <path to the test that throws this error>
 
 # code: ATE-3   
 Those comments are written above the raised exception,
@@ -20,28 +21,40 @@ Main place catcher needs to be updated
 AssignmentToExpressionException -> ATE
     1: int/context/math/logic/and_eq_op.py
         Left side of '&=' is not assignable
+        TEST: errors/operators/something_equal/and_eq.ql
     2: int/context/math/logic/or_eq_op.py
         Left side of '|=' is not assignable
+        TEST: errors/operators/something_equal/or_eq.ql
     3: int/context/math/div_eq_expr.py
         Left side of '/=' is not assignable
+        TEST: errors/operators/something_equal/div_eq.ql
     4: int/context/math/minus_eq_op.py
         Left side of '-=' is not assignable
+        TEST: errors/operators/something_equal/minus_eq.ql
     5: int/context/math/mod_eq_op.py
         Left side of '%=' is not assignable
+        TEST: errors/operators/something_equal/mod_eq.ql
     6: int/context/math/mul_eq_op.py
         Left side of '*=' is not assignable
+        TEST: errors/operators/something_equal/mul_eq.ql
     7: int/context/math/plus_eq_op.py
         Left side of '+=' is not assignable
+        TEST: errors/operators/something_equal/plus_eq.ql
     8: int/context/math/pow_eq_op.py
         Left side of '**=' is not assignable
+        TEST: errors/operators/something_equal/pow_eq.ql
     9: int/context/math/pre_post.py
         '--x' -> x is not assignable
+        TEST: errors/operators/pre_post/pre_dec.ql
     10: int/context/math/pre_post.py
         'x--' -> x is not assignable
+        TEST: errors/operators/pre_post/post_dec.ql
     11: int/context/math/pre_post.py
         '++x' -> x is not assignable
+        TEST: errors/operators/pre_post/pre_inc.ql
     12: int/context/math/pre_post.py
         'x++' -> x is not assignable
+        TEST: errors/operators/pre_post/post_inc.ql
     
 
 CantFindVariableException -> CFV
