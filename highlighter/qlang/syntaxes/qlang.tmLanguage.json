@@ -37,7 +37,7 @@
 			"patterns": [
 				{
 					"name": "support.function.qlang",
-					"match": "\\b(print|println|input|debug|range|parent|\\.\\.)\\b"
+					"match": "\\b(print|println|input|debug|range|parent|show_console|packet_log|cut|round|floor|ceil|\\.\\.)\\b"
 				}
 			]
 		},
@@ -61,7 +61,7 @@
 			"patterns": [
 				{
 					"name": "storage.type.primitive.qlang",
-					"match": "\\b(num|obs|state|text|const)\\b"
+					"match": "\\b(num|obs|state|text|const|any)\\b"
 				}
 			]
 		},
