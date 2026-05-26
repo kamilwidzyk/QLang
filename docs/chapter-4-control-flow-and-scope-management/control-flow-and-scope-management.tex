@@ -1,0 +1,70 @@
+\section{Advanced Control Flow and Scope Management}
+\label{sec:control-flow-and-scope-management}
+
+% ─────────────────────────────────────────────
+\subsection{The Parent Operator \texttt{\^{}} and Scope Hierarchy}
+\label{sec:parent-operator}
+
+\subsubsection{Scope in QLang}
+In QLang, every block of code creates a new scope level, forming a linked chain of
+scopes. Reading a variable walks this chain upward automatically. Writing to a
+variable in an outer scope requires the parent operator \texttt{\^{}}.
+
+\subsubsection{How \texttt{\^{}} Works}
+The parent operator \texttt{\^{}} explicitly selects a scope one level above the current
+one. Multiple carets chain upward, one level per caret:
+
+\begin{itemize}
+    \item \texttt{\^{}x} accesses \texttt{x} in the parent scope
+    \item \texttt{\^{}\^{}x} accesses \texttt{x} in the grandparent scope
+    \item \texttt{\^{}\^{}\^{}x} accesses \texttt{x} three levels up
+\end{itemize}
+
+Once the target scope is reached, the variable is looked up only in that
+specific scope; the automatic upward walk does not apply at that point.
+The operator supports all standard operations: assignment, compound assignment,
+increment and decrement, as well as indexed access on arrays.
+
+The following example demonstrates reading and writing through the scope hierarchy:
+\input{chapter-4-control-flow-and-scope-management/qlang/scope-hierarchy.tex}
+
+Array indexing works the same way. The parent operator applies to the variable,
+and the index is evaluated afterward:
+\input{chapter-4-control-flow-and-scope-management/qlang/array-example.tex}
+
+% ─────────────────────────────────────────────
+\subsection{Advanced Array Structures and Indexing}
+\label{sec:array-indexing}
+
+QLang supports three indexing modes for arrays: simple indexing, range indexing,
+and list indexing. All three resolve negative indices automatically against the
+container length.
+
+\subsubsection{Simple Indexing and Negative Indices}
+A single integer index selects one element. Negative values count from the end
+of the array: an index \texttt{i} where \texttt{i < 0} is resolved as
+\texttt{i + length} before access.
+
+\input{chapter-4-control-flow-and-scope-management/qlang/simple-indexing.tex}
+
+\subsubsection{Range Indexing}
+A range index \texttt{start..end} selects a contiguous subarray. The range is
+left-inclusive and right-exclusive: element at \texttt{start} is included,
+element at \texttt{end} is not. Negative values are resolved the same way as
+in simple indexing.
+
+\input{chapter-4-control-flow-and-scope-management/qlang/range-indexing.tex}
+% ─────────────────────────────────────────────
+\subsubsection{List Indexing}
+A list index \texttt{[[a, b, c]]} selects elements at the given positions in
+arbitrary order. The double bracket syntax distinguishes list indexing from
+simple indexing. This is particularly useful for selecting non-contiguous
+elements or reordering array contents.
+
+\input{chapter-4-control-flow-and-scope-management/qlang/fancy-indexing.tex}
+
+An existing array can also be passed as the index list directly:
+
+\input{chapter-4-control-flow-and-scope-management/qlang/index-list-array.tex}
+% ─────────────────────────────────────────────
+\subsection{...}

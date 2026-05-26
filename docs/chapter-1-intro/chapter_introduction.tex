@@ -47,10 +47,8 @@ undefined variable, or an illegal runtime operation, it displays a detailed
 error box that highlights the exact source location, shows surrounding context
 lines, and explains the cause.
 \subsubsection{Modular Structure via Places}
-Each \texttt{place} in a QLang program runs as a logically isolated process with
-its own variable scope and console output. Places communicate via the
-\texttt{send} and \texttt{received} primitives, which allow passing both classical
-(\texttt{obs}) and quantum (\texttt{state}) data between places. The \texttt{received} instruction blocks execution until the expected message is received,
-enabling synchronisation between parallel processes. This makes it possible to
-express distributed quantum protocols such as quantum teleportation directly in
-the language.
+QLang organizes code into units called \texttt{places}. Each \texttt{place} has its own 
+name, its own variables, and runs independently from other places. Places can communicate 
+with each other using the built-in \texttt{send} and \texttt{receive} instructions, which 
+transfer both classical and quantum data. This makes it natural to write distributed 
+programs, such as quantum communication protocols, directly in QLang.
