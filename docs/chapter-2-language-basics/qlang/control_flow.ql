@@ -2,7 +2,7 @@ num x = 75;
 
 if (x > 100) {
     println("Large");
-} else if (x > 50) {
+} elif (x > 50) {
     println("Medium");
 } else {
     println("Small");

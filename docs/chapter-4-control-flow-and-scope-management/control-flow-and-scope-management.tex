@@ -7,8 +7,11 @@
 
 \subsubsection{Scope in QLang}
 In QLang, every block of code creates a new scope level, forming a linked chain of
-scopes. Reading a variable walks this chain upward automatically. Writing to a
-variable in an outer scope requires the parent operator \texttt{\^{}}.
+scopes. Both reading and writing a variable automatically walk this chain upward
+until the variable is found. The parent operator \texttt{\^{}} is needed only when
+you want to explicitly skip the current scope and target a specific outer level
+- for example, when a local variable shadows an outer one.
+
 
 \subsubsection{How \texttt{\^{}} Works}
 The parent operator \texttt{\^{}} explicitly selects a scope one level above the current
@@ -57,14 +60,48 @@ in simple indexing.
 % ─────────────────────────────────────────────
 \subsubsection{List Indexing}
 A list index \texttt{[[a, b, c]]} selects elements at the given positions in
-arbitrary order. The double bracket syntax distinguishes list indexing from
-simple indexing. This is particularly useful for selecting non-contiguous
-elements or reordering array contents.
+arbitrary order. The double-bracket syntax is used for a literal list
+of indices. To pass an existing array variable as the index list, use a
+single bracket. The interpreter detects that the expression is an array
+and treats it as a list of indices automatically. All three indexing modes
+also work on \texttt{text} strings.
 
 \input{chapter-4-control-flow-and-scope-management/qlang/fancy-indexing.tex}
 
-An existing array can also be passed as the index list directly:
-
-\input{chapter-4-control-flow-and-scope-management/qlang/index-list-array.tex}
 % ─────────────────────────────────────────────
-\subsection{...}
+\subsection{Scope Lifetime}
+\label{sec:scope-lifetime}
+
+In QLang, variables are bound to the specific scope they are declared in and are
+destroyed as soon as that scope ends. This is particularly
+important when working with loops.
+
+\input{chapter-4-control-flow-and-scope-management/qlang/loop-scopes.tex}
+
+% ─────────────────────────────────────────────
+\Needspace{8\baselineskip}
+\subsection{Scope Interaction with \texttt{const}}
+\label{sec:const-scope}
+
+The \texttt{const} keyword interacts with the scope hierarchy in two distinct
+ways, depending on whether you are declaring a new variable or modifying an
+existing one.
+
+If you declare a new constant, it creates a fresh
+variable in the current scope, potentially shadowing outer variables. 
+However, if you apply \texttt{const} to an already existing variable, 
+the interpreter searches up the scope tree to find the
+nearest \texttt{x} and marks that specific instance as constant.
+\input{chapter-4-control-flow-and-scope-management/qlang/const-scope.tex}
+
+% ─────────────────────────────────────────────
+\subsection{Functions and Closures}
+\label{sec:function-closures}
+
+Functions in QLang act as closures. When a function is declared, it captures
+the exact scope hierarchy present at the moment of its creation (its
+\texttt{closure\_scope}). 
+
+When the function is later called, the interpreter creates a new execution scope
+for the function's body. The parent of this new scope is set to the captured
+closure scope, not the scope from which the function was called.
