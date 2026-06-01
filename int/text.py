@@ -13,10 +13,10 @@ class Text:
     def __init__(self,initial_value: str = ""):
         self.value = initial_value
 
-    def set(self,new_value: str|Expression):
+    def set(self,new_value: str|Any):
         if isinstance(new_value, str):
             self.value = new_value
-        elif isinstance(new_value, Expression):
+        elif type(new_value).__name__ == "Expression":
             self.value = str(new_value.value)
         else:
             self.value = new_value

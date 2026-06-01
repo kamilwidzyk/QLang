@@ -17,6 +17,9 @@ class Function:
         self.pos = pos                      # position in the code
         self.type = "Function"    
 
+    def __deepcopy__(self, memo):
+        return self
+
     def __len__(self): # length of function is the number of parameters it takes
         return len(self.params)   
 

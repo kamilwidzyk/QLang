@@ -40,11 +40,16 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
         if isinstance(variable, Variable):
             if variable.type == TYPE_STATE:
-                # code: DQA-1
-                raise DirectQuantumAccessException(
-                    pos=pos,
-                    code="1"
-                )   
+                forbidden = {"IoStmtCtx", "AddSubExprContext", "MulDivModExprContext", 
+                             "PowExprCtx", "RelExprContext", "EqExprCtx", "AndExprCtx", 
+                             "OrExprCtx", "NotExprContext", "MinusExprCtx", "PlusExprCtx",
+                             "FormatCtx"}
+                if parent and parent.__class__.__name__ in forbidden:
+                    # code: DQA-1
+                    raise DirectQuantumAccessException(
+                        pos=pos,
+                        code="1"
+                    )   
             if variable.type == TYPE_NUM:
                 return variable.get_value()
             return variable.get()
@@ -96,11 +101,16 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
     if isinstance(variable, Variable):
         if variable.type == TYPE_STATE:
-            # code: DQA-2
-            raise DirectQuantumAccessException(
-                pos=pos,
-                code="2"
-            )
+            forbidden = {"IoStmtCtx", "AddSubExprContext", "MulDivModExprContext", 
+                         "PowExprCtx", "RelExprContext", "EqExprCtx", "AndExprCtx", 
+                         "OrExprCtx", "NotExprContext", "MinusExprCtx", "PlusExprCtx",
+                         "FormatCtx"}
+            if parent and parent.__class__.__name__ in forbidden:
+                # code: DQA-2
+                raise DirectQuantumAccessException(
+                    pos=pos,
+                    code="2"
+                )
         if variable.type == TYPE_NUM:
             return variable.get_value()
         return variable.get()
@@ -113,6 +123,9 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
     if isinstance(variable, Expression):
         return variable
+
+    if hasattr(variable, 'type') and variable.type == "Function":
+        return Expression("Function", variable)
 
     return variable
 

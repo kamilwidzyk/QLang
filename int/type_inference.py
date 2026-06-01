@@ -20,6 +20,9 @@ def infer_type_from_value(value):
         return TYPE_OBS
     elif isinstance(inner_val, State):
         return TYPE_STATE
+    from .function import Function
+    if isinstance(inner_val, Function):
+        return "Function"
     else:
         # Default to NUM for int, float, Num, or empty list
         return TYPE_NUM

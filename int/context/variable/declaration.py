@@ -132,7 +132,20 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
             initial_value = _normalize_list_values(initial_value)
             value_shape = _list_shape(initial_value)
 
-            if value_shape is None or (isinstance(value_shape, int) and value_shape != dimensions[0]) or (isinstance(value_shape, list) and value_shape != dimensions):
+            expected_shapes = [dimensions]
+            if type == TYPE_OBS_REGISTER:
+                expected_shapes.append(dimensions[:-1])
+
+            is_valid_shape = False
+            for expected in expected_shapes:
+                if isinstance(value_shape, list) and value_shape == expected:
+                    is_valid_shape = True
+                    break
+                if isinstance(value_shape, int) and len(expected) == 1 and value_shape == expected[0]:
+                    is_valid_shape = True
+                    break
+
+            if value_shape is None or not is_valid_shape:
                 self.script_errors.showError(
                     pos=ScriptErrors.Position.extract(block),
                     error_type="RUNTIME ERROR",
@@ -151,12 +164,27 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                 var.dimensions = dimensions
             value_shape = initial_value.shape
             initial_value = Expression(TYPE_LIST, initial_value.value, shape=value_shape)
-            var = Variable(var_name, type, value_shape, quantum_client=self.quantum_client, is_const=is_const)
+            
+            var_dims = dimensions if not is_dynamic else value_shape
+            var = Variable(var_name, type, var_dims, quantum_client=self.quantum_client, is_const=is_const)
             
             if isinstance(dimensions, int):
                 dimensions = [dimensions]
 
-            if initial_value.shape is None or (isinstance(initial_value.shape, int) and initial_value.shape != dimensions[0]) or (isinstance(initial_value.shape, list) and initial_value.shape != dimensions):
+            expected_shapes = [dimensions]
+            if type == TYPE_OBS_REGISTER:
+                expected_shapes.append(dimensions[:-1])
+
+            is_valid_shape = False
+            for expected in expected_shapes:
+                if isinstance(value_shape, list) and value_shape == expected:
+                    is_valid_shape = True
+                    break
+                if isinstance(value_shape, int) and len(expected) == 1 and value_shape == expected[0]:
+                    is_valid_shape = True
+                    break
+
+            if value_shape is None or not is_valid_shape:
                 self.script_errors.showError(
                     pos=ScriptErrors.Position.extract(block),
                     error_type="RUNTIME ERROR",

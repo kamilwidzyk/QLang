@@ -664,8 +664,11 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     # Get the function
     function_def: Function = self.scopes.get(func_name)
 
+    if hasattr(function_def, "extract_raw_value"):
+        function_def = function_def.extract_raw_value()
+
     # Check if it's a function(variable call is possible but not legal)
-    if not function_def.type == "Function":
+    if not hasattr(function_def, "type") or not function_def.type == "Function":
         # code VC-1
         raise VariableCallException(
             pos=block_pos, 

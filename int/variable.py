@@ -19,6 +19,7 @@ class Variable:
     def __init__(self, name: str, type: str, dimensions: list[int], index: list[int] = None, quantum_client=None, is_const: bool = False, initial_data=None):
         self.name = name
         self.type = type
+        self.declared_type = type
         self.dimensions = dimensions
         self.is_dynamic = any(isinstance(d, int) and d < 0 for d in dimensions)
         self.data = None
@@ -62,7 +63,7 @@ class Variable:
         if isinstance(dimensions, int):
             dimensions = [dimensions]
         
-        return [self._create_array_of(cls, dimensions[1:]) for _ in range(dimensions[0])]
+        return [self._create_array_of(cls, dimensions[1:], size=size) for _ in range(dimensions[0])]
     
 
     def _create_array_of_obs(self):
@@ -135,7 +136,7 @@ class Variable:
             inferred_type = infer_type_from_value(new_value)
             self.type = inferred_type
             
-            if new_value.shape is not None:
+            if hasattr(new_value, 'shape') and new_value.shape is not None:
                 self.dimensions = [new_value.shape] if isinstance(new_value.shape, int) else new_value.shape
             self.is_list = isinstance(self.dimensions, list) and len(self.dimensions) > 0 and self.dimensions != [0]
             
@@ -146,13 +147,15 @@ class Variable:
             elif inferred_type == TYPE_NUM:
                 self._create_array_of_num()
             elif inferred_type == TYPE_STATE:
-                self._create_array_of_state()
+                self.data = None
             elif inferred_type == TYPE_STATE_REGISTER:
-                self._create_array_of_state_register()
+                self.data = None
             elif inferred_type == TYPE_TEXT:
                 self._create_array_of_text()
+            elif inferred_type == "Function":
+                self.data = None
 
-        if self.type == TYPE_STATE:
+        if self.type == TYPE_STATE and self.declared_type != TYPE_ANY:
             raise TypeError("Quantum state cannot be assigned directly")
 
         if self.index is not None and len(self.index) > 0:
@@ -232,6 +235,10 @@ class Variable:
             if isinstance(self.data, Text):
                 # Setting entire string
                 self.data.value = str(new_value.value) if new_value.value is not None else ""
+            elif self.type == "Function":
+                self.data = new_value.extract_raw_value() if hasattr(new_value, 'extract_raw_value') else Expression._extract_value_from(new_value)
+            elif (self.type == TYPE_STATE or self.type == TYPE_STATE_REGISTER) and self.declared_type == TYPE_ANY:
+                self.data = new_value.extract_raw_value() if hasattr(new_value, 'extract_raw_value') else Expression._extract_value_from(new_value)
             else:
                 val = new_value.value.extract_raw_value() if hasattr(new_value.value, 'extract_raw_value') else Expression._extract_value_from(new_value.value)
                 self.data.set(val)

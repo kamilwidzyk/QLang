@@ -125,6 +125,8 @@ class Expression:
     def get_value(self):
         val = self.get()
         if hasattr(val, 'get_value'):
+            if val.__class__.__name__ == 'State':
+                return val
             return val.get_value()
         return val
 
@@ -156,6 +158,8 @@ class Expression:
     def extract_raw_value(self):
         val = self
         while hasattr(val, 'get_value'):
+            if val.__class__.__name__ == 'State':
+                break
             val = val.get_value()
         return val
 

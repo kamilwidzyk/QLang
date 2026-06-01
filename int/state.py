@@ -35,6 +35,9 @@ class State:
     def get_value(self):
         raise TypeError("Quantum state cannot be accessed directly")
 
+    def __deepcopy__(self, memo):
+        return self
+
     def apply_gate(self, gate: QuantumGate, target: State | None = None):
         target_uid = target.uid if target is not None else None
         error = self.client.apply_gate(self.uid, gate, target_uid)
