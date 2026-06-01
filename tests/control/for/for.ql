@@ -84,3 +84,19 @@ for i from 0 to (-0.1 * i**2 + 0.1 * i + x) { // '0 1 2 3 4 5 6 7 8 9 10 11 12 1
     x += 2;
 }
 println();
+
+// for with function and variable declaration inside
+println("FOR10");
+for i from 0 to 3 {
+
+    function increase_x(){
+        x += 2;
+    }
+
+    num x = 10;
+
+    increase_x();
+
+    println("%d %d" % [i, x]);
+}
+// FOR10\n0 12\n1 12\n2 12\n

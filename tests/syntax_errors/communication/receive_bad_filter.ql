@@ -1,0 +1,1 @@
+num x = receive from;

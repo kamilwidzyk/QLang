@@ -1,4 +1,5 @@
 grammar QLang;
+program: topLevelItem* EOF;
 
 // ==========================================
 // LEXER RULES
@@ -10,7 +11,6 @@ TEXT: 'text';
 // PARSER RULES
 // ==========================================
 
-program: topLevelItem* EOF;
 
 /** Elementy najwyższego rzędu */
 topLevelItem
@@ -90,15 +90,8 @@ statement
     | block                # blockStatement
     | functionDecl         # functionDeclStatement
     | expr ';'             # exprStatement 
-    | equation ';'         # equationStatement
     | ';'                  # semicolonStatement
     ;
-
-// maybe TODO: równania z obliczaniem zmiennej niewiadomej
-// np. 5 + (2 + ?x?) * z === 20
-// do zmiennej 'x' będzie przypisana wartość, która spełnia to równanie
-equation: expr '===' expr;
-varUnknown: '?' var '?';
 
 // -------------------- DEKLARACJE --------------------
 
@@ -187,7 +180,6 @@ expr
     | expr '||' expr                     # OrExpr
     | '$' expr                          # TypeExpr
     | list                               # ListExpr
-    | varUnknown                         # VarUnknownExpr
     | sizeGetter                         # SizeGetterExpr
     | (MEASURE | MEASUREX) (var | list)  # MeasureExpr
     | availableExpr                      # AvailableExprAlt

@@ -57,6 +57,24 @@ def run_in_test_mode(ql_path: str):
         shell=True
     )
 
+def run_in_syntax_mode(ql_path: str):
+    """ Runs the interpreter in syntax mode with a given .ql file, logs are in logs dir"""
+
+    bat_file = "antlr\\run_syntax.bat"
+    argument = ql_path
+
+    bat_path = path_from_root(bat_file)
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+
+    # Run it as if executed from its own directory
+    subprocess.run(
+        [bat_path, argument],
+        cwd=parent_dir,
+        shell=True
+    )
+
 def extract_test_lines_from_log():
     int_log_path = path_from_root("logs\\int_out.log")
     log_text = open(int_log_path, "r", encoding="utf-8").read()
@@ -307,12 +325,110 @@ if __name__ == "__main__":
     subdir = path_from_root("tests")
     test_name = None
 
+    SYNTAX_ERROR_COLLECT = False
     # If argument provided → run only that subdirectory
     if len(sys.argv) > 1:
-        subdir = path_from_root(f"tests/{sys.argv[1]}")
+        if sys.argv[1] == "SYNTAX_ERROR_COLLECT":
+            SYNTAX_ERROR_COLLECT = True
+        else:
+            subdir = path_from_root(f"tests/{sys.argv[1]}")
     # If second argument provided → run only that test function
     if len(sys.argv) > 2:
         test_name = "test_" +sys.argv[2]
+
+    if SYNTAX_ERROR_COLLECT: # enter a special mode, which collects all the syntax errors into a JSON file
+        print(f"{colorama.Fore.GREEN}Entering syntax error colletion mode{colorama.Style.RESET_ALL}")
+        from pathlib import Path
+        import json
+        errors = {}
+        root = Path("tests/syntax_errors")
+        files_found = 0
+        files_processed = 0
+
+        for path in root.rglob("*"):
+            if path.is_file():
+                relative_path = str(path.relative_to(root))
+                if relative_path.endswith(".ql"):
+                    files_found += 1
+
+        print("Found %d files." % files_found)
+
+        for path in root.rglob("*"):
+            if path.is_file():
+                relative_path = str(path.relative_to(root))
+                if relative_path.endswith(".ql"):
+                    files_processed += 1
+                    print(f"{colorama.Fore.YELLOW}Processing {files_processed}/{files_found}...   {relative_path}{colorama.Style.RESET_ALL}")
+                    syntax_errors = []
+                    path_to_ql = "tests\\syntax_errors\\" + relative_path
+                    run_in_syntax_mode(path_to_ql)
+
+                    test_lines = extract_test_lines_from_log()
+
+                    filtered = [line for line in [line[18:] for line in test_lines] if line.startswith("SYNTAX_")]
+
+                    file_content = open(path_to_ql).read()
+
+                    if filtered[0] == "SYNTAX_ERRORS=0":
+                        print("\tNo syntax errors")
+                        syntax_errors.append({
+                            "content": file_content
+                        })
+                    else:
+                        data = filtered[1:]
+                        while(len(data) > 0):
+                            line = int(data[0].split("=")[1])
+                            start = int(data[1].split("=")[1])
+                            end = int(data[2].split("=")[1])
+                            msg = "=".join(data[3].split("=")[1:])
+                            title = data[4].split("=")[1]
+                            stack = data[5].split("=")[1]
+                            syntax_errors.append({
+                                "content": file_content,
+                                "line": line,
+                                "start": start,
+                                "end": end,
+                                "msg": msg,
+                                "title": title,
+                                "stack": stack
+                            })
+                            if(len(data) <= 6):
+                                data = []
+                            else:
+                                data = data[6:]
+
+                    print(syntax_errors)
+
+                    errors[relative_path] = syntax_errors
+                    
+
+
+        f = open("tests\\syntax_errors.json", 'w')
+        json.dump(errors, f)
+        f.close()
+
+        # error is unhandled when the title is ""
+        # For this to work, the default message needs to disable in run.py
+        unhandled_errors = {}
+
+        for err_path in errors:
+            handled_count = 0
+
+            for err in errors[err_path]:
+                if err.get("title") is not None and err.get("title") != "":
+                    handled_count += 1
+            
+            if handled_count == 0:
+                unhandled_errors[err_path] = errors[err_path]
+
+        f = open("tests\\syntax_errors_unhandled.json", 'w')
+        json.dump(unhandled_errors, f)
+        f.close()
+
+        print(f"{colorama.Fore.GREEN}Output file saved to tests/syntax_errors.json")
+        exit()
+                
+
 
     failed_passed = run_tests_in_directory(subdir, test_name)
 

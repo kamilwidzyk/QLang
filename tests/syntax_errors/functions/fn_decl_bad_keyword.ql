@@ -1,0 +1,3 @@
+functionfoo() {
+    return 1;
+}

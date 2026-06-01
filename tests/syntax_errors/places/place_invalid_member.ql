@@ -1,0 +1,3 @@
+place p {
+    function() {}
+}
