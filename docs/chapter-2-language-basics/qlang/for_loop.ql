@@ -1,11 +1,11 @@
 // ascending for loop
 for i from 1 to 5 {
-    println(i);  // 1 2 3 4 5
+    println(i);  // 1 2 3 4
 }
 
 // descending for loop
 for i from 5 to 1 {
-    println(i);  // 5 4 3 2 1
+    println(i);  // 5 4 3 2
 }
 
 // custom step for loop

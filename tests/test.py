@@ -12,6 +12,11 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
+
 def path_from_root(rel_path: str) -> str:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
@@ -210,12 +215,21 @@ def print_error_entry(line_start: int, line_end: int, col_start: int, col_end: i
 
     entry = get_error_entry(line_start, line_end, col_start, col_end, code)
     if entry is not None:
-        print(highlight_entry_line(format_error_entry(entry, "OK"), True))
+        try:
+            print(highlight_entry_line(format_error_entry(entry, "OK"), True))
+        except UnicodeEncodeError:
+            print(f"ERROR_ENTRY: line {line_start}..{line_end}, col {col_start}..{col_end}, code={code} [OK]")
         error_box = extract_error_box_from_log()
         if error_box:
             for line in error_box.splitlines():
                 if strip_ansi_codes(line).strip():
-                    print(line)
+                    try:
+                        print(line)
+                    except UnicodeEncodeError:
+                        try:
+                            print(line.encode('ascii', errors='replace').decode('ascii'))
+                        except Exception:
+                            pass
         return True
 
     expected_line = format_error_entry(expected, "FAIL")

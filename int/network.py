@@ -153,9 +153,6 @@ class QuantumNetwork:
                     # sender specified, receiver did not: condition satisfied
                     if msg_id is not None and packet.msg_id is None:
                         continue
-                    # sender did not specify, receiver did: condition failed
-                    if packet.msg_id is None and msg_id is not None:
-                        continue
                     # sender and receiver did not specify msg_id (nothing to check)
                     
                     # all conditions satisfied, receive this packet

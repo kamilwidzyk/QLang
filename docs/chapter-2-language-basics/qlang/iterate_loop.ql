@@ -11,4 +11,11 @@ iterate arr as val index i {
     // 1: 20
     // 2: 30
     // 3: 40
-}iterate_loop
+}
+
+// break and continue work inside iterate
+iterate arr as val {
+    if (val == 20) continue;
+    if (val == 40) break;
+    println(val);  // 10 30
+}

@@ -1,0 +1,317 @@
+\section{Places and Inter-Place Communication}
+\label{sec:places-and-communication}
+
+This chapter describes QLang's concurrency model: how a program is divided into
+independently executing \texttt{place}s, how each place gets its own console,
+and how places exchange both classical and quantum data using the built-in
+\texttt{send}, \texttt{receive}, and \texttt{available} constructs.
+
+% ─────────────────────────────────────────────
+\subsection{Place Declaration}
+\label{sec:place-declaration}
+
+A \texttt{place} is QLang's primary unit of concurrent execution. Each
+\texttt{place} declaration creates an isolated context that runs in its own
+operating-system process. Places start executing simultaneously when the
+program is launched.
+
+The syntax is:
+
+\begin{codebox}
+place Name {
+    // statements and function declarations
+}
+\end{codebox}
+
+\texttt{Name} must consist of letters, digits, and underscores. The name
+\texttt{global} is reserved and cannot be used. Place names must be unique
+within a program. Each place has its own scope, its own variables, and its
+own set of functions.
+
+The following example declares two places that run in parallel:
+
+\input{chapter-5-places-and-communication/qlang/place-declaration.tex}
+
+Both places start at the same time. Their output may interleave in any order.
+
+\subsubsection{The Global Place}
+
+Code written outside any \texttt{place} declaration belongs to the implicit
+\texttt{global} place. The global place behaves like any other place: it runs as
+a separate process and gets its own console window. If the source file contains
+no \texttt{place} declarations at all, the entire program executes inside the
+global place.
+
+\subsubsection{Functions Inside Places}
+
+Functions declared inside a place are local to that place. They cannot be
+called from another place. Each place can also declare its own variables,
+constants, and loops without interfering with other places.
+
+% ─────────────────────────────────────────────
+\subsection{Console and I/O per Place}
+\label{sec:place-console}
+
+Every place opens a separate console window when the program starts. The
+window title includes the place's name (e.g., \texttt{Place: Alice}). All
+\texttt{print}, \texttt{println}, and \texttt{input} calls from a place are
+routed to that place's console window.
+
+\subsubsection{\texttt{show\_console(0/1)}}
+
+The \texttt{show\_console} built-in system function controls the visibility of a place's
+console window at runtime. Evaluated as a standard function call rather than a dedicated language keyword, calling \texttt{show\_console(0)} hides the
+window; calling \texttt{show\_console(1)} makes it visible again. Output
+produced while the window is hidden is still logged and will be replayed
+when the window reappears.
+
+This is particularly useful for worker places that perform background
+computations and do not need a visible console:
+
+\input{chapter-5-places-and-communication/qlang/show-console.tex}
+
+% ─────────────────────────────────────────────
+\Needspace{8\baselineskip}
+\subsection{Sending Data: \texttt{send}}
+\label{sec:send}
+
+The \texttt{send} statement transmits a variable from one place to another
+through the shared packet network. All four QLang variable types can be sent. 
+The general syntax is:
+
+\begin{codebox}
+send <variable> to <place> as "<name>";
+\end{codebox}
+
+Both the \texttt{to} and \texttt{as} clauses are optional:
+
+\begin{center}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Form} & \textbf{Description} \\
+\hline
+\texttt{send var to Bob as "msg";} &
+    Sends the \texttt{var} to \texttt{Bob} with the packet name \texttt{"msg"}. Only
+    \texttt{Bob} can receive it, and the receiver can filter by the name. \\
+\hline
+\texttt{send var to Bob;} &
+    Sends the \texttt{var} to \texttt{Bob} without a packet name. Only \texttt{Bob}
+    can receive it. \\
+\hline
+\texttt{send var as "msg";} &
+    Sends the \texttt{var} without a specific target. Any place can receive it, and
+    the receiver can filter by the name \texttt{"msg"}. \\
+\hline
+\texttt{send var;} &
+    Sends the \texttt{var} without a target or name. Any place can pick it up. \\
+\hline
+\end{tabular}
+\end{center}
+
+The target place can be specified either as a bare identifier
+or as a string literal. The following two lines are equivalent:
+
+\begin{codebox}
+send x to Bob as "data";
+send x to "Bob" as "data";
+\end{codebox}
+
+The following example shows the different send forms:
+
+\input{chapter-5-places-and-communication/qlang/send-variants.tex}
+
+% ─────────────────────────────────────────────
+\Needspace{8\baselineskip}
+\subsection{Receiving Data: \texttt{receive}}
+\label{sec:receive}
+
+The \texttt{receive} construct declares a new variable and blocks execution
+until a matching packet arrives from the network. The general syntax is:
+
+\begin{codebox}
+<type> <name>[size] = receive [<type>] [from <place>] [named "<name>"];
+\end{codebox}
+
+The \texttt{receive} keyword accepts zero or more optional filters:
+
+\begin{center}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Filter} & \textbf{Description} \\
+\hline
+\texttt{\textit{type}} &
+    An optional type decoration. Note that \textbf{this filter is syntactically ignored by the interpreter at runtime}. Packets are instead filtered based strictly on the declared type of the target variable on the left-hand side of the declaration (which determines the quantum vs.\@ classical packet flag). \\
+\hline
+\texttt{from \textit{place}} &
+    Accept only packets sent from the specified place. The place can be
+    given as a bare identifier or a string literal. \\
+\hline
+\texttt{named "\textit{name}"} &
+    Accept only packets that were sent with the matching \texttt{as} name. \\
+\hline
+\end{tabular}
+\end{center}
+
+Filters can be combined in any order. If no filters are specified, the receive
+accepts the first packet whose type and size match the declared variable:
+
+\input{chapter-5-places-and-communication/qlang/receive-minimal.tex}
+
+A more specific receive using all filters:
+
+\input{chapter-5-places-and-communication/qlang/receive-filters.tex}
+
+\subsubsection{Blocking Behaviour}
+
+The \texttt{receive} call is blocking: the place suspends execution
+until a matching packet is available. If no matching packet ever arrives, the
+place will wait indefinitely. This is the intended behavior for synchronization
+between places.
+
+\subsubsection{Array Receives}
+
+When receiving an array, the size must be declared with the variable.
+For example, \texttt{num data[3] = receive num from Alice named "data";}
+expects a packet containing exactly three numeric values.
+
+% ─────────────────────────────────────────────
+\Needspace{8\baselineskip}
+\subsection{Checking Availability: \texttt{available}}
+\label{sec:available}
+
+The \texttt{available} expression checks whether a matching packet exists in
+the network without consuming it or blocking. It returns a boolean value that
+can be used in conditions. The syntax is:
+
+\begin{codebox}
+available [<type>] [from <place>] [named "<name>"]
+\end{codebox}
+
+All filter arguments are optional. Possible filters are:
+
+\begin{center}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Filter} & \textbf{Description} \\
+\hline
+\texttt{\textit{type}} &
+    Check only for packets of the given type (\texttt{state}, \texttt{obs},
+    \texttt{num}, or \texttt{text}). \\
+\hline
+\texttt{from \textit{place}} &
+    Check only for packets sent from the specified place. \\
+\hline
+\texttt{named "\textit{name}"} &
+    Check only for packets with the given name. \\
+\hline
+\end{tabular}
+\end{center}
+
+Unlike \texttt{receive}, \texttt{available} is non-blocking: it
+returns immediately with \texttt{T} (true) or \texttt{F} (false). The packet
+remains in the network and still needs to be consumed by a \texttt{receive}
+call. A common pattern is to combine \texttt{available} with a polling loop:
+
+\input{chapter-5-places-and-communication/qlang/available-example.tex}
+
+In this example, Bob continuously checks whether a \texttt{"status"} packet
+has arrived. Once it has, Bob knows Alice has finished sending numbers and
+can safely receive them all.
+
+% ─────────────────────────────────────────────
+\Needspace{8\baselineskip}
+\subsection{Packet Matching Rules}
+\label{sec:packet-matching}
+
+The QLang packet network uses a set of matching rules to decide which
+receiver gets which packet. Every packet carries the following metadata:
+
+\begin{center}
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Field} & \textbf{Description} \\
+\hline
+\texttt{src\_id} & Name of the place that sent the packet. Always set automatically. \\
+\hline
+\texttt{target\_id} & Name of the intended recipient place. Set only if the sender used \texttt{to}. \\
+\hline
+\texttt{msg\_id} & Packet name. Set only if the sender used \texttt{as}. \\
+\hline
+\texttt{quantum} & Whether the packet carries quantum data (\texttt{state}) or classical data. \\
+\hline
+\texttt{size} & Number of elements in the data (1 for scalar values, array length for arrays). \\
+\hline
+\end{tabular}
+\end{center}
+
+A packet matches a \texttt{receive} request when all of the following
+conditions are satisfied:
+
+\begin{enumerate}
+    \item \textbf{Type and size.} In the network layer, QLang only enforces a binary distinction between classical data (\texttt{num}, \texttt{text}, \texttt{obs}) and quantum data (\texttt{state}). It does \textbf{not} validate classical subtypes. If a place sends a \texttt{text} value and another place attempts to \texttt{receive} it as a \texttt{num} of the same size, the packet is successfully delivered and the raw text value is assigned to the numeric variable. This bypasses classical type-checking and can lead to type pollution in the receiving scope.
+    
+    The \texttt{size} (number of elements) must match the declared size of the receiving variable exactly.
+    \item \textbf{Target.} If the sender specified a \texttt{target\_id} (using
+        \texttt{to}), then the receiver's place name must equal that
+        \texttt{target\_id}. If the sender did not specify a target, any place
+        can receive the packet.
+    \item \textbf{Source.} If the receiver specified a \texttt{from} filter,
+        then the packet's \texttt{src\_id} must match. If the receiver did
+        not specify \texttt{from}, packets from any source are accepted.
+    \item \textbf{Name.} The \texttt{msg\_id} matching rule has four cases:
+    \begin{itemize}
+        \item Both sender and receiver specified a name: the names must be
+            equal.
+        \item Neither sender nor receiver specified a name: condition is
+            satisfied.
+        \item Sender specified a name, receiver did not: condition is
+            satisfied (the receiver accepts any name, including named packets).
+        \item Sender did not specify a name, receiver did: condition
+            fails (the receiver is looking for a specific name that
+            the packet does not have).
+    \end{itemize}
+\end{enumerate}
+
+When multiple packets match, the oldest one (the first to arrive) is consumed.
+
+% ─────────────────────────────────────────────
+\subsection{Packet Logging: \texttt{packet\_log()}}
+\label{sec:packet-log}
+
+The \texttt{packet\_log} built-in system function enables or disables diagnostic logging for
+network activity in the current place. It is evaluated as a standard function call at runtime rather than a dedicated keyword. Calling \texttt{packet\_log(1)} turns
+logging on; \texttt{packet\_log(0)} turns it off. When enabled, every
+\texttt{send} and \texttt{receive} operation in that place prints detailed
+information to the internal log, including the packet name, source, target,
+data size, and sequential packet identifier. This is useful for debugging
+communication patterns between places.
+
+\input{chapter-5-places-and-communication/qlang/packet-log.tex}
+
+% ─────────────────────────────────────────────
+\Needspace{8\baselineskip}
+\subsection{Example: Distributed Prime Checker}
+\label{sec:worker-prime-example}
+
+The following example demonstrates a manager-worker pattern where a
+\texttt{Manager} place distributes tasks to four \texttt{Worker} places and
+collects results. Each worker checks whether a number is prime and sends back
+the result. To avoid duplicating code, the actual worker logic is written in a
+separate file (\texttt{worker\_code.ql}) and included using the
+\texttt{<< ""..."" >>} operator.
+
+The main program (\texttt{worker\_prime.ql}):
+
+\input{chapter-5-places-and-communication/qlang/worker_prime.tex}
+
+And the corresponding \texttt{worker\_code.ql} file that is included by each worker:
+
+\input{chapter-5-places-and-communication/qlang/worker_code.tex}
+
+The Manager dispatches numbers to workers in round-robin fashion. Each worker
+runs in a loop, receiving tasks, computing results, and sending them back.
+When the maximum number is reached, the Manager sends a shutdown signal
+(\texttt{-1}) to each worker. The \texttt{send}/\texttt{receive} pair with
+\texttt{named "task"} and \texttt{named "result"} ensures that task packets
+and result packets are never confused.
+

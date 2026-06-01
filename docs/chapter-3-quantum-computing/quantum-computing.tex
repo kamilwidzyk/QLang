@@ -15,14 +15,13 @@ QLang exposes two first-class types for quantum programming:
 \begin{itemize}
     \item \texttt{state}: a quantum register (one or more qubits). A
         \texttt{state} can be put into superposition and entangled with other
-        \texttt{state}s using the built-in gate primitives. A variable of type
-        \texttt{state} represents a live quantum system that only yields a
-        classical value when explicitly measured. Quantum states cannot be
-        read, assigned, or printed directly.
+        \texttt{state}s using the built-in gate primitives. The stored quantum
+        information is only accessible via the \texttt{measure} keyword;
+        states cannot be read, assigned, or printed directly.
     \item \texttt{obs}: a classical observation. A scalar \texttt{obs} stores
         a boolean value; a sized register \texttt{obs x[N]} stores an N-bit
-        integer. Used for branching, control, and classical post-processing
-        after measurement.
+        integer and supports index access to individual bits. Used for
+        branching, control, and classical post-processing after measurement.
 \end{itemize}
 
 A variable declaration can specify arrays and bit-widths.
@@ -34,7 +33,7 @@ A variable declaration can specify arrays and bit-widths.
 \label{sec:quantum-gates}
 
 QLang provides primitive quantum gates as first-class language constructs.
-Each gate has a short uppercase name and a lowercase alias.
+Each gate, excluding swap, has a short uppercase name and a lowercase alias.
 The supported gates are listed below.
 
 \begin{center}
@@ -47,25 +46,24 @@ The supported gates are listed below.
 \texttt{X}    & \texttt{not}             & Pauli-X, flips the computational basis state. \\
 \texttt{Y}    & \texttt{dual\_not}       & Pauli-Y, combines a bit flip and a phase flip. \\
 \texttt{Z}    & \texttt{phase\_not}      & Pauli-Z, applies a relative phase flip between $|0\rangle$ and $|1\rangle$. \\
-\texttt{CNOT} & \texttt{entangle}        & Controlled-NOT, entangles two qubits: syntax \texttt{CNOT a -> b}. \\
+\texttt{CNOT} & \texttt{entangle}        & Controlled-NOT, entangles two qubits. \\
 \texttt{CZ}   & \texttt{entangle\_phase} & Controlled-Z, applies a phase flip conditioned on the control qubit. \\
+\texttt{-} & \texttt{swap}           & Swap gate, swaps the states of two qubits. \\
 \hline
 \end{tabular}
 \end{center}
 
-Single-qubit gates act on one \texttt{state} variable in-place.
-Multi-qubit gates use the arrow syntax (\texttt{->}) to indicate the
-control-to-target relationship.
+Single-qubit gates act on one \texttt{state} variable in-place. Most multi-qubit gates (like \texttt{CNOT} or \texttt{CZ}) use the arrow syntax (\texttt{->}) to indicate the control-to-target relationship. However, the \texttt{swap} gate has its own syntax and simply takes two space-separated qubits: \texttt{swap q1 q2;}.
 
 % ─────────────────────────────────────────────
 \subsection{Measurement}
 \label{sec:measurement}
 
 Measurement forces a \texttt{state} to collapse into a classical outcome.
-The \texttt{measure} keyword returns a boolean value (\texttt{false} for
-$|0\rangle$, \texttt{true} for $|1\rangle$), which is automatically mapped
-to integer \texttt{0} or \texttt{1} when assigned to an \texttt{obs}
-variable. Measuring multiple qubits at once produces an \texttt{obs} array.
+The \texttt{measure} keyword returns an \texttt{obs} value indicating the outcome:
+\texttt{F} (false) for $|0\rangle$, and \texttt{T} (true) for $|1\rangle$.
+Measuring an array of qubits at once produces a list of \texttt{obs} values,
+which can be assigned directly to an \texttt{obs} register to form a classical number.
 
 QLang also provides \texttt{measureX}, which applies a Hadamard gate before
 measuring, effectively measuring in the X basis rather than the Z basis.
