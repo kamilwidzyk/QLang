@@ -4,6 +4,7 @@ from typing import Any, TYPE_CHECKING
 import os
 import random
 import math
+import time
 
 from ...script_errors import ScriptErrors
 from ...consts import *
@@ -628,6 +629,42 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
             return Expression(TYPE_INT, int(res))
         else:
             return Expression(TYPE_FLOAT, float(res))
+
+    if func_name == "sleep":
+        if keyword_args:
+            # code KANS-10
+            raise KeywordArgumentsNotSupportedException(
+                pos=block_pos,
+                func_name="sleep",
+                code="10"
+            )
+
+        if len(positional_args) != 1:
+            # code TMA-10
+            raise TooMuchArgumentsException(
+                pos=block_pos,
+                func_name="sleep",
+                taken_args=len(positional_args),
+                expected_args=1,
+                code="10"
+            )
+
+        try:
+            val_raw = positional_args[0].extract_raw_value()
+            if not isinstance(val_raw, (int, float)):
+                raise ValueError()
+            sleep_time = float(val_raw)
+        except (AttributeError, ValueError, TypeError):
+            # code BEV-9
+            raise BuiltinExpectsValueException(
+                pos=block_pos,
+                func_name="sleep",
+                expects="a number (seconds)",
+                code="9"
+            )
+
+        time.sleep(sleep_time)
+        return None
 
     if func_name == "__ql_import_source__":
         if keyword_args:
