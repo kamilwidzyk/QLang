@@ -237,6 +237,8 @@ def _get_receive_filters(self: Place, block: Any, pos: ScriptErrors.Position) ->
         if (hasattr(opt, 'NAMED') and opt.NAMED()) or (hasattr(opt, 'AS') and opt.AS()):
             if opt.STRING() is not None:
                 msg_id = _parse_string_token(opt.STRING().getText())
+            elif opt.ID() is not None:
+                msg_id = _resolve_place_id(self, opt.ID().getText(), pos)
     return src_id, msg_id
 
 
@@ -253,8 +255,11 @@ def _get_available_filters(self: Place, block: Any, pos: ScriptErrors.Position) 
                 src_id = _parse_string_token(filt.STRING().getText())
             elif filt.ID() is not None:
                 src_id = _resolve_place_id(self, filt.ID().getText(), pos)
-        elif filt.NAMED() is not None and filt.STRING() is not None:
-            msg_id = _parse_string_token(filt.STRING().getText())
+        elif filt.NAMED() is not None:
+            if filt.STRING() is not None:
+                msg_id = _parse_string_token(filt.STRING().getText())
+            elif filt.ID() is not None:
+                msg_id = _resolve_place_id(self, filt.ID().getText(), pos)
     return quantum, src_id, msg_id
 
 
@@ -281,20 +286,26 @@ def handle_send_statement(self: Place, block: Any, parent: Any, pos: ScriptError
 
     target_id = None
     msg_id = None
-    if block.AS() is not None:
-        if block.ID() is not None:
-            target_id = _resolve_place_id(self, block.ID().getText(), pos)
-            msg_id = _parse_string_token(block.STRING(0).getText())
-        elif block.TO() is None:
-            msg_id = _parse_string_token(block.STRING(0).getText())
+    target_node = None
+    as_node = None
+    for i in range(block.getChildCount()):
+        child = block.getChild(i)
+        if child.getText() == 'to':
+            target_node = block.getChild(i + 1)
+        elif child.getText() == 'as':
+            as_node = block.getChild(i + 1)
+            
+    if target_node is not None:
+        if target_node.getSymbol().type == QLangParser.STRING:
+            target_id = _parse_string_token(target_node.getText())
         else:
-            target_id = _parse_string_token(block.STRING(0).getText())
-            msg_id = _parse_string_token(block.STRING(1).getText())
-    else:
-        if block.ID() is not None:
-            target_id = _resolve_place_id(self, block.ID().getText(), pos)
-        elif block.STRING(0) is not None:
-            target_id = _parse_string_token(block.STRING(0).getText())
+            target_id = _resolve_place_id(self, target_node.getText(), pos)
+            
+    if as_node is not None:
+        if as_node.getSymbol().type == QLangParser.STRING:
+            msg_id = _parse_string_token(as_node.getText())
+        else:
+            msg_id = _resolve_place_id(self, as_node.getText(), pos)
 
     if isinstance(variable, Variable) and variable.index is not None and len(variable.index) > 0:
         expr = variable.get()

@@ -207,7 +207,7 @@ availableExpr
 availableFilter
     : varType
     | FROM (STRING | ID)
-    | NAMED STRING
+    | NAMED (STRING | ID)
     ;
 
 // Do zrobienia: biblioteka standardowa(to chyba będzie lepsze, bo będzie można zobaczyć implementację) lub funkcje wbudowane
@@ -341,11 +341,11 @@ receiveDecl
 receiveFilter
     : varType
     | FROM (STRING | ID)
-    | NAMED STRING
+    | NAMED (STRING | ID)
     ;
 
 sendStmt
-    : SEND expr (TO (STRING | ID))? (AS STRING)?
+    : SEND expr (TO (STRING | ID))? (AS (STRING | ID))?
     ;
 
 // --- OPERACJE KWANTOWE ---
