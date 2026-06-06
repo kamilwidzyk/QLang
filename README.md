@@ -1,5 +1,4 @@
 Lista rzeczy do poprawy:
-    - dla function x(...nums){} leci SYNTAX ERROR
 
 # Dokumentacja
 
