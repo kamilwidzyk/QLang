@@ -83,6 +83,7 @@ statement
     | forStmt              # forStatement
     | whileStmt            # whileStatement
     | iterateStmt          # iterateStatement
+    | waitStmt ';'         # waitStatement
     | ioStmt ';'           # ioStatement
     | BREAK ';'            # breakStatement
     | CONTINUE ';'         # continueStatement
@@ -133,6 +134,7 @@ ifStmt: IF '(' expr ')' (block | statement) ((ELSE_IF | ELIF) '(' expr ')' (bloc
 forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
 whileStmt: WHILE '(' expr ')' block;
 iterateStmt: ITERATE expr AS ID (INDEX ID)? block;
+waitStmt: WAIT '(' expr ID ')' ;
 
 // -------------------- WEJŚCIE / WYJŚCIE --------------------
 
@@ -415,6 +417,7 @@ ITERATE: 'iterate';
 INDEX: 'index';
 BREAK: 'break';
 CONTINUE: 'continue';
+WAIT: 'wait';
 
 PRINT: 'print';
 PRINTLN: 'println';

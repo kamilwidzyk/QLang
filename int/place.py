@@ -66,6 +66,7 @@ from .context.function.arg_list               import handle_arg_list
 from .context.control.for_loop               import handle_for_loop
 from .context.control.while_loop             import handle_while
 from .context.control.iterate_loop           import handle_iterate
+from .context.control.wait_stmt              import handle_wait_stmt
 from .context.math.power                  import handle_power
 from .context.io.format                 import handle_format
 from .context.control.if_condition           import handle_if, handle_short_if
@@ -232,6 +233,7 @@ class Place:
             ForStmtCtx:             handle_for_loop,
             WhileStmtCtx:           handle_while,
             IterateStmtCtx:         handle_iterate,
+            QLangParser.WaitStmtContext: handle_wait_stmt,
             PowExprCtx:             handle_power,
             FormatCtx:              handle_format,
             IfStmtCtx:              handle_if,

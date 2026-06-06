@@ -263,3 +263,11 @@ InternalException -> I
 NetworkNotVariableException -> NNV
     1: int/context/network.py
         Only variable can be send thru the network
+
+UnknownTimeUnitException -> UTU
+    1: int/context/control/wait_stmt.py
+        Unknown time unit used in wait()
+
+WaitDurationNotNumericException -> WDNN
+    1: int/context/control/wait_stmt.py
+        wait() called with a non-numeric duration expression
