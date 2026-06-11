@@ -60,6 +60,24 @@ class ScopeManager:
             scope = scope.parent
         raise Exception(f"Variable {name} not defined")
     
+    def modify(self, name: str, modify_func: Any):
+        """
+        Modify an already existing variable using a modify function.
+        Variable needs to supports .get() and .set()
+
+        Parameters:
+            name(str): Variable name
+            modify_func: A function that takes the current value of the variable and returns the modified value
+        """
+        scope = self.current
+        while scope:
+            if name in scope.vars:
+                scope.vars[name].set(modify_func(scope.vars[name].get()))
+                return
+            scope = scope.parent
+        raise Exception(f"Variable {name} not defined")
+
+    
     def set(self, name: str, value):
         """
         Assign or create a variable at current scope

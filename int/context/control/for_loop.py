@@ -3,27 +3,42 @@ from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
 from ...consts import *
-from ...obs import ObsRegister
 from ...num import Num
 
 from ...expression import Expression, TYPE_INT
 from ..statement import BreakLoop, ContinueLoop
-from ...operations.compare import do_compare_greater, do_compare_greater_equal, do_compare_less, do_compare_less_equal
-from ...operations.operators import do_operation_add
+from ...operations.compare import do_compare_greater, do_compare_less
 
 if TYPE_CHECKING:
     from place import Place
 
+
+
 def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
-    expressions = [x for x in block.expr()]
-    var_name = block.ID().getText()
+    """
+    For loop handler.
+
+    ||| forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
     
+    for <ID> from <expr> to <expr> <block>
+    for <ID> from <expr> to <expr> step <expr> <block>
+
+    If step is not specified, it defaults to 1 if end value is greater than start value, otherwise -1.
+    <ID> loop variable can be changed inside the loop, <expr> are re-evaluated each iteration
+
+    'from' is inclusive, 'to' is exclusive
+
+    """
+
+    expressions = [x for x in block.expr()]
+    var_name = block.ID().getText()    
 
     def parse_expr(start_expr, end_expr, step_expr=None) -> tuple:
+        """
+        Parses start, end and step expressions and returns their values as a tuple.
+        """
         start_val = self.handle_block(start_expr, block)    
         end_val = self.handle_block(end_expr, block)
-
         step_val = None
         if step_expr is not None:
             step_val = self.handle_block(step_expr, block)
@@ -38,26 +53,24 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
 
         return start_val, end_val, step_val
 
-    # make counter
+    # Counter variable of type num with name <ID>
     counter = Num()
     counter.name = var_name
 
-    # Enter new scope
+    # Enter new scope and add counter variable to it
     self.scopes.push(pos, scope_type="for")
     self.scopes.create(var_name, counter)
 
-    # parse range and step
+    # Parse expression before starting
     start_val, end_val, step_val = parse_expr(*expressions)
-    for_block = self.handle_block(block.block())
 
-    parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
-
-    # set start value to counter
+    # Set the counter to start value
     counter.set(start_val.extract_value())
     self.scopes.set(var_name, counter)
 
     try:
-        # Repeat block until condition is met
+        # Repeat block until condition is met:
+        # (start > end && counter > end) || (start < end && counter < end)
         while (do_compare_greater(start_val, end_val) and do_compare_greater(counter.get(), end_val)) or \
               (do_compare_less(start_val, end_val) and do_compare_less(counter.get(), end_val)):
             # Push new scope for this iteration to clear variables from previous iteration
@@ -65,12 +78,11 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
             
             # Run code inside
             try:
-                for child in for_block:
-                    try:
-                        self.handle_block(child, parent=block)
-                    except ContinueLoop:
-                        # continue to next iteration of loop body
-                        break
+                try:
+                    self.execute_block(block.block(), parent=block)
+                except ContinueLoop:
+                    # continue to next iteration of loop body
+                    break
             except BreakLoop:
                 # break out of the while loop entirely
                 self.scopes.pop()
@@ -79,16 +91,11 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
                 # Pop iteration scope to clear variables for next iteration
                 self.scopes.pop()
 
+            # parse expressions each time
             start_val, end_val, step_val = parse_expr(*expressions)
 
-            # Get the current value of the counter(it might got chenged inside the loop)
-            counter = self.scopes.get(var_name)
-            current_val = counter.get() + step_val
-            counter.set(current_val)
-            self.scopes.set(var_name, counter)
-
+            # Increment counter by step value
+            self.scopes.modify(var_name, lambda x: x + step_val)
     finally:
         # Exit scope
         self.scopes.pop()
-
-    #print("For loop: done")

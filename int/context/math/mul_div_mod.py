@@ -1,5 +1,7 @@
 from typing import Any, TYPE_CHECKING
 
+from int.exception.divide_by_zero import DivideByZeroException
+
 from ...variable import Variable
 
 from ...script_errors import ScriptErrors
@@ -42,6 +44,9 @@ def handle_mul_div_mod(self: Place, block: Any, parent: Any, pos: ScriptErrors.P
         return left * right
 
     if operation == '/':
+        if right == 0:
+            # code DBZ-2
+            raise DivideByZeroException(ScriptErrors.Position.extract(children[2]), code="2")
         return left / right
 
     if operation == '%':

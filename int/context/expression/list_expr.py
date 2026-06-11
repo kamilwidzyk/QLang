@@ -7,6 +7,10 @@ if TYPE_CHECKING:
     from place import Place
 
 def _expression_shape(value: Any):
+    """
+    Returns first dimension shape of given expression
+    !!! Shape needs to be stored inside the expression
+    """
     if isinstance(value, Expression) and value.type == TYPE_LIST:
         if isinstance(value.shape, list):
             return value.shape
@@ -14,21 +18,29 @@ def _expression_shape(value: Any):
             return [value.shape]
     return []
 
-def _list_shape(values: list):
+def _list_shape(values: list) -> list:
+    """
+    Returns a list of list shapes [first, second, ...]
+    """
     if not values:
         return [0]
 
-    first_shape = _expression_shape(values[0])
+    next_shape = _expression_shape(values[0])
     for value in values[1:]:
-        if _expression_shape(value) != first_shape:
+        if _expression_shape(value) != next_shape:
             return None
 
-    return [len(values)] + first_shape
+    return [len(values)] + next_shape
 
+
+###### NOT USED ########
 def handle_expression_list_empty(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handles empty list []
+    """
     return Expression(TYPE_LIST, [], shape=[0])
 
-
+###### NOT USED ########
 def handle_expression_list_non_empty(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     lst = []
     for x in block.expr():
@@ -38,11 +50,17 @@ def handle_expression_list_non_empty(self: Place, block: Any, parent: Any, pos: 
 
 
 def handle_expression_list_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handler to unwrap the list 
+    """
     for x in block.getChildren():
         result = self.handle_block(x, block)
         return result
 
 def handle_expression_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handle list expression
+    """
     lst = []
     exprs = block.expr() if hasattr(block, 'expr') else []
     if exprs is None:

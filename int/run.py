@@ -172,7 +172,7 @@ class QLangErrorListener(ErrorListener):
             if in_stack(QLangParser.SendStmtContext):
                 title = "NoVariable"
                 msg = f"There should be a variable name."
-        elif re.match("missing '\(' at '.*'", msg):
+        elif re.match("missing '\\(' at '.*'", msg):
             title = "NoParen"
             if is_stack(0, QLangParser.IfStmtContext):
                 msg = f"You forgotten '(' after if."
@@ -180,7 +180,7 @@ class QLangErrorListener(ErrorListener):
                 msg = f"You forgotten '(' after while."
             elif is_stack(0, QLangParser.IoStmtContext):
                 msg = f"You forgotten '(' after IO function."
-        elif re.match("missing '\)' at '.*'", msg):
+        elif re.match("missing '\\)' at '.*'", msg):
             title = "LeftOpen"
             if is_stack(0, QLangParser.IfStmtContext):
                 msg = f"if's '(' was not closed"
@@ -315,11 +315,11 @@ class QLangErrorListener(ErrorListener):
             if is_stack(0, QLangParser.IoStmtContext):
                 title = "BadIO"
                 msg = "Did you forget the variable?"
-        elif re.match("missing '\(' at '.*'", msg):
+        elif re.match("missing '\\(' at '.*'", msg):
             if is_stack(0, QLangParser.IoStmtContext):
                 title = "BadIO"
                 msg = "Is there '(' before the variable?"
-        elif re.match("extraneous input '.*' expecting {'\)', ','}", msg):
+        elif re.match("extraneous input '.*' expecting {'\\)', ','}", msg):
             title = "BadArgs"
             msg = "Did you forget to put ',' between args? or close '('?"
         elif re.match("mismatched input '.*' expecting ID", msg):

@@ -1,5 +1,5 @@
 """
-This file contains consts that are access from multiple files
+This file contains consts that are accessed from multiple files
 Do not import anything from this module to not make a cyclic import
 """
 
@@ -9,122 +9,146 @@ from .QLang.QLangParser import QLangParser
 ################### TOP LEVEL #####################
 TerminalCtx = TerminalNode
 ProgramCtx = QLangParser.ProgramContext
-PlaceDeclCtx = QLangParser.PlaceDeclContext
-FunctionDeclCtx = QLangParser.FunctionDeclContext
 StatementCtx = QLangParser.StatementContext
-ConstDeclarationCtx = QLangParser.ConstDeclarationContext
+### FUNCTION DECLARATION ###
+FunctionDeclCtx = QLangParser.FunctionDeclContext
 FunctionDeclStatementCtx = QLangParser.FunctionDeclStatementContext
-ConstDeclCtx = QLangParser.ConstDeclContext
+### FUNCTION PARAMS ###
+ParamListCtx = QLangParser.ParamListContext
+ParamCtx = QLangParser.ParamContext
+
+### PLACE DECLARATION ###
+PlaceDeclCtx = QLangParser.PlaceDeclContext
+PlaceMemberCtx = QLangParser.PlaceMemberContext
+### CODE BLOCK ###
+BlockCtx = QLangParser.BlockContext
+
 
 #################### VARIABLES ####################
 VarDeclCtx = QLangParser.VarDeclContext
+AssigmentStmtCtx = QLangParser.AssignStmtContext
+AssignExprCtx = QLangParser.AssignmentExprContext
+### CONST ###
+ConstDeclarationCtx = QLangParser.ConstDeclarationContext
+ConstDeclCtx = QLangParser.ConstDeclContext
+### SIZE '#' ###
 SizeGetterExprCtx = QLangParser.SizeGetterExprContext
 SizeGetterCtx = QLangParser.SizeGetterContext
+### TYPE '$' ###
+TypeExprCtx = QLangParser.TypeExprContext
+### REFERENCE '@' ###
+ReferenceCtx = QLangParser.ReferenceContext
+### QUANTUM ###
 GateStmtCtx = QLangParser.GateStmtContext
 MeasureExprCtx = QLangParser.MeasureExprContext
-
-#################### LIST ####################
+### LIST ###
 ListExprCtx = QLangParser.ListExprContext
-TypeExprCtx = QLangParser.TypeExprContext
 ListCtx = QLangParser.ListContext
 EmptyListCtx = QLangParser.EmptyListContext
 NonEmptyListCtx = QLangParser.NonEmptyListContext
+### RESET ###
+ResetExprCtx = QLangParser.ResetExprContext
+### PARENT '^' ###
+ParentExprCtx = QLangParser.ParentExprContext
 
-#################### NUMBERS ####################
+
+#################### FUNCTION CALL ####################
+FunctionCallStmtCtx = QLangParser.FunctionCallStmtContext
+ArgListCtx = QLangParser.ArgListContext
+FunctionCallExprCtx = QLangParser.FuncCallExprContext
+
+
+#################### CONTROL ####################
+### IF ###
+IfStmtCtx = QLangParser.IfStmtContext
+# TERNARY #
+ShortIfExprCtx = QLangParser.ShortIfExprContext
+### FOR ###
+ForStmtCtx = QLangParser.ForStmtContext
+### WHILE ###
+WhileStmtCtx = QLangParser.WhileStmtContext
+### ITERATE ###
+IterateStmtCtx = QLangParser.IterateStmtContext
+
+
+#################### TIME ####################
+### WAIT ###
+waitStmtCtx = QLangParser.WaitStmtContext
+### TIME UNITS ###
+timeUnitCtx = QLangParser.TimeUnitContext
+secondUnitCtx = QLangParser.SecondUnitContext
+millisUnitCtx = QLangParser.MillisUnitContext
+minuteUnitCtx = QLangParser.MinuteUnitContext
+hourUnitCtx = QLangParser.HourUnitContext
+
+
+#################### CONSOLE INPUT/OUTPUT ####################
+IoStmtCtx = QLangParser.IoStmtContext
+ConstraintCtx = QLangParser.ConstraintContext
+FormatCtx = QLangParser.FormatContext
+
+
+#################### EXPRESSIONS ####################
+ParenExprCtx = QLangParser.ParenExprContext
+##### LOGIC #####
+# T/F #
+BoolExprCtx = QLangParser.BoolExprContext
+BoolValueCtx = QLangParser.BoolValueContext
+BoolValueTrueCtx = QLangParser.BoolValueTrueContext
+BoolValueFalseCtx = QLangParser.BoolValueFalseContext
+# OR #
+OrExprCtx = QLangParser.OrExprContext
+# AND #
+AndExprCtx = QLangParser.AndExprContext
+# NOT #
+NotExprContext = QLangParser.NotExprContext
+
+##### VARIABLES / STRINGS #####
+VarExprCtx = QLangParser.VarExprContext
+StrExprCtx = QLangParser.StrExprContext
+NullExprCtx = QLangParser.NullExprContext
+
+##### NUMBERS #####
 NumExprCtx = QLangParser.NumExprContext
 IntNumExprCtx = QLangParser.IntNumExprContext
 NumCastExprCtx = QLangParser.NumCastExprContext
-
-
-
-IoStmtCtx = QLangParser.IoStmtContext
-VarExprCtx = QLangParser.VarExprContext
-PlaceMemberCtx = QLangParser.PlaceMemberContext
-ParamListCtx = QLangParser.ParamListContext
-ParamCtx = QLangParser.ParamContext
-BlockCtx = QLangParser.BlockContext
-StrExprCtx = QLangParser.StrExprContext
-FunctionCallStmtCtx = QLangParser.FunctionCallStmtContext
-FunctionCallExprCtx = QLangParser.FuncCallExprContext
-ArgListCtx = QLangParser.ArgListContext
-ForStmtCtx = QLangParser.ForStmtContext
-WhileStmtCtx = QLangParser.WhileStmtContext
-IterateStmtCtx = QLangParser.IterateStmtContext
-PowExprCtx = QLangParser.PowExprContext
-FormatCtx = QLangParser.FormatContext
-IfStmtCtx = QLangParser.IfStmtContext
-RelExprContext = QLangParser.RelExprContext
-AddSubExprContext = QLangParser.AddSubExprContext
-MulDivModExprCtx = QLangParser.MulDivModExprContext
-EqExprCtx = QLangParser.EqExprContext
-AndExprCtx = QLangParser.AndExprContext
-OrExprCtx = QLangParser.OrExprContext
-BoolExprCtx = QLangParser.BoolExprContext
-NullExprCtx = QLangParser.NullExprContext
-ParenExprCtx = QLangParser.ParenExprContext
-ConstraintCtx = QLangParser.ConstraintContext
-AssigmentStmtCtx = QLangParser.AssignStmtContext
-
-
-#################### Operators ####################
-
-# Not 
-NotExprContext = QLangParser.NotExprContext
-
-# Minus
+# MINUS #
 MinusExprCtx = QLangParser.MinusExprContext
-
-# Plus
+# PLUS #
 PlusExprCtx = QLangParser.PlusExprContext
-
-# Pre-post increment and decrement
+# PRE/POST INC/DEC #
 PreIncrementCtx = QLangParser.PreIncrementExprContext
 PostIncrementCtx = QLangParser.PostIncrementExprContext
 PreDecrementCtx = QLangParser.PreDecrementExprContext
 PostDecrementCtx = QLangParser.PostDecrementExprContext
 
-# Assignment expr
-AssignExprCtx = QLangParser.AssignmentExprContext
+##### MATH #####
+# POWER #
+PowExprCtx = QLangParser.PowExprContext
+# MULTIPLICATION/DIVISION/MODULO #
+MulDivModExprCtx = QLangParser.MulDivModExprContext
+# ADDITION/SUBSTRACTION #
+AddSubExprContext = QLangParser.AddSubExprContext
 
-# Plus equal
+##### COMPOUND #####
 PlusEqExprCtx = QLangParser.PlusEqExprContext
-
-# Minus equal
 MinusEqExprCtx = QLangParser.MinusEqExprContext
-
-# Mul equal
 MulEqExprCtx = QLangParser.MulEqExprContext
-
-# Div equal
 DivEqExprCtx = QLangParser.DivEqExprContext
-
-# Mod equal
 ModEqExprCtx = QLangParser.ModEqExprContext
-
-# Pow equal
 PowEqExprCtx = QLangParser.PowEqExprContext
-
-# And equal
 AndEqExprCtx = QLangParser.AndEqExprContext
-
-# Or equal
 OrEqExprCtx = QLangParser.OrEqExprContext
 
-# Short if expr
-ShortIfExprCtx = QLangParser.ShortIfExprContext
+##### COMPARISION #####
+# RELATIVE #
+RelExprContext = QLangParser.RelExprContext
+# EQUAL/NOT EQUAL #
+EqExprCtx = QLangParser.EqExprContext
 
-# Reference '@'
-ReferenceCtx = QLangParser.ReferenceContext
-
-# Reset 'reset'
-ResetExprCtx = QLangParser.ResetExprContext
-
-# Parent '^' operator
-ParentExprCtx = QLangParser.ParentExprContext
 
 #################### NETWORK ####################
 SendStmtCtx = QLangParser.SendStmtContext
 ReceiveDeclCtx = QLangParser.ReceiveDeclContext
 AvailableExprContext = QLangParser.AvailableExprAltContext
-
 

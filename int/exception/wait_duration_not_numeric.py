@@ -9,7 +9,6 @@ class WaitDurationNotNumericException(ExitException):
         self.title = "TypeError"
         self.msg = f"Expected numeric expression for wait duration, got {received_type}."
         self.pos = pos
-        self.code_str = "" # Can be filled if needed, but not required
         self.code = "WDNN-" + code
         super().__init__(self.msg)
 
@@ -19,5 +18,5 @@ class WaitDurationNotNumericException(ExitException):
             error_type=self.error_type,
             title=self.title,
             msg=self.msg,
-            code=self.code_str
+            code=self.code
         )

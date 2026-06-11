@@ -13,7 +13,7 @@ println($bit); // obs
 obs byte[8] = 42;
 println($byte); // obsRegister
 
-obs bytes[8][4] = [1, 2, 3, 4];
+
 println($bytes); // list
 
 state q;

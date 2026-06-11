@@ -19,16 +19,6 @@ from .QLang.QLangLexer import QLangLexer
 from .QLang.QLangParser import QLangParser
 
 ######################## EXCEPTIONS #############################
-from .exception.assignment_to_expression import AssignmentToExpressionException
-from .exception.divide_by_zero import DivideByZeroException
-from .exception.modulo_over_zero import ModuloOverZeroException
-from .exception.operator_type_mismatch import OperatorTypeMismatchException
-from .exception.size_error import SizeErrorException
-from .exception.trying_to_modify_const import TryingToModifyConstException
-from .exception.variable_redefinition import VariableRedefiniotionException
-from .exception.index_not_int import IndexNotIntException
-from .exception.index_out_of_range import IndexOutOfRangeException
-
 from .exception.exit_exception import ExitException
 
 ######################## CONTEXT HANDLERS #############################
@@ -49,7 +39,9 @@ from .context.expression.list_expr import   handle_expression_list, \
 from .context.expression.int_number  import handle_expression_int_number
 from .context.expression.number      import handle_expression_number
 
-
+##### TIME #####
+from .context.time.wait_stmt              import handle_wait_stmt
+from .context.time.time_unit          import handle_time_unit
 
 from .context.io.io_statement           import handle_io_statement
 from .context.expression.variable_expression    import handle_variable_expression
@@ -66,7 +58,7 @@ from .context.function.arg_list               import handle_arg_list
 from .context.control.for_loop               import handle_for_loop
 from .context.control.while_loop             import handle_while
 from .context.control.iterate_loop           import handle_iterate
-from .context.control.wait_stmt              import handle_wait_stmt
+
 from .context.math.power                  import handle_power
 from .context.io.format                 import handle_format
 from .context.control.if_condition           import handle_if, handle_short_if
@@ -177,6 +169,21 @@ class Place:
 
         # Polish/Unicode identifiers allowed (letters/digits/underscore), but cannot be a keyword
         return re.match(r'^[\w]+$', name, flags=re.UNICODE) and name not in keywords
+    
+    def execute_block(self, block, parent=None):
+        """
+        Executes given block of code in the context of this place.
+        """
+        from .context.statement import ContinueLoop
+
+        if isinstance(block, BlockCtx):
+            for child in self.handle_block(block, parent=parent):
+                try:
+                    self.handle_block(child, parent=block)
+                except ContinueLoop:
+                    return
+        else:
+            self.handle_block(block, parent=parent)
 
     def handle_block(self, block, parent=None):
         """
@@ -216,6 +223,11 @@ class Place:
             IntNumExprCtx:          handle_expression_int_number,
             NumCastExprCtx:         handle_function_call,
 
+            ##### TIME #####
+            timeUnitCtx:           handle_time_unit,
+            waitStmtCtx:            handle_wait_stmt,
+
+
 
 
             IoStmtCtx:              handle_io_statement,
@@ -233,7 +245,6 @@ class Place:
             ForStmtCtx:             handle_for_loop,
             WhileStmtCtx:           handle_while,
             IterateStmtCtx:         handle_iterate,
-            QLangParser.WaitStmtContext: handle_wait_stmt,
             PowExprCtx:             handle_power,
             FormatCtx:              handle_format,
             IfStmtCtx:              handle_if,

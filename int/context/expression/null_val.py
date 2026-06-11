@@ -7,5 +7,8 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_null(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # NULL: 'NULL';
+    """
+    Handles string NULL character \0
+    ||| NULL: 'NULL';
+    """
     return Expression(TYPE_TEXT, "\0")

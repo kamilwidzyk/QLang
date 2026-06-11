@@ -3,7 +3,7 @@ wait(500 ms);
 println("Waited 500ms");
 
 num start_val = 1;
-wait(start_val s);
+wait(start_val sec);
 println("Waited 1s");
 
 wait(0.1 second);

@@ -1,17 +1,6 @@
 grammar QLang;
 program: topLevelItem* EOF;
 
-// ==========================================
-// LEXER RULES
-// ==========================================
-
-TEXT: 'text';
-
-// ==========================================
-// PARSER RULES
-// ==========================================
-
-
 /** Elementy najwyższego rzędu */
 topLevelItem
     : placeDecl         /** Deklaracja Place */
@@ -68,7 +57,7 @@ index
     ;
 var: ID index*;                      /** Użycie zmiennej z możliwym indeksem */
 
-sizeGetter: '#' ID;                  /** Pobranie rozmiaru zmiennej/listy argumentów */
+sizeGetter: '#' ID;                  /** Pobranie rozmiaru zmiennej/listy */
 
 // -------------------- INSTRUKCJE --------------------
 statement
@@ -134,7 +123,35 @@ ifStmt: IF '(' expr ')' (block | statement) ((ELSE_IF | ELIF) '(' expr ')' (bloc
 forStmt: FOR ID FROM expr TO expr (STEP expr)? block;
 whileStmt: WHILE '(' expr ')' block;
 iterateStmt: ITERATE expr AS ID (INDEX ID)? block;
-waitStmt: WAIT '(' expr ID ')' ;
+
+// -------------------- CZAS I OPÓŹNIENIA --------------------
+
+waitStmt: WAIT '(' expr timeUnit ')' ;
+timeUnit: secondUnit | millisUnit | minuteUnit | hourUnit;
+
+secondUnit
+    : UNIT_SEC 
+    | UNIT_SECOND
+    | UNIT_SECONDS
+    ;
+
+millisUnit
+    : UNIT_MS
+    | UNIT_MILLIS
+    | UNIT_MILLISECOND
+    | UNIT_MILLISECONDS
+    ;
+
+minuteUnit
+    : UNIT_MIN
+    | UNIT_MINUTE
+    | UNIT_MINUTES
+    ;
+
+hourUnit
+    : UNIT_HOUR
+    | UNIT_HOURS
+    ;
 
 // -------------------- WEJŚCIE / WYJŚCIE --------------------
 
@@ -191,7 +208,7 @@ expr
     | ID index*                           # VarExpr
     | INT_NUMBER                         # IntNumExpr
     | NUMBER                             # NumExpr
-    | BOOL_VAL                           # BoolExpr
+    | boolValue                           # BoolExpr
     | NULL                               # NullExpr
     | STRING                             # StrExpr
     | '(' expr ')'                       # ParenExpr
@@ -199,7 +216,10 @@ expr
     | expr '?' expr ':' expr             # ShortIfExpr
     ;
 
-
+boolValue
+    : BOOL_TRUE # boolValueTrue
+    | BOOL_FALSE # boolValueFalse
+    ;
 
 
 availableExpr
@@ -374,11 +394,14 @@ list
 // LEXER RULES
 // ==========================================
 
+
+
 // Słowa kluczowe
 STATE: 'state';
 OBS: 'obs';
 SUPERPOSED: 'superposed';
 NUM: 'num'; // Do float
+TEXT: 'text';
 ANY: 'any';
 
 H: 'H';
@@ -419,6 +442,8 @@ BREAK: 'break';
 CONTINUE: 'continue';
 WAIT: 'wait';
 
+
+
 PRINT: 'print';
 PRINTLN: 'println';
 DEBUG: 'debug';
@@ -433,7 +458,8 @@ BIN: 'BIN';
 HEX: 'HEX';
 
 // Literale
-BOOL_VAL: 'T' | 'F';
+BOOL_TRUE: 'T';
+BOOL_FALSE: 'F';
 NULL: 'NULL';
 
 POW_OP:   '**';
@@ -470,7 +496,19 @@ fragment BIN_NUMBER: '0b' [01]+;
 fragment DEC_NUMBER: [0-9]+;
 
 
-
+// Wait units
+UNIT_SEC: 'sec';
+UNIT_SECOND: 'second';
+UNIT_SECONDS: 'seconds';
+UNIT_MS: 'ms';
+UNIT_MILLIS: 'millis';
+UNIT_MILLISECOND: 'millisecond';
+UNIT_MILLISECONDS: 'milliseconds';
+UNIT_MIN: 'min';
+UNIT_MINUTE: 'minute';
+UNIT_MINUTES: 'minutes';
+UNIT_HOUR: 'hour';
+UNIT_HOURS: 'hours';
 
 ID: [\p{L}_][\p{L}\p{N}_]*;
 

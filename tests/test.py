@@ -309,7 +309,6 @@ def run_tests_in_directory(root_dir, test_name=None):
                     continue
 
                 for attr_name in dir(module):
-                    #print(f"  Checking {attr_name}...")
                     if attr_name.startswith("test_"):
                         if test_name and attr_name != test_name:
                             continue
@@ -319,7 +318,6 @@ def run_tests_in_directory(root_dir, test_name=None):
                         if callable(func):
                             test_name_short = attr_name[len("test_"):] if attr_name.startswith("test_") else attr_name
 
-                            # 👇 relative path instead of absolute
                             rel_path = os.path.relpath(file_path, os.getcwd())
                             key = f"{rel_path}:{test_name_short}"
 

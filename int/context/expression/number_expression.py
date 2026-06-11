@@ -6,20 +6,16 @@ from ...expression import Expression, TYPE_FLOAT, TYPE_INT
 if TYPE_CHECKING:
     from place import Place
 
+from .common import parse_prefix_int
+
 def handle_number_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # NUMBER: FLOAT_NUMBER | HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
+    """
+    Handle number, parses float(including scientific notation), hex, bin and decimal
+    ||| NUMBER: FLOAT_NUMBER | HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
+    """
+    text = block.NUMBER().getText().lower()
 
-    text = block.NUMBER().getText()
-    val = None
-
-    # parse text as hex(0x...), bin(0b...) or dec or float
-    if text.startswith("0x") or text.startswith("0X"):
-        val = int(text, 16)
-    elif text.startswith("0b") or text.startswith("0B"):
-        val = int(text, 2)
-    elif "." in text or "e" in text or "E" in text:
-        val = float(text)
-    else:
-        val = int(text)
-
-    return Expression(TYPE_FLOAT if isinstance(val, float) else TYPE_INT, val)
+    if "." in text or "e" in text: # float or scientific notation
+        return Expression(TYPE_FLOAT, float(text))
+    
+    return Expression(TYPE_INT, parse_prefix_int(text))

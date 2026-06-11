@@ -14,7 +14,7 @@ def test_wait_statement() -> bool:
     place_log = read_place_files_as_dict()
     if elapsed < 1.5:
         print(f"\t ! Execution took too little time: {elapsed}s")
-        print(place_log)
+        print(place_log["global"])
         return False
     
     test_lines = extract_test_lines_from_log()

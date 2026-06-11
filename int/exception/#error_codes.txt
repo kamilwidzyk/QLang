@@ -89,6 +89,14 @@ CantFindVariableException -> CFV
 DivideByZeroException -> DBZ
     1: int/context/math/div_eq_expr.py
         Right side of '/=' is 0 (division by 0)
+        TEST: errros/operators/math/divide_by_zero/div_eq_0.ql
+    2: int/context/math/mul_div_mod.py
+        Right side of '/' is 0 (division by 0) 
+        TEST: errors/operators/math/divide_by_zero/div_by_0.ql
+
+WaitDurationNotNumericException -> WDNN
+    1: int/context/control
+        wait() duration is not numeric
 
 IndexNotIntException -> INI
     1: int/context/operator/reset.py

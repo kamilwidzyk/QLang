@@ -77,22 +77,28 @@ def handle_type_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
             except Exception:
                 value = var.get() if hasattr(var, 'get') else var
             
-            if isinstance(value, list):
-                return "list"
-            if isinstance(value, Expression):
-                t = value.type
-            elif hasattr(value, 'type'):
-                t = value.type
-            else:
-                from ...variable import Variable
-                if isinstance(value, Variable):
+            try:
+                if isinstance(value, list):
+                    return "list"
+                if isinstance(value, Expression):
+                    t = value.type
+                elif hasattr(value, 'type'):
                     t = value.type
                 else:
-                    t = type(value).__name__
-            return _map_type_name(t)
+                    from ...variable import Variable
+                    if isinstance(value, Variable):
+                        t = value.type
+                    else:
+                        t = type(value).__name__
+                return _map_type_name(t)
+            except Exception:
+                return "unknown"
             
-        indices = [self.handle_block(e, block) for e in expr.index()]
-        return _resolve_variable_type(var, len(indices))
+        try:
+            indices = [self.handle_block(e, block) for e in expr.index()]
+            return _resolve_variable_type(var, len(indices))
+        except Exception:
+            return "unknown"
     else:
         # For simple expr, handle normally but get type
         value = self.handle_block(expr, block)

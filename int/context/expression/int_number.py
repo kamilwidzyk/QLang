@@ -6,18 +6,23 @@ from ...expression import Expression, TYPE_INT
 if TYPE_CHECKING:
     from place import Place
 
+from .common import parse_prefix_int
+
+
 def handle_expression_int_number(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # INT_NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
+    """
+    Handles integers in hexadecimal, binary and decimal formats
+    ||| INT_NUMBER: HEX_NUMBER | BIN_NUMBER | DEC_NUMBER;
 
+    Hexadecimal:
+        0xABC
+        0XABC
+    Binary:
+        0b1100
+        0B1100
+    Decimal
+        123
+        456
+    """
     text = block.INT_NUMBER().getText()
-    val = None
-
-    # parse text as hex(0x...), bin(0b...) or dec
-    if text.startswith("0x") or text.startswith("0X"):
-        val = int(text, 16)
-    elif text.startswith("0b") or text.startswith("0B"):
-        val = int(text, 2)
-    else:
-        val = int(text)
-    
-    return Expression(TYPE_INT, val)
+    return Expression(TYPE_INT, parse_prefix_int(text))

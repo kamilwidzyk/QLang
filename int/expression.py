@@ -94,6 +94,17 @@ class Expression:
         self.value = value
         self.variable = variable
         self.shape = shape # when type is list -> this is the shape from outer to inner
+        if self.type == TYPE_LIST:
+            if isinstance(self.shape, list):
+                self.dimensions = self.shape
+            elif self.shape is not None:
+                self.dimensions = [self.shape]
+            elif isinstance(self.value, list):
+                self.dimensions = [len(self.value)]
+            else:
+                self.dimensions = [0]
+        else:
+            self.dimensions = None
 
     def get(self):
         if self.variable is not None:
