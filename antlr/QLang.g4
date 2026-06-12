@@ -193,6 +193,8 @@ expr
     | expr '**' expr                     # PowExpr
     | expr ('*' | '/' | '%') expr        # MulDivModExpr
     | expr ('+' | '-') expr              # AddSubExpr
+    | expr '>>' varType                  # BinaryFromListExpr
+    | expr '>' INT_NUMBER '>' varType    # BinaryToListExpr
     | expr ('<' | '>' | '<=' | '>=') expr# RelExpr
     | expr ('==' | '!=') expr            # EqExpr
     | expr '&&' expr                     # AndExpr

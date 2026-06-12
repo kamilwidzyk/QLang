@@ -22,7 +22,7 @@ obs a = 1;
 println("The value of a is: " + a);
 
 obs b[5] = 8;
-println("The value of b is: " + b);
+println("The value of b is: " + (b >> num));
 
 text s = "Hello, World!";
 println("The value of s is: " + s);

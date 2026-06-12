@@ -4,10 +4,11 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 import copy
 
-from ...obs import Obs, ObsRegister
+from ...obs import Obs
 
-from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_OBS_REGISTER, TYPE_STATE, TYPE_TEXT, TYPE_ANY
+from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_STATE, TYPE_TEXT, TYPE_ANY
 from ...logger import log, VARIABLE, FATAL
+from ...operations.operators import do_operation_int_to_bits
 
 from ...exception.size_error import SizeErrorException
 from ...exception.variable_redefinition import VariableRedefiniotionException
@@ -110,9 +111,6 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
         )
         exit()
 
-    if type == TYPE_OBS and len(dimensions) >= 1:
-        type = TYPE_OBS_REGISTER
-    
     if len(dimensions) == 0:
         dimensions = [0]
 
@@ -128,13 +126,22 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
     var = Variable(var_name, type, dimensions, quantum_client=self.quantum_client, is_const=is_const)
     if initial_value is not None:
+        if type == TYPE_OBS and not isinstance(initial_value, list) and not (
+            isinstance(initial_value, Expression) and initial_value.type == TYPE_LIST
+        ) and dimensions != [0]:
+            size = dimensions[0] if isinstance(dimensions, list) else dimensions
+            if isinstance(initial_value, Expression) and initial_value.type in [TYPE_INT, TYPE_NUM]:
+                initial_value = do_operation_int_to_bits(initial_value, size)
+            elif isinstance(initial_value, (int, float)):
+                initial_value = do_operation_int_to_bits(Expression(TYPE_INT, initial_value), size)
+            else:
+                initial_value = Expression(TYPE_LIST, [initial_value], shape=1)
+
         if isinstance(initial_value, list):
             initial_value = _normalize_list_values(initial_value)
             value_shape = _list_shape(initial_value)
 
             expected_shapes = [dimensions]
-            if type == TYPE_OBS_REGISTER:
-                expected_shapes.append(dimensions[:-1])
 
             is_valid_shape = False
             for expected in expected_shapes:
@@ -165,15 +172,16 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
             value_shape = initial_value.shape
             initial_value = Expression(TYPE_LIST, initial_value.value, shape=value_shape)
             
-            var_dims = dimensions if not is_dynamic else value_shape
+            if is_dynamic:
+                var_dims = value_shape if isinstance(value_shape, list) else [value_shape]
+            else:
+                var_dims = dimensions
             var = Variable(var_name, type, var_dims, quantum_client=self.quantum_client, is_const=is_const)
             
             if isinstance(dimensions, int):
                 dimensions = [dimensions]
 
             expected_shapes = [dimensions]
-            if type == TYPE_OBS_REGISTER:
-                expected_shapes.append(dimensions[:-1])
 
             is_valid_shape = False
             for expected in expected_shapes:

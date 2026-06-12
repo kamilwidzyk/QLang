@@ -10,8 +10,8 @@ println($multi); // list
 obs bit = 1;
 println($bit); // obs
 
-obs byte[8] = 42;
-println($byte); // obsRegister
+obs bytes[8] = 42;
+println($bytes); // list
 
 
 println($bytes); // list
@@ -20,7 +20,7 @@ state q;
 println($q); // state
 
 state qubits[4];
-println($qubits); // stateRegister
+println($qubits); // list
 
 state multi_qubits[4][2];
 println($multi_qubits); // list

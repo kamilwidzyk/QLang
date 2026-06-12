@@ -1,8 +1,8 @@
 from tests.test import *
 
 
-def test_operator_type() -> bool:
-    run_in_test_mode("tests\\operators\\type\\type.ql")
+def test_binary_conversion() -> bool:
+    run_in_test_mode("tests\\operators\\binary_conversion\\binary_conversion.ql")
 
     test_lines = extract_test_lines_from_log()
     if(SYNTAX_ERRORS in test_lines):
@@ -12,10 +12,8 @@ def test_operator_type() -> bool:
     place_log = read_place_files_as_dict()
     if place_log.get("global") is None:
         return False
-    
-    print(place_log.get("global"))
 
-    expected_output = "num\nlist\nlist\nobs\nlist\nlist\nstate\nlist\nlist\ntext\nlist\nfunction\nlist\nnum\ntext\nstate\n"
+    expected_output = "13\n13\n[1, 0, 1, 1]\n[0, 0, 0, 0]\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))

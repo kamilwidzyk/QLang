@@ -1,6 +1,6 @@
 from .expression import *
 from .logger import log, INTERNAL, FATAL, VARIABLE
-from .obs import Obs, ObsRegister
+from .obs import Obs
 from .num import Num
 from .text import Text
 from .state import State
@@ -33,14 +33,10 @@ class Variable:
             exit()
         if type == TYPE_OBS:
             self._create_array_of_obs()
-        elif type == TYPE_OBS_REGISTER:
-            self._create_array_of_obs_register()
         elif type == TYPE_NUM:
             self._create_array_of_num()
         elif type == TYPE_STATE:
             self._create_array_of_state()
-        elif type == TYPE_STATE_REGISTER:
-            self._create_array_of_state_register()
         elif type == TYPE_TEXT:
             self._create_array_of_text()
         elif type == TYPE_ANY:
@@ -73,14 +69,6 @@ class Variable:
         else:
             self.data = Obs()
 
-    def _create_array_of_obs_register(self):
-        if len(self.dimensions) == 1:
-            self.data = ObsRegister(size=self.dimensions[0])
-        else:
-            register_size = self.dimensions[-1]
-            self.data = self._create_array_of(ObsRegister, self.dimensions[:-1], register_size)
-            self.is_list = True
-
     def _create_array_of_num(self):
         if self.dimensions != [0]:
             self.data = self._create_array_of(Num, self.dimensions)
@@ -99,9 +87,6 @@ class Variable:
         if not dimensions:
             return State(client=self.quantum_client)
         return [self._create_array_of_state_data(dimensions[1:]) for _ in range(dimensions[0])]
-
-    def _create_array_of_state_register():
-        raise NotImplementedError()
     
     def _create_array_of_text(self):
         if self.dimensions != [0]:
@@ -142,13 +127,9 @@ class Variable:
             
             if inferred_type == TYPE_OBS:
                 self._create_array_of_obs()
-            elif inferred_type == TYPE_OBS_REGISTER:
-                self._create_array_of_obs_register()
             elif inferred_type == TYPE_NUM:
                 self._create_array_of_num()
             elif inferred_type == TYPE_STATE:
-                self.data = None
-            elif inferred_type == TYPE_STATE_REGISTER:
                 self.data = None
             elif inferred_type == TYPE_TEXT:
                 self._create_array_of_text()
@@ -205,8 +186,6 @@ class Variable:
             
             if isinstance(target, list):
                 element = target[last_index]
-            elif isinstance(target, ObsRegister):
-                element = target.obs[last_index]
             else:
                 element = target
 
@@ -237,7 +216,7 @@ class Variable:
                 self.data.value = str(new_value.value) if new_value.value is not None else ""
             elif self.type == "Function":
                 self.data = new_value.extract_raw_value() if hasattr(new_value, 'extract_raw_value') else Expression._extract_value_from(new_value)
-            elif (self.type == TYPE_STATE or self.type == TYPE_STATE_REGISTER) and self.declared_type == TYPE_ANY:
+            elif self.type == TYPE_STATE and self.declared_type == TYPE_ANY:
                 self.data = new_value.extract_raw_value() if hasattr(new_value, 'extract_raw_value') else Expression._extract_value_from(new_value)
             else:
                 val = new_value.value.extract_raw_value() if hasattr(new_value.value, 'extract_raw_value') else Expression._extract_value_from(new_value.value)
@@ -252,8 +231,6 @@ class Variable:
         if dimensions is None:
             dimensions = self.dimensions
 
-        if self.type == TYPE_OBS_REGISTER and isinstance(dimensions, list) and len(dimensions) > 1:
-            dimensions = dimensions[:-1]
 
         if not dimensions or dimensions == [0]:
             return self._default_scalar_value()
@@ -304,8 +281,6 @@ class Variable:
             last_index = self.index[-1]
             if isinstance(target, list):
                 element = target[last_index]
-            elif isinstance(target, ObsRegister):
-                element = target.obs[last_index]
             else:
                 element = target[last_index]
             reset_value = self._get_initial_value_at_index(self.index)
@@ -434,7 +409,7 @@ class Variable:
         data = self.get()
         if isinstance(data, Text):
             return data.get()
-        elif isinstance(data, (Obs, ObsRegister, Num)):
+        elif isinstance(data, (Obs, Num)):
             return data.get()
         else:
             return data

@@ -10,14 +10,10 @@ if TYPE_CHECKING:
 def _map_type_name(name: str) -> str:
     if name == "Num" or name == "int" or name == "float" or name == "bool":
         return "num"
-    if name == "Obs" or name == "TYPE_OBS":
+    if name == "Obs" or name == "TYPE_OBS" or name == "ObsRegister":
         return "obs"
-    if name == "ObsRegister":
-        return "obsRegister"
-    if name == "State" or name == "TYPE_STATE":
+    if name == "State" or name == "TYPE_STATE" or name == "StateRegister":
         return "state"
-    if name == "StateRegister":
-        return "stateRegister"
     if name == "Text" or name == "text" or name == "string" or name == "TYPE_TEXT" or name == "str":
         return "text"
     if name == "Function":
@@ -44,12 +40,6 @@ def _resolve_variable_type(var: Any, num_indices: int) -> str:
     remaining_dims = max(0, num_dims - num_indices)
     if remaining_dims == 0:
         return base_type
-    elif remaining_dims == 1:
-        if base_type == "obs":
-            return "obsRegister"
-        if base_type == "state":
-            return "stateRegister"
-        return "list"
     else:
         return "list"
 

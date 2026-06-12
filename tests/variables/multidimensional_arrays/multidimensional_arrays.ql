@@ -64,7 +64,7 @@ println("=== Testing OBS Arrays ===");
 
 // OBS arrays (quantum observables)
 obs obs1d[3];
-obs1d = 5; // binary 101
+obs1d = 5 >3> obs; // binary 101
 println("obs1d[1]:", obs1d[1]);
 println("#obs1d:", #obs1d);
 

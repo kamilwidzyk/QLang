@@ -54,7 +54,7 @@ for i from 0 to iter{
     state x[2];
     superpose x;
     obs x_meas[?] = measure x;
-    res[x_meas == 0b11 ? 1 : 0]++;
+    res[x_meas == [1, 1] ? 1 : 0]++;
 }
 
 println("[6] 0=%d 1=%d" % res); // [6] 75/25

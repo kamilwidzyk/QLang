@@ -59,7 +59,7 @@ print(g[1]); // T
 println(g[2]); // T
 // [G] TTFFFFTTT\n
 
-println(g); // 7
+println(g >> num); // 7
 
 // expected output: [A] FFT\n[B] TFT\n[C] FTF\n[DEF] FFFTTT\n[G] TTFFFFTTT\n7\n
 

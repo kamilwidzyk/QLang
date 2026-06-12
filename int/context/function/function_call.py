@@ -19,7 +19,6 @@ from ...expression import (
     TYPE_BOOL,
     TYPE_NUM,
     TYPE_OBS,
-    TYPE_OBS_REGISTER,
     TYPE_LIST,
     TYPE_STATE,
     TYPE_STRING,
@@ -139,7 +138,7 @@ def _is_arg_type_compatible(expected_type: str, value: Any) -> bool:
         return False
     if expected_type == "obs":
         # Accept bool expressions, obs variables/registers and obs arrays.
-        if value_type in [TYPE_BOOL, "Obs", "ObsRegister", TYPE_OBS, TYPE_OBS_REGISTER]:
+        if value_type in [TYPE_BOOL, "Obs", "ObsRegister", TYPE_OBS]:
             return True
         if isinstance(value, list):
             return True

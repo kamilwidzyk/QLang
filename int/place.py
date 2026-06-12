@@ -18,6 +18,9 @@ from antlr4.tree.Tree import TerminalNode
 from .QLang.QLangLexer import QLangLexer
 from .QLang.QLangParser import QLangParser
 
+BinaryFromListExprContext = QLangParser.BinaryFromListExprContext
+BinaryToListExprContext = QLangParser.BinaryToListExprContext
+
 ######################## EXCEPTIONS #############################
 from .exception.exit_exception import ExitException
 
@@ -63,6 +66,7 @@ from .context.math.power                  import handle_power
 from .context.io.format                 import handle_format
 from .context.control.if_condition           import handle_if, handle_short_if
 from .context.operator.rel_comp               import handle_rel_comp
+from .context.operator.binary_conversion      import handle_binary_from_list, handle_binary_to_list
 from .context.math.add_sub                import handle_add_sub
 from .context.operator.not_op                 import handle_not
 from .context.math.mul_div_mod            import handle_mul_div_mod
@@ -252,6 +256,8 @@ class Place:
             ShortIfExprCtx:     handle_short_if,
             RelExprContext:         handle_rel_comp,
             AddSubExprContext:      handle_add_sub,
+            BinaryFromListExprContext: handle_binary_from_list,
+            BinaryToListExprContext: handle_binary_to_list,
             
             MulDivModExprCtx:       handle_mul_div_mod,
             EqExprCtx:              handle_eq_comp,

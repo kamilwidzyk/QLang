@@ -55,6 +55,80 @@ def flatten_expressions_list(lst):
     return [x.get_value() if isinstance(x, Expression) else x for x in lst]
 
 
+def _extract_scalar_value(value):
+    if isinstance(value, Expression):
+        return _extract_scalar_value(value.get_value())
+    if isinstance(value, Variable):
+        return _extract_scalar_value(value.get_value())
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, (int, float)):
+        return value
+    if isinstance(value, Obs):
+        return int(value.get_value())
+    return value
+
+
+def do_operation_bits_to_int(expr):
+    if isinstance(expr, Expression) and isinstance(expr.value, list):
+        values = expr.value
+    elif isinstance(expr, list):
+        values = expr
+    elif hasattr(expr, 'data') and isinstance(expr.data, list):
+        values = expr.data
+    else:
+        raise TypeError("Binary conversion requires a list of bits")
+
+    if not isinstance(values, list):
+        raise TypeError("Binary conversion requires a list of bits")
+
+    total = 0
+    for index, bit in enumerate(values):
+        if isinstance(bit, Expression):
+            bit = bit.get_value()
+        if isinstance(bit, Variable):
+            bit = bit.get_value()
+        if isinstance(bit, Obs):
+            bit = int(bit.get_value())
+        if isinstance(bit, bool):
+            bit = int(bit)
+        if isinstance(bit, float):
+            if int(bit) != bit:
+                raise TypeError("Binary conversion requires integer bit values")
+            bit = int(bit)
+        if not isinstance(bit, int):
+            raise TypeError("Binary conversion requires integer bit values")
+        if bit not in (0, 1):
+            raise ValueError("Binary conversion requires bits to be 0 or 1")
+
+        total |= bit << index
+
+    return Expression(TYPE_INT, total)
+
+
+def do_operation_int_to_bits(expr, size: int):
+    value = expr
+    if isinstance(expr, Expression):
+        value = expr.get_value()
+    if isinstance(expr, Variable):
+        value = expr.get_value()
+
+    if isinstance(value, bool):
+        value = int(value)
+    if isinstance(value, float):
+        if int(value) != value:
+            raise TypeError("Binary conversion requires an integer source value")
+        value = int(value)
+
+    if not isinstance(value, int):
+        raise TypeError("Binary conversion requires an integer source value")
+    if size < 0:
+        raise ValueError("Binary conversion bit width must be non-negative")
+
+    bits = [(value >> i) & 1 for i in range(size)]
+    return Expression(TYPE_LIST, bits, shape=[size])
+
+
 def _list_shape(values):
     if not isinstance(values, list):
         return []

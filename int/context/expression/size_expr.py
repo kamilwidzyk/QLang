@@ -4,7 +4,7 @@ from ...script_errors import ScriptErrors
 
 from ...exception.cant_find_variable import CantFindVariableException
 from ...variable import TYPE_LIST, TYPE_ARRAY, Variable
-from ...expression import Expression, TYPE_INT, TYPE_ARRAY, TYPE_BOOL, TYPE_FLOAT, TYPE_TEXT, TYPE_OBS, TYPE_OBS_REGISTER, TYPE_NUM, TYPE_STRING
+from ...expression import Expression, TYPE_INT, TYPE_ARRAY, TYPE_BOOL, TYPE_FLOAT, TYPE_TEXT, TYPE_OBS, TYPE_NUM, TYPE_STRING
 
 if TYPE_CHECKING:
     from place import Place
@@ -23,7 +23,7 @@ def extract_variable_size(var: Any) -> int:
                 return Expression(TYPE_INT, var.dimensions[0])
             if var.type == TYPE_TEXT:
                 return Expression(TYPE_INT, len(var.data.get()))
-            if var.type in [TYPE_OBS, TYPE_OBS_REGISTER, TYPE_NUM]:
+            if var.type in [TYPE_OBS, TYPE_NUM]:
                 return Expression(TYPE_INT, 1 if var.dimensions == [0] else var.dimensions[0])
         except Exception:
             return Expression(TYPE_INT, 0)
@@ -35,7 +35,7 @@ def extract_variable_size(var: Any) -> int:
                 return Expression(TYPE_INT, len(var.value))
             if var.type == TYPE_TEXT:
                 return Expression(TYPE_INT, len(var.value.get()))
-            if var.type in [TYPE_OBS, TYPE_OBS_REGISTER, TYPE_NUM]:
+            if var.type in [TYPE_OBS, TYPE_NUM]:
                 return Expression(TYPE_INT, 1 if var.dimensions == [0] else var.dimensions[0])
         except Exception:
             return Expression(TYPE_INT, 0)
