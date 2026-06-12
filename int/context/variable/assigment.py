@@ -4,18 +4,13 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 
 from ...exception.cant_find_variable import CantFindVariableException
-from ...exception.information_leak import InformationLeakException
-from ...exception.index_not_int import IndexNotIntException
-
+from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ...index_types import SimpleIndex, RangeIndex, ListIndex
-
-from ...expression import Expression, TYPE_INT, TYPE_STATE, TYPE_BOOL
+from ...expression import Expression, TYPE_STATE
 from ...variable import Variable
-
 
 if TYPE_CHECKING:
     from place import Place
-
 
 def _coerce_index_value(value):
     if isinstance(value, Variable):
@@ -99,17 +94,15 @@ def handle_var(self: Place, block: Any, parent: Any) -> Variable:
 
 
 def handle_assigment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # assignStmt: var '=' expr;
+    """
+    Handles variable assignment
+    ||| assignStmt: var '=' expr;
+    """
     var = handle_var(self, block.var(), block)
 
     if var.type == TYPE_STATE:
-        self.script_errors.showError(
-            pos=pos,
-            error_type="RUNTIME ERROR",
-            title="Access Denied",
-            msg="Quantum states cannot be assigned directly.",
-        )
-        exit()
+        # code DQA-5
+        raise DirectQuantumAccessException(pos=pos, code="5")
 
     assign_val = self.handle_block(block.expr(), block)
     var.set(assign_val, pos=pos)

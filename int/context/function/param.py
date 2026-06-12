@@ -9,7 +9,10 @@ if TYPE_CHECKING:
 
 
 def handle_param_varParamDefault(self: Place, block: Any, parent: Any, type: str):
-    # varParamDefault: ID ('[' INT_NUMBER ']')* ('=' expr)?; 
+    """
+     Handles the parsing of a parameter with optional default value and size.
+     ||| varParamDefault: ID ('[' INT_NUMBER ']')* ('=' expr)?;
+    """
     param_name = block.ID().getText()
     param_size = []
     for size_num in block.INT_NUMBER():
@@ -22,6 +25,9 @@ def handle_param_varParamDefault(self: Place, block: Any, parent: Any, type: str
 
 
 def handle_param(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handling moved to handle_param_varParamDefault 
+    """
     # param: varType varParamDefault;
 
     varType = block.varType().getText()

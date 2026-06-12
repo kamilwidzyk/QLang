@@ -9,7 +9,11 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_power(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # expr '**' expr
+    """
+    Handles power operation
+    ||| expr '**' expr
+    Calculation is performed using do_operation_pow
+    """
     children = [x for x in block.expr()]
     base = self.handle_block(children[0], block)
     power = self.handle_block(children[1], block)

@@ -9,6 +9,9 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_string(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handles raw string, replaces escapes characters
+    """
     # STRING     : '"' (~["\r\n])* '"' 
     #            | '\'' (~['])* '\''
     #            | '`' (~[`])* '`'

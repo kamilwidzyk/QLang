@@ -7,5 +7,8 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_format(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # format: BIN | HEX;
+    """
+    Handles input format specifier
+    ||| format: BIN | HEX;
+    """
     return [x for x in block.getChildren()][0].getText()

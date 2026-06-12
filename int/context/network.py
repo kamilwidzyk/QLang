@@ -4,10 +4,8 @@ from typing import Any, TYPE_CHECKING
 
 from int.exception.internal import InternalException
 from int.exception.network_only_var import NetworkNotVariableException
-
 from ..exception.packet_size_must_be import PacketSizeNotIntegerException
 from ..exception.invalid_payload import PacketPayloadInvalidException
-from ..exception.cant_find_variable import CantFindVariableException
 
 from ..script_errors import ScriptErrors
 from ..consts import *
@@ -25,6 +23,9 @@ if TYPE_CHECKING:
 
 
 def _parse_string_token(token_text: str) -> str:
+    """
+    Parse raw string to actual string value, handling escape sequences
+    """
     text = token_text[1:-1]
     text = text.replace('\\n', '\n')
     text = text.replace('\\t', '\t')
@@ -37,10 +38,16 @@ def _parse_string_token(token_text: str) -> str:
 
 
 def _is_quantum_type(var_type: str) -> bool:
+    """
+    Returns True if the given type is a quantum type 
+    """
     return var_type == TYPE_STATE
 
 
 def _extract_place_name(value: Any):
+    """
+    Extracts raw place name
+    """
     while hasattr(value, 'get_value'):
         value = value.get_value()
     if isinstance(value, Text):
@@ -49,6 +56,9 @@ def _extract_place_name(value: Any):
 
 
 def _resolve_place_id(self: Place, identifier: str, pos: ScriptErrors.Position) -> str:
+    """
+    Returns the actual place name for a given identifier, checking both quantum network and local scopes.
+    """
     if self.quantum_network is not None and identifier in getattr(self.quantum_network, 'valid_places', set()):
         return identifier
 
@@ -63,6 +73,9 @@ def _resolve_place_id(self: Place, identifier: str, pos: ScriptErrors.Position) 
 
 
 def _type_from_token(token_text: str) -> str:
+    """
+    Converts type to internal representation
+    """
     if token_text == 'obs':
         return TYPE_OBS
     if token_text == 'state':
@@ -75,6 +88,9 @@ def _type_from_token(token_text: str) -> str:
 
 
 def _evaluate_size(self: Place, size_block: Any) -> int:
+    """
+    Evaluates the size of a packet
+    """
     expr = self.handle_block(size_block.expr(), size_block)
     if expr.type != TYPE_INT:
         # code PSNI-1
@@ -92,6 +108,9 @@ def _evaluate_size(self: Place, size_block: Any) -> int:
 
 
 def _derive_packet_size(variable: Any, explicit_size: int | None = None) -> int:
+    """
+    Derives packet size based on variable/expression and explicit size (if provided)
+    """
     if explicit_size is not None:
         return explicit_size
     if isinstance(variable, Variable):
@@ -121,6 +140,9 @@ def _derive_packet_size(variable: Any, explicit_size: int | None = None) -> int:
 
 
 def _serialize_value(value: Any) -> Any:
+    """
+    Prepare value for travel thru the network
+    """
     if isinstance(value, list):
         return [_serialize_value(v) for v in value]
 
@@ -140,14 +162,8 @@ def _serialize_value(value: Any) -> Any:
     if isinstance(value, State):
         return {'__qstate__': True, 'uid': value.uid}
 
-    if isinstance(value, StateRegister):
-        return {'__qregister__': [state.uid for state in value.states]}
-
     if isinstance(value, Obs):
         return {'__obs__': int(value.get())}
-
-    if isinstance(value, ObsRegister):
-        return {'__obsreg__': [int(bit.get()) for bit in value.obs]}
 
     if isinstance(value, Num):
         return value.get_value()
@@ -159,12 +175,16 @@ def _serialize_value(value: Any) -> Any:
 
 
 def _serialize_variable(variable: Variable) -> Any:
-    if variable.is_list:
-        return _serialize_value(variable.data)
+    """
+    Duplicate from older version
+    """
     return _serialize_value(variable.data)
 
 
 def _deserialize_state_payload(payload: Any) -> Any:
+    """
+    Parse received payload of state variable
+    """
     if isinstance(payload, list):
         return [_deserialize_state_payload(item) for item in payload]
 
@@ -178,6 +198,9 @@ def _deserialize_state_payload(payload: Any) -> Any:
     )
 
 def _deserialize_value(self: Place, payload: Any, var_type: str) -> Any:
+    """
+    Deserializes any value received thru the network
+    """
     if var_type == TYPE_STATE:
         if isinstance(payload, dict) and payload.get('__qstate__'):
             return State(client=self.quantum_client, uid=payload['uid'])
@@ -208,23 +231,10 @@ def _deserialize_value(self: Place, payload: Any, var_type: str) -> Any:
     return payload
 
 
-def _deserialize_payload(self: Place, payload: Any, var_type: str) -> Any:
-    if var_type == TYPE_STATE:
-        return _deserialize_value(self, payload, TYPE_STATE)
-
-    if var_type == TYPE_OBS:
-        return _deserialize_value(self, payload, TYPE_OBS)
-
-    if var_type == TYPE_NUM:
-        return _deserialize_value(self, payload, TYPE_NUM)
-
-    if var_type == TYPE_TEXT:
-        return _deserialize_value(self, payload, TYPE_TEXT)
-
-    return payload
-
-
 def _get_receive_filters(self: Place, block: Any, pos: ScriptErrors.Position) -> tuple[str | None, str | None]:
+    """
+    Extract packet receive filters
+    """
     src_id = None
     msg_id = None
     receive_filters = block.receiveFilter() if hasattr(block, 'receiveFilter') else block.receiveOpt()
@@ -243,6 +253,9 @@ def _get_receive_filters(self: Place, block: Any, pos: ScriptErrors.Position) ->
 
 
 def _get_available_filters(self: Place, block: Any, pos: ScriptErrors.Position) -> tuple[bool | None, str | None, str | None]:
+    """
+    Extract packet available filters
+    """
     quantum = None
     src_id = None
     msg_id = None
@@ -264,6 +277,9 @@ def _get_available_filters(self: Place, block: Any, pos: ScriptErrors.Position) 
 
 
 def handle_send_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handles send statement
+    """
     if self.quantum_network is None:
         # code: I-1
         raise InternalException(
@@ -331,6 +347,9 @@ def handle_send_statement(self: Place, block: Any, parent: Any, pos: ScriptError
         )
 
 def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handle receive statement
+    """
     if self.quantum_network is None:
         # code: I-2
         raise InternalException(
@@ -391,6 +410,9 @@ def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: Script
 
 
 def handle_available_expression(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handle available expression
+    """
     if hasattr(block, 'availableExpr'):
         block = block.availableExpr()
 

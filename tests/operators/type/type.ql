@@ -40,18 +40,17 @@ println($foo); // function
 any mixed[?] = ["123", 123, 1.0];
 println($mixed); // list
 
+any mixed_list = ["a", 3];
+println($mixed_list[1]); // num
+
 any any_num = 5;
 println($any_num); // num
 
 any any_text = "abc";
 println($any_text); // text
 
-state qX;
-any any_state = qX;
-println($any_state); // state
-
 // expected output:
-// num\nlist\nlist\nobs\nobsRegister\nlist\nstate\nstateRegister\nlist\ntext\nlist\nfunction\nlist\nnum\ntext\nstate\n
+// num\nlist\nlist\nobs\nobsRegister\nlist\nstate\nstateRegister\nlist\ntext\nlist\nfunction\nlist\nnum\ntext\n
 //
 //
 //

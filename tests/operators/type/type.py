@@ -15,7 +15,7 @@ def test_operator_type() -> bool:
     
     print(place_log.get("global"))
 
-    expected_output = "num\nlist\nlist\nobs\nlist\nlist\nstate\nlist\nlist\ntext\nlist\nfunction\nlist\nnum\ntext\nstate\n"
+    expected_output = "num\nlist\nlist\nobs\nlist\nlist\nstate\nlist\nlist\ntext\nlist\nfunction\nlist\nnum\nnum\ntext\n"
 
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))

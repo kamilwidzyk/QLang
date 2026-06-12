@@ -7,5 +7,9 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_block_ctx(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # block: '{' statement* '}';
+    """
+    Handles block of code
+    ||| block: '{' statement* '}';
+    Just return statements inside
+    """
     return block.statement()

@@ -12,9 +12,11 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_plus_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # expr '+=' expr
-    # left is variable -> assign variable + right, return variable + right
-    # left is not variable -> return left + right, no assignment
+    """
+    Handles compound addition operation
+    ||| expr '+=' expr
+    Calculation is performed using do_operation_add
+    """
     left_expr = block.expr(0)
     right_expr = block.expr(1)
 

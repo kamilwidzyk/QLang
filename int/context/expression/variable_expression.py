@@ -12,8 +12,48 @@ from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ..operator.parent import handle_operator_parent
 from ..variable.assigment import handle_index
 
+ALLOWED_QUANTUM_STATE_PARENTS = {
+    "MeasureExprContext",
+    "ResetExprContext",
+}
+
 if TYPE_CHECKING:
     from place import Place
+
+
+def _is_state_access_allowed(parent: Any) -> bool:
+    current = parent
+    while current is not None:
+        if current.__class__.__name__ in ALLOWED_QUANTUM_STATE_PARENTS:
+            return True
+        current = current.getParent() if hasattr(current, "getParent") else None
+    return False
+
+
+def _finalize_variable_access(variable: Any, parent: Any, pos: ScriptErrors.Position, return_variable: bool, error_code: str):
+    if return_variable:
+        return variable
+
+    if isinstance(variable, Expression):
+        return variable
+
+    if isinstance(variable, Variable):
+        if variable.type == TYPE_STATE and not _is_state_access_allowed(parent):
+            raise DirectQuantumAccessException(pos=pos, code=error_code)
+        if variable.type == TYPE_NUM:
+            return variable.get_value()
+        return variable.get()
+
+    if isinstance(variable, Num):
+        return variable.get()
+
+    if variable is int:
+        return variable
+
+    if hasattr(variable, 'type') and variable.type == "Function":
+        return Expression("Function", variable)
+
+    return variable
 
 
 def is_variable_expression(block: Any) -> bool:
@@ -31,30 +71,7 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
     # ID ('[' expr ']')* or ^...var or parenthesized variable expressions
     if isinstance(block, ParentExprCtx):
         variable = handle_operator_parent(self, block, parent, pos)
-
-        if return_variable:
-            return variable
-
-        if isinstance(variable, Expression):
-            return variable
-
-        if isinstance(variable, Variable):
-            if variable.type == TYPE_STATE:
-                forbidden = {"IoStmtCtx", "AddSubExprContext", "MulDivModExprContext", 
-                             "PowExprCtx", "RelExprContext", "EqExprCtx", "AndExprCtx", 
-                             "OrExprCtx", "NotExprContext", "MinusExprCtx", "PlusExprCtx",
-                             "FormatCtx"}
-                if parent and parent.__class__.__name__ in forbidden:
-                    # code: DQA-1
-                    raise DirectQuantumAccessException(
-                        pos=pos,
-                        code="1"
-                    )   
-            if variable.type == TYPE_NUM:
-                return variable.get_value()
-            return variable.get()
-
-        return variable
+        return _finalize_variable_access(variable, parent, pos, return_variable, "1")
 
     if isinstance(block, ParenExprCtx):
         return handle_variable_expression(self, block.expr(), block, pos, return_variable)
@@ -92,40 +109,5 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
         return variable
 
     variable.index = index
-
-    if return_variable:
-        return variable
-
-    if isinstance(variable, Expression):
-        return variable
-
-    if isinstance(variable, Variable):
-        if variable.type == TYPE_STATE:
-            forbidden = {"IoStmtCtx", "AddSubExprContext", "MulDivModExprContext", 
-                         "PowExprCtx", "RelExprContext", "EqExprCtx", "AndExprCtx", 
-                         "OrExprCtx", "NotExprContext", "MinusExprCtx", "PlusExprCtx",
-                         "FormatCtx"}
-            if parent and parent.__class__.__name__ in forbidden:
-                # code: DQA-2
-                raise DirectQuantumAccessException(
-                    pos=pos,
-                    code="2"
-                )
-        if variable.type == TYPE_NUM:
-            return variable.get_value()
-        return variable.get()
-
-    if isinstance(variable, Num):
-        return variable.get()
-
-    if variable is int:
-        return variable
-
-    if isinstance(variable, Expression):
-        return variable
-
-    if hasattr(variable, 'type') and variable.type == "Function":
-        return Expression("Function", variable)
-
-    return variable
+    return _finalize_variable_access(variable, parent, pos, return_variable, "2")
 

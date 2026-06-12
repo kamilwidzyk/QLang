@@ -5,6 +5,9 @@ from ..script_errors import ScriptErrors
 from ..consts import TerminalCtx
 from .function.function_call import FunctionReturn
 
+if TYPE_CHECKING:
+    from place import Place
+
 
 class BreakLoop(Exception):
     pass
@@ -13,10 +16,12 @@ class BreakLoop(Exception):
 class ContinueLoop(Exception):
     pass
 
-if TYPE_CHECKING:
-    from place import Place
 
 def handle_statement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handles any statement
+    Raises returns, breaks and continues
+    """
     def is_return(block) -> bool:
         if not isinstance(block, TerminalCtx):
             return False

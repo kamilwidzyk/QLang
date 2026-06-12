@@ -3,13 +3,14 @@
 # methods defined here to keep things consistent and to avoid code duplication
 
 
-from int.exception.modulo_over_zero import ModuloOverZeroException
 from int.context.operator.pre_post import is_variable
 from int.num import Num
 from int.obs import Obs, ObsRegister
-from int.script_errors import ScriptErrors
-from int.exception.assignment_to_expression import AssignmentToExpressionException
 
+from ..script_errors import ScriptErrors
+from ..exception.expected_a_value import ExpectedAValueException
+from ..exception.operation_not_supported import OperationNotSupportedException
+from ..exception.size_error import SizeErrorException
 from ..expression import *
 from ..variable import Variable
 from ..text import Text
@@ -18,7 +19,15 @@ def is_string_or_text(expr) -> bool:
     return (isinstance(expr, Expression) and expr.type in [TYPE_STRING, TYPE_TEXT]) \
         or isinstance(expr, Text) or (isinstance(expr, Variable) and expr.type == TYPE_TEXT)
 
+
+def _resolve_indexed_variable(expr):
+    if isinstance(expr, Variable) and expr.index is not None and len(expr.index) > 0:
+        return expr.get()
+    return expr
+
+
 def is_list(expr) -> bool:
+    expr = _resolve_indexed_variable(expr)
     return (isinstance(expr, Expression) and (expr.type == TYPE_LIST or isinstance(expr.value, list))) \
         or (isinstance(expr, Variable) and (expr.type in [TYPE_LIST, TYPE_ARRAY] or expr.is_list)) \
         or isinstance(expr, list) \
@@ -32,9 +41,11 @@ def extract_string(expr) -> str:
     elif isinstance(expr, Variable) and expr.type == TYPE_TEXT:
         return expr.data.get()
     else:
-        raise ValueError("Expected a string or text expression")
+        # code: EAV-1
+        raise ExpectedAValueException(ScriptErrors.Position(), "a string or text expression", code="1")
     
 def extract_list(expr) -> list:
+    expr = _resolve_indexed_variable(expr)
     ret_val = None
     if isinstance(expr, Expression) and (expr.type == TYPE_LIST or isinstance(expr.value, list)):
         ret_val = expr.value
@@ -45,7 +56,8 @@ def extract_list(expr) -> list:
     elif hasattr(expr, 'data') and isinstance(expr.data, list):
         ret_val = expr.data
     else:
-        raise ValueError("Expected a list expression")
+        # code: EAV-2
+        raise ExpectedAValueException(ScriptErrors.Position(), "a list expression", code="2")
     
     if isinstance(ret_val, list):
         return [x.get_value() if isinstance(x, Expression) else x for x in ret_val]
@@ -69,7 +81,8 @@ def _extract_scalar_value(value):
     return value
 
 
-def do_operation_bits_to_int(expr):
+def do_operation_bits_to_int(expr, pos: ScriptErrors.Position = None):
+    pos = pos or ScriptErrors.Position()
     if isinstance(expr, Expression) and isinstance(expr.value, list):
         values = expr.value
     elif isinstance(expr, list):
@@ -77,10 +90,12 @@ def do_operation_bits_to_int(expr):
     elif hasattr(expr, 'data') and isinstance(expr.data, list):
         values = expr.data
     else:
-        raise TypeError("Binary conversion requires a list of bits")
+        # code: ONS-4
+        raise OperationNotSupportedException(pos, "Binary conversion requires a list of bits", code="1")
 
     if not isinstance(values, list):
-        raise TypeError("Binary conversion requires a list of bits")
+        # code: ONS-5
+        raise OperationNotSupportedException(pos, "Binary conversion requires a list of bits", code="2")
 
     total = 0
     for index, bit in enumerate(values):
@@ -94,19 +109,23 @@ def do_operation_bits_to_int(expr):
             bit = int(bit)
         if isinstance(bit, float):
             if int(bit) != bit:
-                raise TypeError("Binary conversion requires integer bit values")
+                # code: ONS-6
+                raise OperationNotSupportedException(pos, "Binary conversion requires integer bit values", code="3")
             bit = int(bit)
         if not isinstance(bit, int):
-            raise TypeError("Binary conversion requires integer bit values")
+            # code: ONS-7
+            raise OperationNotSupportedException(pos, "Binary conversion requires integer bit values", code="4")
         if bit not in (0, 1):
-            raise ValueError("Binary conversion requires bits to be 0 or 1")
+            # code: ONS-8
+            raise OperationNotSupportedException(pos, "Binary conversion requires bits to be 0 or 1", code="5")
 
         total |= bit << index
 
     return Expression(TYPE_INT, total)
 
 
-def do_operation_int_to_bits(expr, size: int):
+def do_operation_int_to_bits(expr, size: int, pos: ScriptErrors.Position = None):
+    pos = pos or ScriptErrors.Position()
     value = expr
     if isinstance(expr, Expression):
         value = expr.get_value()
@@ -117,13 +136,16 @@ def do_operation_int_to_bits(expr, size: int):
         value = int(value)
     if isinstance(value, float):
         if int(value) != value:
-            raise TypeError("Binary conversion requires an integer source value")
+            # code: ONS-9
+            raise OperationNotSupportedException(pos, "Binary conversion requires an integer source value", code="6")
         value = int(value)
 
     if not isinstance(value, int):
-        raise TypeError("Binary conversion requires an integer source value")
+        # code: ONS-10
+        raise OperationNotSupportedException(pos, "Binary conversion requires an integer source value", code="7")
     if size < 0:
-        raise ValueError("Binary conversion bit width must be non-negative")
+        # code: SE-3
+        raise SizeErrorException(pos, code="1")
 
     bits = [(value >> i) & 1 for i in range(size)]
     return Expression(TYPE_LIST, bits, shape=[size])
@@ -280,14 +302,31 @@ def do_operation_mul(left, right): # left * right
 
 # MOD
 def do_operation_mod(left, right): # left % right
+    def _unwrap_format_value(value):
+        if isinstance(value, Expression):
+            return value.extract_raw_value()
+        if hasattr(value, 'extract_raw_value'):
+            return value.extract_raw_value()
+        if hasattr(value, 'get_value'):
+            try:
+                return value.get_value()
+            except Exception:
+                pass
+        return value
+
     if is_string_or_text(left) and is_list(right):
         left_str = extract_string(left)
         right_list = extract_list(right)
-        result = left_str % tuple(right_list)
+        formatted = tuple(_unwrap_format_value(v) for v in right_list)
+        result = left_str % formatted
         return Expression(TYPE_STRING, result)
-    
-    if right == 0:
-        raise ModuloOverZeroException(ScriptErrors.Position.UNKNOWN)
+    elif is_string_or_text(left):
+        left_str = extract_string(left)
+        right_val = _unwrap_format_value(right)
+        if isinstance(right_val, list):
+            right_val = tuple(_unwrap_format_value(v) for v in right_val)
+        result = left_str % right_val
+        return Expression(TYPE_STRING, result)
 
     result_type = get_max_type(left, right)
     return Expression(result_type, left.get_value() % right.get_value())
@@ -299,7 +338,7 @@ def do_operation_div(left, right): # left / right
         left_str = str(left.value) if left.value is not None else ""
         sep = str(right.value) if right.value is not None else ""
         split_result = left_str.split(sep)
-        return Expression(TYPE_LIST, split_result)
+        return Expression(TYPE_LIST, split_result, shape=[len(split_result)])
     
     result = left.get_value() / right.get_value()
     result_type = TYPE_FLOAT

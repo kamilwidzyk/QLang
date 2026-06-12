@@ -54,7 +54,6 @@ from .context.function.function_declaration   import handle_function_declaration
 from .context.function.param_list             import handle_param_list
 from .context.function.param                  import handle_param
 from .context.block                  import handle_block_ctx
-from .context.variable.obs_definition         import handle_obs_definition
 from .context.string                 import handle_string
 from .context.function.function_call          import handle_function_call
 from .context.function.arg_list               import handle_arg_list
@@ -79,7 +78,6 @@ from .context.expression.parentheses            import handle_parentheses
 from .context.terminal               import handle_terminal
 from .context.io.constraint             import handle_constraint
 from .context.variable.assigment              import handle_assigment
-from .context.variable.num_declaration        import handle_num_declaration
 from .context.math.minus_op               import handle_minus
 from .context.operator.pre_post               import handle_pre_decrement, handle_post_decrement
 from .context.operator.pre_post               import handle_pre_increment, handle_post_increment

@@ -13,20 +13,16 @@ if TYPE_CHECKING:
 
 
 def handle_operator_parent(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # '^' ('^')* expr
-    # Gets a variable from a higher scope
-    # Multiple '^' meaning:
-    # ^a -> parent::a
-    # ^^a -> parent::parent::a
-    # ^^^a -> parent::parent::parent::a
-    # Implement this to return the variable,
-    # raise CantFindVariableException if the variable does not exist
-    # in the higher scope
+    """
+    Handles parent operator
+    ||| '^' ('^')* var
+    Multiple '^' meaning:
+    ^a -> parent::a
+    ^^a -> parent::parent::a
+    ^^^a -> parent::parent::parent::a
+    """
 
-
-    # block.var() contains the variable part (ID and optional indexes)
     var_block = block.var()
-
     var_name = var_block.ID().getText()
 
     # count how many '^' (leading carets) are present

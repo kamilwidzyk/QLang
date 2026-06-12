@@ -8,11 +8,14 @@ if TYPE_CHECKING:
     from place import Place
 
 def _map_type_name(name: str) -> str:
+    """
+    Maps any type name to a narrowed set of types
+    """
     if name == "Num" or name == "int" or name == "float" or name == "bool":
         return "num"
-    if name == "Obs" or name == "TYPE_OBS" or name == "ObsRegister":
+    if name == "Obs" or name == "TYPE_OBS":
         return "obs"
-    if name == "State" or name == "TYPE_STATE" or name == "StateRegister":
+    if name == "State" or name == "TYPE_STATE":
         return "state"
     if name == "Text" or name == "text" or name == "string" or name == "TYPE_TEXT" or name == "str":
         return "text"
@@ -27,12 +30,13 @@ def _map_type_name(name: str) -> str:
     return name
 
 def _resolve_variable_type(var: Any, num_indices: int) -> str:
+    """
+    Returns type of the given variable/expression,
+    When it's a list -> result is 'list' regardless of inner type(s)
+    """
     base_type = _map_type_name(var.type)
-    if base_type == "obsRegister":
-        base_type = "obs"
-    elif base_type == "stateRegister":
-        base_type = "state"
-        
+    
+
     num_dims = 0
     if hasattr(var, 'dimensions') and var.dimensions:
         num_dims = 0 if var.dimensions == [0] else len(var.dimensions)
@@ -52,11 +56,11 @@ def handle_type_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
         # It's a VarExpr with indices
         var_name = expr.ID().getText()
         if not self.scopes.exists(var_name):
-            # code CFV-3
+            # code CFV-2
             raise CantFindVariableException(
                 pos=ScriptErrors.Position.extract(expr.ID()), 
                 var_name=var_name,
-                code="3"
+                code="2"
             )
         var = self.scopes.get(var_name)
         
@@ -71,8 +75,13 @@ def handle_type_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
                 if isinstance(value, list):
                     return "list"
                 if isinstance(value, Expression):
+                    if value.type == "any" and isinstance(value.value, list):
+                        return "list"
                     t = value.type
                 elif hasattr(value, 'type'):
+                    from ...variable import Variable
+                    if isinstance(value, Variable) and (getattr(value, 'is_list', False) or isinstance(getattr(value, 'data', None), list)):
+                        return "list"
                     t = value.type
                 else:
                     from ...variable import Variable

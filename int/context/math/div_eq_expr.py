@@ -16,9 +16,11 @@ if TYPE_CHECKING:
 
 
 def handle_div_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # expr '/=' expr
-    # left is variable -> assign variable / right, return variable / right
-    # left is not variable -> return left / right, no assignment
+    """
+    Handles compound division operation
+    ||| expr '/=' expr 
+    Calculations are performed using do_operation_div and do_operation_div_int
+    """
     left_expr = block.expr(0)
     right_expr = block.expr(1)
 
@@ -33,14 +35,15 @@ def handle_div_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
         raise DivideByZeroException(ScriptErrors.Position.extract(right_expr), code="1")
 
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
-        
+    
     var_name = left_variable.name
     var_value = left_variable.get()
 
-    if var_value.type == TYPE_INT and right_value == TYPE_INT:
+    if var_value.type == TYPE_INT and right_value.type == TYPE_INT:
         new_value = do_operation_div_int(var_value, right_value)
     else:
         new_value = do_operation_div(var_value, right_value)
+
     left_variable.set(new_value, pos=pos)
     self.scopes.set(var_name, left_variable)
     return new_value

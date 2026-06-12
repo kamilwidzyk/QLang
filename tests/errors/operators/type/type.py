@@ -13,7 +13,7 @@ def test_errors_type_undefined_variable() -> bool:
         line_end=5, 
         col_start=10, 
         col_end=13, 
-        code="CFV-3"
+        code="CFV-2"
         ):
         return False
 
@@ -33,7 +33,7 @@ def test_errors_type_undefined_variable_indexed() -> bool:
         line_end=5, 
         col_start=10, 
         col_end=13, 
-        code="CFV-3"
+        code="CFV-2"
         ):
         return False
 

@@ -1,11 +1,12 @@
 from typing import Any, TYPE_CHECKING
 
-from ..expression import Expression, TYPE_BOOL, TYPE_LIST, TYPE_STATE
+from ..expression import Expression, TYPE_LIST, TYPE_STATE
 from ..script_errors import ScriptErrors
 from ..state import State
 from ..sim.data.gates import QuantumGate, QuantumGates
 from .expression.variable_expression import handle_variable_expression, is_variable_expression
 from .variable.assigment import handle_var
+from ..exception.internal import InternalException
 
 if TYPE_CHECKING:
     from place import Place
@@ -30,6 +31,7 @@ GATE_BY_TEXT = {
 
 
 def _runtime_error(self: "Place", pos: ScriptErrors.Position, title: str, msg: str):
+    # to be removed...
     self.script_errors.showError(
         pos=pos,
         error_type="RUNTIME ERROR",
@@ -40,10 +42,14 @@ def _runtime_error(self: "Place", pos: ScriptErrors.Position, title: str, msg: s
 
 
 def _resolve_state(self: "Place", var_ctx: Any, pos: ScriptErrors.Position):
+    """
+    Returns a quantum state(normally not accessible)
+    """
     variable = handle_var(self, var_ctx, None)
 
     if variable.type != TYPE_STATE:
-        _runtime_error(self, pos, "Type Error", "Quantum operation requires a state variable.")
+        # code I-4
+        raise InternalException(pos, "Quantum operation requires a state variable.", code="4")
 
     expr = variable.get()
     if expr.type == TYPE_STATE and isinstance(expr.value, State):
@@ -52,10 +58,14 @@ def _resolve_state(self: "Place", var_ctx: Any, pos: ScriptErrors.Position):
     if isinstance(expr.value, list) and all(isinstance(item, State) for item in expr.value):
         return expr.value
 
-    _runtime_error(self, pos, "Type Error", "Select exactly one state element.")
+    # code I-5
+    raise InternalException(pos, "Select exactly one state element.", code="5")
 
 
 def _resolve_state_value(self: "Place", value: Any, pos: ScriptErrors.Position):
+    """
+    Return value of quantum state(this not accessible in the language)
+    """
     if isinstance(value, Expression):
         if value.type == TYPE_STATE and isinstance(value.value, State):
             return value.value
@@ -68,7 +78,8 @@ def _resolve_state_value(self: "Place", value: Any, pos: ScriptErrors.Position):
     if isinstance(value, list):
         return [_resolve_state_value(self, item, pos) for item in value]
 
-    _runtime_error(self, pos, "Type Error", "Quantum operation requires a state or list of states.")
+    # code I-6
+    raise InternalException(pos, "Quantum operation required a state or list of states.")
 
 
 def _gate_from_text(text: str) -> QuantumGate:
@@ -76,6 +87,9 @@ def _gate_from_text(text: str) -> QuantumGate:
 
 
 def handle_gate_statement(self: "Place", block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handles applying gates to quantum states
+    """
     if block.singleQubitGate() is not None:
         gate = _gate_from_text(block.singleQubitGate().getText())
         state = _resolve_state(self, block.var(0), pos)
@@ -102,6 +116,9 @@ def handle_gate_statement(self: "Place", block: Any, parent: Any, pos: ScriptErr
 
 
 def handle_measure_expr(self: "Place", block: Any, parent: Any, pos: ScriptErrors.Position) -> Expression:
+    """
+    Handles collapsing and measuring quantum state
+    """
     if block.list_() is not None:
         expr_block = block.list_()
         values = []

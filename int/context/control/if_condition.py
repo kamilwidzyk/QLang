@@ -21,13 +21,13 @@ def _if_bodies(block: Any) -> list:
             bodies.append(child)
     return bodies
 
-def _choose_body(conditions: list, bodies: list) -> Any:
+def _choose_body(conditions: list, bodies: list, pos) -> Any:
     """
     Chooses which body of if/elif/else to execute based on the conditions.
     Returns the chosen body or None if no condition is satisfied and there is no else block.
     """
     for cond, body in zip(conditions, bodies):
-        if check_condition(cond):
+        if check_condition(cond, pos):
             return body
 
     # If no condition is satisfied, but there is an else block, select it
@@ -56,7 +56,7 @@ def handle_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     """
     conditions = [self.handle_block(expr, block) for expr in block.expr()]
     bodies = _if_bodies(block)
-    chosen_body = _choose_body(conditions, bodies)
+    chosen_body = _choose_body(conditions, bodies, pos)
 
     # If there is no satisfied condition and no else block, do nothing
     if chosen_body is None:
@@ -83,7 +83,7 @@ def handle_short_if(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
 
     # check the condition and return valueIfTrue if condition is satisfied, otherwise return valueIfFalse    
     condition = self.handle_block(expressions[0], block)
-    if check_condition(condition):
+    if check_condition(condition, pos):
         return self.handle_block(expressions[1], block)
     else:
         return self.handle_block(expressions[2], block)

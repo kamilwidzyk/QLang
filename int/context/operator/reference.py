@@ -9,18 +9,16 @@ if TYPE_CHECKING:
 
 from ...exception.cant_find_variable import CantFindVariableException
 
-def _value_of(item):
-    return item.value if isinstance(item, Expression) else item
-
 def handle_reference(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # reference: '@' ID;
-
+    """
+    Handles variable reference
+    ||| reference: '@' ID;
+    Returns variable instead of its value
+    """
     ID = block.ID().getText()
 
     if not self.scopes.exists(ID):
         # code: CFV-7
         raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), ID, code="7")
 
-    variable = self.scopes.get(ID)
-
-    return variable    
+    return self.scopes.get(ID)

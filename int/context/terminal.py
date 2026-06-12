@@ -7,4 +7,7 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_terminal(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
+    """
+    Handle terminal character, just return text of it
+    """
     return block.getText()

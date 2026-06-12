@@ -133,6 +133,10 @@ class Variable:
                 self.data = None
             elif inferred_type == TYPE_TEXT:
                 self._create_array_of_text()
+            elif inferred_type == TYPE_ANY:
+                self.data = new_value.value if isinstance(new_value, Expression) else new_value
+                self.is_list = isinstance(self.data, list)
+                return
             elif inferred_type == "Function":
                 self.data = None
 

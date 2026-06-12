@@ -46,7 +46,7 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
         # Default step value
         if step_val is None:
             step_val = Expression(TYPE_INT)
-            if do_compare_greater(end_val, start_val).get_value():
+            if do_compare_greater(end_val, start_val, pos).get_value():
                 step_val.value = 1
             else:
                 step_val.value = -1
@@ -71,8 +71,8 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     try:
         # Repeat block until condition is met:
         # (start > end && counter > end) || (start < end && counter < end)
-        while (do_compare_greater(start_val, end_val) and do_compare_greater(counter.get(), end_val)) or \
-              (do_compare_less(start_val, end_val) and do_compare_less(counter.get(), end_val)):
+        while (do_compare_greater(start_val, end_val, pos) and do_compare_greater(counter.get(), end_val, pos)) or \
+              (do_compare_less(start_val, end_val, pos) and do_compare_less(counter.get(), end_val, pos)):
             # Push new scope for this iteration to clear variables from previous iteration
             self.scopes.push(pos, scope_type="for_iteration")
             

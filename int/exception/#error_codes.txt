@@ -57,6 +57,8 @@ AssignmentToExpressionException -> ATE
     12: int/context/math/pre_post.py
         'x++' -> x is not assignable
         TEST: errors/operators/pre_post/post_inc.ql
+    13: int/context/variable/assignment_expr.py
+        Tried to assign to expression
     
 
 CantFindVariableException -> CFV
@@ -64,8 +66,8 @@ CantFindVariableException -> CFV
         Trying to read size of not existing variable
         TEST: errors/operators/size/undefined_variable.ql
     2: int/context/expression/type_expr.py 
-        Trying to read type of not existing variable(i cant get this to be thrown, getting code 3 instead)
-        Not removed yet
+        Trying to read type of not existing Variable
+        TEST: errors\operators\type\type.py
     3: int/context/expression/variable_expression.py 
         Trying to get variable/value that does not exist
         TEST: errors/variables/ + errors/operator/type
@@ -85,6 +87,8 @@ CantFindVariableException -> CFV
         'reset' on variable that does not exist
         TEST: errors/operators/reset/undefined_variable.ql
     9: REMOVED
+    10: int/context/variable/declaration.py
+        Tried to make a non-existing variable const
 
 DivideByZeroException -> DBZ
     1: int/context/math/div_eq_expr.py
@@ -106,19 +110,41 @@ InformationLeakException -> IL
     1:
 
 ModuloOverZeroException -> MOZ
-    1:
+    1: int/context/math/mul_div_mod.py
+        Right side of '%' is 0 (left side is not string)
+    2: int/context/math/mod_eq_op.py
+        Right side of '%=' is 0 (left side is not string)
+
 
 OperatorTypeMismatchException -> OTM
-    1:
+    1: int/operations/compare.py
+        Unsupported types for >=
+    2: int/operations/compare.py
+        Unsupported types for >
+    3: int/operations/compare.py
+        Unsupported types for <=
+    4: int/operations/compare.py
+        Unsupported types for <
+    5: int/operations/compare.py
+        Unsupported types for ==
+    6: int/operations/compare.py
+        Unsupported types for !=
 
 SizeErrorException -> SE
-    1:
+    1: int/context/variable/declaration.py
+        Declaration size is not int
+    2: int/context/variable/declaration.py
+        Declaration size is <= 0
+    3: int/operations/operators.py
+        Binary conversion bit width must be non-negative
 
 TryingToModifyConstException -> TTMC
     1:
 
 VariableRedefiniotionException -> VR
-    1:
+    1: int/context/variable/declaration.py
+        Variable with that name already exists
+    
 
 DirectQuantumAccessException -> DQA
     1: int/context/expression/variable_expression.py 
@@ -129,6 +155,12 @@ DirectQuantumAccessException -> DQA
         'state' used as variable for input()
     4: int/context/operator/reset.py
         Tried using 'reset' on 'state' variable
+    5: int/context/variable/assignment.py
+        Tried to assign something to a state
+    6: int/context/variable/assignment_expr.py
+        Tried to assign-expr something to a state
+    7: int/context/variable/declaration.py
+        Tried to assign initial value to state
     
 RepeatedKeywordArgException -> RKA
     1: int/context/function/function_call.py 
@@ -237,6 +269,10 @@ ObsNotIndexedException -> ONI
 ExpectedAValueException -> EAV
     1: int/context/math/mul_div_mod.py
         Expression must be a string variable or text
+    2: int/operations/operators.py
+        Expected a string or text expression during string/text concatenation or formatting
+    3: int/operations/operators.py
+        Expected a list expression during list operations or binary conversion
 
 IndexOutOfRangeException -> IOR
     1: int/variable.py
@@ -267,6 +303,12 @@ InternalException -> I
         Receive attempted before quantum network was initialized
     3: int/context/network.py
         Available attempted before quantum netowrk was initialized
+    4: int/context/quantum.py
+        Quantum operation requires a state variable
+    5: int/context/quantum.py
+        Select exactly one state element
+    6: int/context/quantum.py
+        Quantum operation required a state or list of states
     
 NetworkNotVariableException -> NNV
     1: int/context/network.py
@@ -279,3 +321,31 @@ UnknownTimeUnitException -> UTU
 WaitDurationNotNumericException -> WDNN
     1: int/context/control/wait_stmt.py
         wait() called with a non-numeric duration expression
+
+UnsupportedConversionTypeException -> UCT
+    1: int/context/operator/binary_conversion.py
+        Binary conversion attempted with unsupported type
+
+OperationNotSupportedException -> ONS
+    1: int/context/variable/declaration.py
+        Const state variables are not supported
+    2: int/context/variable/declaration.py
+        Variable type not supported
+    3: int/context/variable/declaration.py
+        Const variable type not supported
+    4: int/operations/operators.py
+        Binary conversion requires a list of bits
+    5: int/operations/operators.py
+        Binary conversion requires integer bit values
+    6: int/operations/operators.py
+        Binary conversion requires integer bit values
+    7: int/operations/operators.py
+        Binary conversion requires bits to be 0 or 1
+    8: int/operations/operators.py
+        Binary conversion requires an integer source value
+    9: int/operations/operators.py
+        Binary conversion requires an integer source value
+
+ShapeMismatchException -> SM
+    1: int/context/variable/declaration.py
+        Variable array shape mismatch 

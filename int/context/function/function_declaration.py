@@ -10,7 +10,10 @@ if TYPE_CHECKING:
 from ...exception.function_redeclaration import FunctionRedeclarationException
 
 def handle_function_declaration(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # functionDecl: FUNCTION ID '(' paramList? ')' block;
+    """
+    Handles function call declaration. Parameters handled by handle_param_list.
+    ||| functionDecl: FUNCTION ID '(' paramList? ')' block;
+    """
 
     if isinstance(block, FunctionDeclStatementCtx):
         block = block.functionDecl()
@@ -25,8 +28,8 @@ def handle_function_declaration(self: Place, block: Any, parent: Any, pos: Scrip
     parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
 
     # check if function does not exist
-    # code: FR-1
     if self.scopes.exists(func_name):
+        # code: FR-1
         raise FunctionRedeclarationException(
             pos=parent_pos, 
             func_name=func_name, 

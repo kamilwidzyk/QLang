@@ -6,9 +6,8 @@ from ...expression import Expression
 from ...variable import Variable
 
 from ...exception.cant_find_variable import CantFindVariableException
-from ...exception.index_not_int import IndexNotIntException
 from ...exception.direct_quantum_access import DirectQuantumAccessException
-from ...variable import TYPE_INT, TYPE_STATE
+from ...variable import TYPE_STATE
 from ..variable.assigment import handle_index
 
 if TYPE_CHECKING:
@@ -16,6 +15,9 @@ if TYPE_CHECKING:
 
 
 def handle_var(self: "Place", block: Any, parent: Any) -> Variable:
+    """
+    Handle variable access with optional indexing applied to it
+    """
     var_name = block.ID().getText()
 
     if not self.scopes.exists(var_name):
@@ -33,6 +35,10 @@ def handle_var(self: "Place", block: Any, parent: Any) -> Variable:
 
 
 def handle_reset_expr(self: "Place", block: Any, parent: Any, pos: ScriptErrors.Position) -> Expression:
+    """
+    Handles reset operator
+    ||| reset: 'reset' var;
+    """
     var = handle_var(self, block.var(), block)
 
     if var.type == TYPE_STATE:

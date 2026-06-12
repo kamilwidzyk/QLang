@@ -29,7 +29,7 @@ def handle_while(self: Place, block: Any, parent: Any, pos: ScriptErrors.Positio
     while True:
         # break loop if condition is not satisfied
         cond = self.handle_block(block.expr(), block)
-        if not check_condition(cond):
+        if not check_condition(cond, pos):
             break
         
         # Enter new scope

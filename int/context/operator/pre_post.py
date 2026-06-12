@@ -20,7 +20,11 @@ def is_variable(var: Any) -> bool:
 
 
 def handle_pre_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # '--' expr
+    """
+    Handles pre-decrement operation
+    ||| '--' expr
+    Calculation is performed using do_variable_pre_decrement
+    """
     expression = block.expr()
 
     if not is_variable(expression):
@@ -29,11 +33,15 @@ def handle_pre_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    return do_variable_pre_decrement(self, variable, pos)
+    return do_variable_pre_decrement(self, variable)
 
 
 def handle_post_decrement(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # expr '--'
+    """
+    Handles post-decrement operation
+    ||| expr '--'
+    Calculation is performed using do_variable_post_decrement
+    """
     expression = block.expr()
 
     if not is_variable(expression):
@@ -42,11 +50,15 @@ def handle_post_decrement(self: Place, block: Any, parent: Any, pos: ScriptError
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    return do_variable_post_decrement(self, variable, pos)
+    return do_variable_post_decrement(self, variable)
     
 
 def handle_pre_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # '++' expr
+    """
+    Handles pre-increment operation
+    ||| '++' expr
+    Calculation is performed using do_variable_pre_increment
+    """
     expression = block.expr()
 
     if not is_variable(expression):
@@ -55,11 +67,15 @@ def handle_pre_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    return do_variable_pre_increment(self, variable, pos)
+    return do_variable_pre_increment(self, variable)
     
 
 def handle_post_increment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # expr '++'
+    """
+    Handles post-increment operation
+    ||| expr '++'
+    Calculation is performed using do_variable_post_increment
+    """
     expression = block.expr()
 
     if not is_variable(expression):
@@ -68,6 +84,6 @@ def handle_post_increment(self: Place, block: Any, parent: Any, pos: ScriptError
 
     variable = handle_variable_expression(self, expression, block, pos, return_variable=True)
 
-    return do_variable_post_increment(self, variable, pos)
+    return do_variable_post_increment(self, variable)
 
     

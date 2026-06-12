@@ -6,9 +6,13 @@ if TYPE_CHECKING:
     from place import Place
 
 def handle_arg_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # argList: arg (',' arg)*;
-    # arg: expr | namedArg;
-    # namedArg: ID '=' expr;
+    """
+    Handle the parsing of an argument list.
+    Handles both positional and keyword arguments, returning a list of argument values.
+    ||| argList: arg (',' arg)*;
+    ||| arg: expr | namedArg;
+    ||| namedArg: ID '=' expr;
+    """
 
     args = []
     for arg in block.arg():

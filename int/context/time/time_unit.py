@@ -8,6 +8,10 @@ if TYPE_CHECKING:
     from ...place import Place
 
 class TimeUnit:
+    """
+    Represents a time unit. 
+    It can be seconds, milliseconds, minutes or hours.
+    """
     SECONDS = 'seconds'
     MILLISECONDS = 'milliseconds'
     MINUTES = 'minutes'
@@ -18,6 +22,9 @@ class TimeUnit:
         self.unit = unit
 
     def get_second_multiplier(self) -> float | None:
+        """
+        Returns multiplier to convert the time to seconds.
+        """
         return {
             self.SECONDS: 1.0,
             self.MILLISECONDS: 0.001,
@@ -26,6 +33,9 @@ class TimeUnit:
         }.get(self.unit, self.UNKNOWN)
 
     def is_unit(self, other: TimeUnit) -> bool:
+        """
+        Checks if this time unit is the same as the other time unit.
+        """
         return self.unit == other.unit
     
 def handle_time_unit(self: 'Place', block: Any, parent: Any, pos: ScriptErrors.Position) -> TimeUnit:

@@ -6,8 +6,11 @@ from ...consts import *
 if TYPE_CHECKING:
     from place import Place
 
-def handle_param_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):  
-    # paramList: param? (',' param)* multipleParam?;
+def handle_param_list(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position): 
+    """
+    Handles the parsing of a parameter list in a function declaration.
+    ||| paramList: param? (',' param)* multipleParam?;
+    """ 
     param_list = []
 
     for param in block.param():

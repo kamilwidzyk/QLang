@@ -11,12 +11,16 @@ if TYPE_CHECKING:
 
 
 def handle_eq_comp(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # expr ('==' | '!=') expr
+    """
+    Handles equality and inequality comparison
+    ||| expr ('==' | '!=') expr
+    Calculation is performed using do_compare_equal and do_compare_not_equal
+    """
     children = [x for x in block.getChildren()]
     left = self.handle_block(children[0], block)
     right = self.handle_block(children[2], block)
 
     if children[1].getText() == "==":
-        return do_compare_equal(left, right)
+        return do_compare_equal(left, right, pos)
     if children[1].getText() == "!=":
-        return do_compare_not_equal(left, right)
+        return do_compare_not_equal(left, right, pos)

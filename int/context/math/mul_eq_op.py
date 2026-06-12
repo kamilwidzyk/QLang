@@ -15,9 +15,11 @@ if TYPE_CHECKING:
 
 
 def handle_mul_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
-    # expr '*=' expr
-    # left is variable -> assign variable * right, return variable * right
-    # left is not variable -> return left * right, no assignment
+    """
+    Handles compound multiplication operation
+    ||| expr '*=' expr
+    Calculation is performed using do_operation_mul
+    """
     left_expr = block.expr(0)
     right_expr = block.expr(1)
 
