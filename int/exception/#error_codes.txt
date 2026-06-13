@@ -310,6 +310,10 @@ NoFunctionToCallException -> NFTC
         Function is not declared
         TEST: errors/functions/not_declared.ql
 
+FileNotFoundException -> FNF
+    1: int/context/function/common.py
+        Imported file path does not exist
+
 VariableCallException -> VC
     1: int/context/function/function_call.py
         Attempted calling a variable

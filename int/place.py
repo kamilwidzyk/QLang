@@ -20,6 +20,7 @@ from .QLang.QLangParser import QLangParser
 
 BinaryFromListExprContext = QLangParser.BinaryFromListExprContext
 BinaryToListExprContext = QLangParser.BinaryToListExprContext
+FloatCastExprContext = QLangParser.FloatCastExprContext
 
 ######################## EXCEPTIONS #############################
 from .exception.exit_exception import ExitException
@@ -83,6 +84,7 @@ from .context.operator.pre_post               import handle_pre_decrement, handl
 from .context.operator.pre_post               import handle_pre_increment, handle_post_increment
 from .context.math.plus_op                import handle_plus
 from .context.variable.assignment_expr        import handle_assignment_expr
+from .context.operator.float_cast             import handle_float_cast
 from .context.math.plus_eq_op             import handle_plus_eq_op
 from .context.math.minus_eq_op            import handle_minus_eq_op
 from .context.math.mul_eq_op              import handle_mul_eq_op
@@ -284,6 +286,8 @@ class Place:
             PostIncrementCtx:       handle_post_increment,
             # Assignment expr
             AssignExprCtx:          handle_assignment_expr,
+            # Float cast
+            FloatCastExprContext:   handle_float_cast,
             # Plus equal
             PlusEqExprCtx:          handle_plus_eq_op,
             # Minus equal
