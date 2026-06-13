@@ -181,6 +181,7 @@ expr
     | '--' expr                          # PreDecrementExpr
     | expr '++'                          # PostIncrementExpr
     | expr '--'                          # PostDecrementExpr
+    | expr '.0'                          # FloatCastExpr
     | expr '=' expr                      # AssignmentExpr
     | expr '+=' expr                     # PlusEqExpr
     | expr '-=' expr                     # MinusEqExpr

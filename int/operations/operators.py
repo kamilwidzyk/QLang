@@ -174,6 +174,21 @@ def _list_shape(values):
             return None
     return [len(values)] + first_shape
 
+# FLOAT CAST
+def do_operation_float_cast(left, pos: ScriptErrors.Position = None): # left.0
+    pos = pos or ScriptErrors.Position()
+    val = left
+    if isinstance(left, Expression):
+        val = left.get_value()
+    elif hasattr(left, 'get_value'):
+        val = left.get_value()
+        
+    try:
+        return Expression(TYPE_FLOAT, float(val))
+    except (ValueError, TypeError):
+        # code: ONS-11
+        raise OperationNotSupportedException(pos, "Float conversion (.0) requires a numeric value", code="11")
+
 # NOT
 def do_operation_not(right): # !right
     if right.type == TYPE_BOOL:
