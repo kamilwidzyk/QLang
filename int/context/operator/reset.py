@@ -26,7 +26,10 @@ def handle_var(self: "Place", block: Any, parent: Any) -> Variable:
 
     index_list = []
     for index in block.index():
-        index_list.append(handle_index(self, index, block))
+        next_index = handle_index(self, index, block)
+        index_list.append(next_index)
+
+    print(index_list)
 
     var = self.scopes.get(var_name)
     var.index = index_list
@@ -43,8 +46,11 @@ def handle_reset_expr(self: "Place", block: Any, parent: Any, pos: ScriptErrors.
 
     if var.type == TYPE_STATE:
         # code: DQA-4
-        raise DirectQuantumAccessException(ScriptErrors.Position.extract(block), var.name, code="4")
+        raise DirectQuantumAccessException(
+            pos=ScriptErrors.Position.extract(block.var()), 
+            code="4"
+        )
 
-    result = var.reset()
+    result = var.reset(ScriptErrors.Position.extract(block))
     self.scopes.set(var.name, var)
     return result

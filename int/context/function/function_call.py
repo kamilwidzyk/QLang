@@ -70,7 +70,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
 
     # Extract position in code and arguments
     block_pos = ScriptErrors.Position.extract(block) 
-    positional_args, keyword_args = _collect_call_args(self, block)
+    positional_args, keyword_args = _collect_call_args(self, block, func_name)
 
     # Check if the function exists
     if not self.scopes.exists(func_name):
@@ -96,7 +96,7 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
             code="1"
         )
 
-    ordered_args = _normalize_call_args(function_def, positional_args, keyword_args, func_name)
+    ordered_args = _normalize_call_args(function_def, positional_args, keyword_args, func_name, block)
 
     # Check if argument types are compatible with parameter types
     for param, arg_value in zip(function_def.params or [], ordered_args):

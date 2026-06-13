@@ -10,7 +10,7 @@ from ....script_errors import ScriptErrors
 from ....exception.kwargs_not_supported import KeywordArgumentsNotSupportedException
 
 def builtin_import_source(self: Place, block: Any, func_name: str):
-    positional_args, keyword_args = _collect_call_args(self, block)
+    positional_args, keyword_args = _collect_call_args(self, block, func_name)
      
     if keyword_args:
         block_pos = ScriptErrors.Position.extract(block)

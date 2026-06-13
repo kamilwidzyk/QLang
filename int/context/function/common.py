@@ -53,11 +53,6 @@ def _parse_seed_value(value: Any):
     if isinstance(value, Expression):
         if value.type in [TYPE_INT, TYPE_FLOAT, TYPE_NUM]:
             return int(value.value)
-        if value.type == TYPE_STRING:
-            parsed_value = _parse_num_cast_value(value.value)
-            if parsed_value is not None:
-                return int(parsed_value.value)
-            return None
         return None
 
     if isinstance(value, (int, float)):
@@ -155,7 +150,7 @@ def _is_arg_type_compatible(expected_type: str, value: Any) -> bool:
     return True
 
 
-def _collect_call_args(self: Place, block: Any):
+def _collect_call_args(self: Place, block: Any, func_name: str):
     arg_list = block.argList()
     if arg_list is None:
         return [], {}
@@ -172,6 +167,12 @@ def _collect_call_args(self: Place, block: Any):
             named_arg = arg.namedArg()
             arg_name = named_arg.ID().getText()
             arg_value = self.handle_block(named_arg.expr(), block)
+            if arg_name in keyword_args:
+                # code RKA-1
+                raise RepeatedKeywordArgException(
+                    pos=ScriptErrors.Position.extract(named_arg),
+                    func_name=func_name, code="1"
+                )
             keyword_args[arg_name] = arg_value
     
     return positional_args, keyword_args
@@ -242,7 +243,7 @@ def _resolve_parent_value(self: Place, block: Any, args: Any, current_scope: Sco
 
 
 
-def _normalize_call_args(function_def: Function, positional_args: list, keyword_args: dict, func_name: str):
+def _normalize_call_args(function_def: Function, positional_args: list, keyword_args: dict, func_name: str, block: Any):
     params = function_def.params or []
     
     # Separate regular params from *args param
@@ -258,7 +259,7 @@ def _normalize_call_args(function_def: Function, positional_args: list, keyword_
     if len(keyword_args) != len(set(keyword_args.keys())):
         # code RKA-1
         raise RepeatedKeywordArgException(
-            pos = ScriptErrors.Position.extract(function_def.definition_block),
+            pos = ScriptErrors.Position.extract(block),
             func_name=func_name,
             code="1"
         )
@@ -281,7 +282,7 @@ def _normalize_call_args(function_def: Function, positional_args: list, keyword_
         else:
             # code MA-1
             raise MissingArgException(
-                pos = ScriptErrors.Position.extract(function_def.definition_block),
+                pos = ScriptErrors.Position.extract(block),
                 func_name=func_name,
                 missing_arg=param.name,
                 code="1"
@@ -291,7 +292,7 @@ def _normalize_call_args(function_def: Function, positional_args: list, keyword_
     if used_positional < len(positional_args) and varargs_param is None:
         # code TMA-1
         raise TooMuchArgumentsException(
-            pos = ScriptErrors.Position.extract(function_def.definition_block),
+            pos = ScriptErrors.Position.extract(block),
             func_name=func_name,
             taken_args=len(positional_args) + len(keyword_args),
             expected_args=len(regular_params),
@@ -310,7 +311,7 @@ def _normalize_call_args(function_def: Function, positional_args: list, keyword_
         for unknown_arg in unexpected_kwargs:
             # code UA-1
             raise UnknownArgException(
-                pos = ScriptErrors.Position.extract(function_def.definition_block),
+                pos = ScriptErrors.Position.extract(block),
                 func_name=func_name,
                 unknown_arg=unknown_arg,
                 code="1"

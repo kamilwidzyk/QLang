@@ -13,7 +13,7 @@ from ....script_errors import ScriptErrors
 from ....exception.kwargs_not_supported import KeywordArgumentsNotSupportedException
 
 def builtin_sleep(self: Place, block: Any):
-    positional_args, keyword_args = _collect_call_args(self, block)
+    positional_args, keyword_args = _collect_call_args(self, block, "sleep")
      
     if keyword_args:
         block_pos = ScriptErrors.Position.extract(block)

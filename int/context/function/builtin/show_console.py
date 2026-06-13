@@ -12,7 +12,7 @@ from ....script_errors import ScriptErrors
 from ....exception.kwargs_not_supported import KeywordArgumentsNotSupportedException
 
 def builtin_show_console(self: Place, block: Any):
-    positional_args, keyword_args = _collect_call_args(self, block)
+    positional_args, keyword_args = _collect_call_args(self, block, "show_console")
      
     # show_console() doesn't support keyword args
     if keyword_args:

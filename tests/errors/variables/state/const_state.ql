@@ -1,0 +1,1 @@
+const state x = 5; // ONS-1 line 1..1 col 7..12 

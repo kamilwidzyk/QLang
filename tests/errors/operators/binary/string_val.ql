@@ -1,0 +1,1 @@
+num x = "123" >> num; // ONS-4 line 1..1 col 9..21

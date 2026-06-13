@@ -35,7 +35,7 @@ def handle_mod_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
     var_name = left_variable.name
     var_value = left_variable.get()
 
-    if is_text_or_string(var_value) and right_value == 0:
+    if not is_text_or_string(var_value) and right_value == 0:
         # code MOZ-2
         raise ModuloOverZeroException(ScriptErrors.Position.extract(right_expr), code="2")
 

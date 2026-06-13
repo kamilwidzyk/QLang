@@ -27,10 +27,10 @@ TYPE_BOOL = "bool"
 TYPE_STRING = "string"
 TYPE_TEXT = "text"
 TYPE_OBS = "Obs"
-TYPE_OBS_REGISTER = TYPE_OBS
+TYPE_OBS_REGISTER = "ObsRegister"
 TYPE_NUM = "Num"
 TYPE_STATE = "State"
-TYPE_STATE_REGISTER = TYPE_STATE
+TYPE_STATE_REGISTER = "StateRegister"
 TYPE_LIST = "list" # [expr, expr, ...]
 TYPE_ARRAY = "Array" # instance of multidimensional Variable
 TYPE_ANY = "any"
@@ -94,17 +94,12 @@ class Expression:
         self.value = value
         self.variable = variable
         self.shape = shape # when type is list -> this is the shape from outer to inner
-        if self.type == TYPE_LIST:
-            if isinstance(self.shape, list):
-                self.dimensions = self.shape
-            elif self.shape is not None:
-                self.dimensions = [self.shape]
-            elif isinstance(self.value, list):
-                self.dimensions = [len(self.value)]
-            else:
-                self.dimensions = [0]
+        if isinstance(shape, int):
+            self.dimensions = [shape]
+        elif shape is None:
+            self.dimensions = []
         else:
-            self.dimensions = None
+            self.dimensions = shape
 
     def get(self):
         if self.variable is not None:

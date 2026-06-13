@@ -59,6 +59,8 @@ AssignmentToExpressionException -> ATE
         TEST: errors/operators/pre_post/post_inc.ql
     13: int/context/variable/assignment_expr.py
         Tried to assign to expression
+        TEST: errors/operators/assign/assign_to_expr.ql
+
     
 
 CantFindVariableException -> CFV
@@ -89,6 +91,8 @@ CantFindVariableException -> CFV
     9: REMOVED
     10: int/context/variable/declaration.py
         Tried to make a non-existing variable const
+        TEST: errors/operators/const/missing_var.ql
+
 
 DivideByZeroException -> DBZ
     1: int/context/math/div_eq_expr.py
@@ -101,10 +105,26 @@ DivideByZeroException -> DBZ
 WaitDurationNotNumericException -> WDNN
     1: int/context/control
         wait() duration is not numeric
+        TEST: errors/functions/builtin/wait/string_duration.ql
 
 IndexNotIntException -> INI
-    1: int/context/operator/reset.py
-        Index is not int in reset operator
+    1: REMOVED
+    2: int/context/variable/assignment.py
+        Range index: start index is not int
+        TEST: errors/variables/range_index_start_not_int.ql
+        TEST: errors/variables/range_index_start_not_int_var.ql
+    3: int/context/variable/assignment.py
+        Range index: end index is not int
+        TEST: errors/variables/range_index_end_not_int.ql
+        TEST: errors/variables/range_index_end_not_int_var.ql
+    4: int/context/variable/assignment.py
+        List index: one of the indexes is not int
+        TEST: errors/variables/list_index_not_int.ql
+        TEST: errors/variables/list_index_not_int_var.ql
+    5: int/context/variable/assignment.py
+        Simple index: index not int
+        TEST: errors/variables/simple_index_not_int.ql
+        TEST: errors/variables/simple_index_not_int_var.ql
 
 InformationLeakException -> IL
     1:
@@ -112,31 +132,39 @@ InformationLeakException -> IL
 ModuloOverZeroException -> MOZ
     1: int/context/math/mul_div_mod.py
         Right side of '%' is 0 (left side is not string)
+        TEST: errors/operators/math/mod_over_zero/mod_over_zero.ql
     2: int/context/math/mod_eq_op.py
         Right side of '%=' is 0 (left side is not string)
+        TEST: errors/operators/math/mod_over_zero/mod_eq_zero.ql
 
 
 OperatorTypeMismatchException -> OTM
     1: int/operations/compare.py
         Unsupported types for >=
+        TEST: errors/operators/compare/greater_equal_type_mismatch.ql
     2: int/operations/compare.py
         Unsupported types for >
+        TEST: errors/operators/compare/greater_type_mismatch.ql
     3: int/operations/compare.py
         Unsupported types for <=
+        TEST: errors/operators/compare/less_equal_type_mismatch.ql
     4: int/operations/compare.py
         Unsupported types for <
+        TEST: errors/operators/compare/less_type_mismatch.ql
     5: int/operations/compare.py
-        Unsupported types for ==
+        Unsupported types for == (how to trigger it?)
     6: int/operations/compare.py
-        Unsupported types for !=
+        Unsupported types for != (how to trigger it?)
 
 SizeErrorException -> SE
     1: int/context/variable/declaration.py
         Declaration size is not int
+        TEST: errors/variables/size/size_not_int.ql
     2: int/context/variable/declaration.py
         Declaration size is <= 0
+        TEST: errors/variables/size/size_negative.ql
     3: int/operations/operators.py
-        Binary conversion bit width must be non-negative
+        Binary conversion bit width must be non-negative (this gets caught at syntax check)
 
 TryingToModifyConstException -> TTMC
     1:
@@ -144,159 +172,202 @@ TryingToModifyConstException -> TTMC
 VariableRedefiniotionException -> VR
     1: int/context/variable/declaration.py
         Variable with that name already exists
+        TEST: errors/variables/redefinition.ql
     
 
 DirectQuantumAccessException -> DQA
     1: int/context/expression/variable_expression.py 
         Attempted direct read of quantum state in parenthness
+        (cant trigger it)
     2: int/context/expression/variable_expression.py 
         Tried getting the value of 'state'
+        TEST: errors/variables/state/print_state.ql
     3: int/context/io/io_statement.py
-        'state' used as variable for input()
+        'state' used as variable for input() 
+        (impossible to test)
     4: int/context/operator/reset.py
         Tried using 'reset' on 'state' variable
+        TEST: errors/operators/reset/reset_state.ql
     5: int/context/variable/assignment.py
         Tried to assign something to a state
+        TEST: errors/variables/state/assign.ql
     6: int/context/variable/assignment_expr.py
         Tried to assign-expr something to a state
+        TEST: errors/variables/state/expr_assign.ql
     7: int/context/variable/declaration.py
         Tried to assign initial value to state
+        TEST: errors/variables/state/initial_assign.ql
     
 RepeatedKeywordArgException -> RKA
     1: int/context/function/function_call.py 
         One or more named args are repeated
+        TEST: errors/functions/args/named_repeated.ql
     
 MissingArgException -> MA
     1: int/context/function/function_call.py 
         Function call does not have all required args
-    2: 
+        TEST: errors/functions/args/missing_args.ql
 
 TooMuchArgumentException -> TMA
     1: int/context/function/function_call.py 
         Function call was given more args than it can take
+        TEST: errors/functions/args/more_args.ql
     2: int/context/function/function_call.py 
         num() called with more than 1 arg
+        TEST: errors/functions/builtin/num/two_args.ql
     3: int/context/function/function_call.py
         parent() called with more than 1 arg
+        TEST: errors/function/builtin/parent/more_args.ql
     4: int/context/function/function_call.py
         seed() called with more than 1 arg
+        TEST: errors/function/builtin/seed/more_args.ql
     5: int/context/function/function_call.py
-        random() called with more than 1 arg
+        random() called with more than 0 arg
+        TEST: errors/function/builtin/random/more_args.ql
     6: int/context/function/function_call.py
-        __ql_import_source__ called with more than 1 arg
+        __ql_import_source__ called with more than 1 arg (internal, not testing that)
     7: int/context/function/function_call.py
         packet_log() called with more than 1 arg
+        TEST: errors/function/builtin/packet_log/more_args.ql
     8: int/context/function/function_call.py
         show_console() called with more than 1 arg
+        TEST: errors/function/builtin/show_console/more_args.ql
     9: int/context/function/function_call.py
         cut(), round(), floor(), ceil() called with 0 or more than 2 args
+        TEST: errors/function/builtin/cut_round_floor_ceil/more_args.ql
 
 UnknownArgException -> UA
     1: int/context/function/function_call.py 
         Argument name that is not defined got used in call
+        TEST: errors/function/args/unknown_arg.ql
     
 KeywordArgumentsNotSupportedException -> KANS
     1: int/context/function/function_call.py
         num() called with named arguments
+        TEST: errors/function/builtin/num/named_arg.ql
     2: int/context/function/function_call.py 
         parent() called with named arguments
+        TEST: errors/function/builtin/parent/named_arg.ql
+        TEST: errors/function/builtin/parent/named_arg2.ql
     3: int/context/function/function_call.py
-        parent() called with named arguments
+        parent() called with named arguments (how ???)
     4: int/context/function/function_call.py
         seed() called with named arguments
+        TEST: errors/function/builtin/seed/named_arg.ql
     5: int/context/function/function_call.py
         random() called with named args
+        TEST: errors/function/builtin/random/named_arg.ql
     6: int/context/function/function_call.py    
-        __ql_import_source__ got called with named args
+        __ql_import_source__ got called with named args (internal, not testing that)
     7: int/context/function/function_call.py
         packet_log() called with named args
+        TEST: errors/functions/builtin/packet_log/named_arg.ql
     8: int/context/function/function_call.py
         show_console() called with named args
+        TEST: errors/functions/builtin/show_console/named_arg.ql
     9: int/context/function/function_call.py
         cut(), round(), floor(), ceil() called with named args
+        TEST: errors/function/builtin/cut_round_floor_ceil/named_arg.ql
     
     
 
 BuiltinExpectsValueException -> BEV
     1: int/context/function/function_call.py 
         num() needs to be called with 'a number or a numeric string'
+        TEST: errors/functions/builtin/num/invalid_val.ql
     2: int/context/function/functon_call.py
         parent() needs 1 arg: variable name or nested parent call
+        TEST: errors/functions/builtin/parent/invalid_val.ql
     3: int/context/function/function_call.py
         seed() needs 1 arg: a number
+        TEST: errors/functions/builtin/seed/invalid_val.ql
     4: int/context/function/function_call.py
-        << >> expects a file path string
+        << >> expects a file path string (gives syntax error)
     5: int/context/function/function_call.py
         packet_log() expects 0 or 1
+        TEST: errors/functions/builtin/packet_log/invalid_val.ql
     6: int/context/function/function_call.py
         show_console() expected 0 or 1
+        TEST: errors/functions/builtin/show_console/invalid_val.ql
     7: int/context/function/function_call.py
         cut(), round(), floor(), ceil() expects first arg to be a number
+        TEST: errors/functions/builtin/cut_round_floor_ceil/invalid_first.ql
     8: int/context/function/function_call.py
         cut(), round(), floor(), ceil() expects second arg to be a number for decimal places
+        TEST: errors/functions/builtin/cut_round_floor_ceil/invalid_second.ql
     
     
 NoParentScopeException -> NPS
     1: int/context/function/function_call.py
         No more scopes to go up
+        TEST: errors/functions/builtin/parent/too_much.ql
     2: int/context/operator/parent.py
         Tried to access higher scopes that do not exist
+        TEST: errors/operators/parent/too_much.ql
 
 NoFunctionToCallException -> NFTC
     1: int/context/function/function_call.py
         Function is not declared
+        TEST: errors/functions/not_declared.ql
 
 VariableCallException -> VC
     1: int/context/function/function_call.py
         Attempted calling a variable
+        TEST: errors/functions/variable_call.ql
 
 IncompatibleTypeException -> IT
     1: int/context/function/function_call.py
         Function was given a wrong type of argument
+        TEST: errors/functions/args/wrong_type.ql
 
 FunctionRedeclarationException -> FR
     1: int/context/function/function_declaration.py
         Trying to declare a function that already exists
+        TEST: errors/functions/redeclaration.ql
 
 TestModeException -> TM
     1: int/context/io/io_statement.py
-        input() is not supported in TEST MODE
+        input() is not supported in TEST MODE (this will not be tested)
 
 ObsNotIndexedException -> ONI
     1: int/context/io/io_statement.py
-        variable of type 'obs' used with index for input()
+        variable of type 'obs' used with index for input() (not possible to test)
 
 ExpectedAValueException -> EAV
     1: int/context/math/mul_div_mod.py
-        Expression must be a string variable or text
+        Expression must be a string variable or text (impossible?)
     2: int/operations/operators.py
-        Expected a string or text expression during string/text concatenation or formatting
+        Expected a string or text expression during string/text concatenation or formatting (impossible?)
     3: int/operations/operators.py
-        Expected a list expression during list operations or binary conversion
+        Expected a list expression during list operations or binary conversion (not used)
 
 IndexOutOfRangeException -> IOR
     1: int/variable.py
         Index out of range during array or text access
+        TEST: errors/variables/out_of_range.ql
 
 PlaceDeclarationNotAllowedException -> PDNA
     1: int/context/function/function_call.py
         Imported file contains place declarations
+        TEST: errors/import/place.ql
 
 PacketSizeNotIntegerException -> PSNI
     1: int/context/network.py
-        Packet size must be an integer
+        Packet size must be an integer 
+        TEST: errors/network/receive_size_not_int.ql
     2: int/context/network.py
-        Packet size must be positive
+        Packet size must be positive 
+        TEST: errors/network/receive_size_negative.ql
     3: int/context/network.py
-        Attempted to receive a packet size that is not positive int
+        Attempted to receive a packet size that is not positive int (how???, cant send that)
 
-PacketPayloadInvalidException -> PPI
+PacketPayloadInvalidException -> PPI (not possible)
     1: int/context/network.py
         Quantum state cannot be deserialized (invalid packet)
     2: int/context/network.py
         Received packet does not match type state
 
-InternalException -> I
+InternalException -> I   (none of those will be tested)
     1: int/context/network.py
         Quantum network used before initialized
     2: int/context/network.py
@@ -313,39 +384,40 @@ InternalException -> I
 NetworkNotVariableException -> NNV
     1: int/context/network.py
         Only variable can be send thru the network
+        TEST: errors/network/send_not_variable.ql
 
 UnknownTimeUnitException -> UTU
     1: int/context/control/wait_stmt.py
-        Unknown time unit used in wait()
-
-WaitDurationNotNumericException -> WDNN
-    1: int/context/control/wait_stmt.py
-        wait() called with a non-numeric duration expression
+        Unknown time unit used in wait() (this will be syntax error)
 
 UnsupportedConversionTypeException -> UCT
     1: int/context/operator/binary_conversion.py
         Binary conversion attempted with unsupported type
+        TEST: errors/operators/binary/unsupported_type.ql
+
 
 OperationNotSupportedException -> ONS
     1: int/context/variable/declaration.py
         Const state variables are not supported
     2: int/context/variable/declaration.py
-        Variable type not supported
+        Variable type not supported (impossible?)
     3: int/context/variable/declaration.py
-        Const variable type not supported
+        Const variable type not supported (syntax error)
     4: int/operations/operators.py
         Binary conversion requires a list of bits
+        TEST: errors/operators/binary/string_val.ql
     5: int/operations/operators.py
         Binary conversion requires integer bit values
-    6: int/operations/operators.py
-        Binary conversion requires integer bit values
+        TEST: errors/operators/binary/bit_not_int.ql
+    6: REMOVED
     7: int/operations/operators.py
         Binary conversion requires bits to be 0 or 1
+        TEST: errors/operators/binary/list_of_twos.ql
     8: int/operations/operators.py
         Binary conversion requires an integer source value
-    9: int/operations/operators.py
-        Binary conversion requires an integer source value
+        TEST: errors/operators/binary/source_not_int.ql
 
 ShapeMismatchException -> SM
     1: int/context/variable/declaration.py
         Variable array shape mismatch 
+        TEST: errors/variables/shape_mismatch.ql

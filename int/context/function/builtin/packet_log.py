@@ -12,7 +12,7 @@ from ....script_errors import ScriptErrors
 from ....exception.kwargs_not_supported import KeywordArgumentsNotSupportedException
 
 def builtin_packet_log(self: Place, block: Any):
-    positional_args, keyword_args = _collect_call_args(self, block)
+    positional_args, keyword_args = _collect_call_args(self, block, "packet_log")
      
     # packet_log() doesn't support keyword args
     if keyword_args:

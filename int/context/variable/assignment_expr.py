@@ -25,7 +25,7 @@ def handle_assignment_expr(self: Place, block: Any, parent: Any, pos: ScriptErro
 
     if not is_variable(left_expr):
         # code: ATE-13
-        raise AssignmentToExpressionException(ScriptErrors.Position.extract(left_expr))
+        raise AssignmentToExpressionException(ScriptErrors.Position.extract(left_expr), code="13")
 
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
     if left_variable.type == TYPE_STATE:

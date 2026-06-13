@@ -1,0 +1,1 @@
+text s = 42 >10> text; // UCT-1 line 1..1 col 18..22

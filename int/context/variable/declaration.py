@@ -96,7 +96,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
     if var_name in self.scopes.current.vars:
         # code: VR-1
-        raise VariableRedefiniotionException(ScriptErrors.Position.extract(block), code="1")
+        raise VariableRedefiniotionException(ScriptErrors.Position.extract(block.ID()), code="1")
 
     if is_const and block.expr() is None:
         # code: CFV-10

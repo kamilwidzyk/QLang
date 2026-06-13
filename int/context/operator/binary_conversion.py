@@ -19,8 +19,9 @@ def handle_binary_from_list(self: Place, block: Any, parent: Any, pos: ScriptErr
     target_type = block.varType().getText()
 
     if target_type != "num":
+        # code UCT-1
         raise UnsupportedConversionTypeException(
-            ScriptErrors.Position.extract(block.varType()), target_type)
+            ScriptErrors.Position.extract(block.varType()), target_type, code="1")
 
     return do_operation_bits_to_int(left_expr, pos)
 
@@ -36,8 +37,9 @@ def handle_binary_to_list(self: Place, block: Any, parent: Any, pos: ScriptError
     target_type = block.varType().getText()
 
     if target_type != "obs":
+        # code UCT-1
         raise UnsupportedConversionTypeException(
-            ScriptErrors.Position.extract(block.varType()), target_type)
+            ScriptErrors.Position.extract(block.varType()), target_type, code="1")
 
     try:
         size = int(size_text, 0)

@@ -1,0 +1,1 @@
+foo(5); // NFTC-1 line 1..1 col 1..7

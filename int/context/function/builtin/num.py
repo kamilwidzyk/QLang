@@ -11,7 +11,7 @@ from int.exception.too_much_args import TooMuchArgumentsException
 from int.script_errors import ScriptErrors
 
 def builtin_num(self: Place, block: Any):
-    positional_args, keyword_args = _collect_call_args(self, block)
+    positional_args, keyword_args = _collect_call_args(self, block, "num")
     block_pos = ScriptErrors.Position.extract(block)
 
     # num() doesn't support keyword args

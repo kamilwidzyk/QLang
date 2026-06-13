@@ -91,11 +91,11 @@ def do_operation_bits_to_int(expr, pos: ScriptErrors.Position = None):
         values = expr.data
     else:
         # code: ONS-4
-        raise OperationNotSupportedException(pos, "Binary conversion requires a list of bits", code="1")
+        raise OperationNotSupportedException(pos, "Binary conversion requires a list of bits", code="4")
 
     if not isinstance(values, list):
-        # code: ONS-5
-        raise OperationNotSupportedException(pos, "Binary conversion requires a list of bits", code="2")
+        # code: ONS-4
+        raise OperationNotSupportedException(pos, "Binary conversion requires a list of bits", code="4")
 
     total = 0
     for index, bit in enumerate(values):
@@ -109,15 +109,15 @@ def do_operation_bits_to_int(expr, pos: ScriptErrors.Position = None):
             bit = int(bit)
         if isinstance(bit, float):
             if int(bit) != bit:
-                # code: ONS-6
-                raise OperationNotSupportedException(pos, "Binary conversion requires integer bit values", code="3")
+                # code: ONS-5
+                raise OperationNotSupportedException(pos, "Binary conversion requires integer bit values", code="5")
             bit = int(bit)
         if not isinstance(bit, int):
-            # code: ONS-7
-            raise OperationNotSupportedException(pos, "Binary conversion requires integer bit values", code="4")
+            # code: ONS-5
+            raise OperationNotSupportedException(pos, "Binary conversion requires integer bit values", code="5")
         if bit not in (0, 1):
-            # code: ONS-8
-            raise OperationNotSupportedException(pos, "Binary conversion requires bits to be 0 or 1", code="5")
+            # code: ONS-7
+            raise OperationNotSupportedException(pos, "Binary conversion requires bits to be 0 or 1", code="7")
 
         total |= bit << index
 
@@ -136,13 +136,13 @@ def do_operation_int_to_bits(expr, size: int, pos: ScriptErrors.Position = None)
         value = int(value)
     if isinstance(value, float):
         if int(value) != value:
-            # code: ONS-9
-            raise OperationNotSupportedException(pos, "Binary conversion requires an integer source value", code="6")
+            # code: ONS-8
+            raise OperationNotSupportedException(pos, "Binary conversion requires an integer source value", code="8")
         value = int(value)
 
     if not isinstance(value, int):
-        # code: ONS-10
-        raise OperationNotSupportedException(pos, "Binary conversion requires an integer source value", code="7")
+        # code: ONS-8
+        raise OperationNotSupportedException(pos, "Binary conversion requires an integer source value", code="8")
     if size < 0:
         # code: SE-3
         raise SizeErrorException(pos, code="1")

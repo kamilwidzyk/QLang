@@ -1,3 +1,6 @@
+from int.exception.index_out_of_range import IndexOutOfRangeException
+from int.exception.shape_mismatch import ShapeMismatchException
+
 from .expression import *
 from .logger import log, INTERNAL, FATAL, VARIABLE
 from .obs import Obs
@@ -100,11 +103,21 @@ class Variable:
             values = values.value
         if isinstance(data, list):
             if not isinstance(values, list):
-                log(VARIABLE, FATAL, "Shape mismatch: expected list")
-                exit()
+                # code SM-1
+                raise ShapeMismatchException(
+                    pos=ScriptErrors.UNKNOWN_POSITION,
+                    left_shape=len(data),
+                    right_shape=0,
+                    code="1"
+                )
             if len(data) != len(values):
-                log(VARIABLE, FATAL, "Shape mismatch: different lengths")
-                exit()
+                # code SM-1
+                raise ShapeMismatchException(
+                    pos=ScriptErrors.UNKNOWN_POSITION,
+                    left_shape=len(data),
+                    right_shape=len(values),
+                    code="1"
+                )
         
             for d, v in zip(data, values):
                 self.assign_values(d, v)
@@ -146,7 +159,7 @@ class Variable:
         if self.index is not None and len(self.index) > 0:
             target = self.data
             if len(self.index) > 1:
-                target = self.get_data_at_index(self.data, self.index[:-1])
+                target = self.get_data_at_index(self.data, self.index[:-1], pos)
 
             last_index = self.index[-1]
 
@@ -273,14 +286,14 @@ class Variable:
 
         return self._wrap_expression(value)
 
-    def reset(self):
+    def reset(self, pos):
         if self.type == TYPE_STATE:
             raise TypeError("Quantum states cannot be reset directly")
 
         if self.index is not None and len(self.index) > 0:
             target = self.data
             if len(self.index) > 1:
-                target = self.get_data_at_index(self.data, self.index[:-1])
+                target = self.get_data_at_index(self.data, self.index[:-1], pos)
 
             last_index = self.index[-1]
             if isinstance(target, list):
@@ -343,7 +356,7 @@ class Variable:
         else:
             raise TypeError("Variable is not subscriptable")
 
-    def get_data_at_index(self, data, indexes):
+    def get_data_at_index(self, data, indexes, pos):
         if not indexes:
             return data
             
@@ -352,7 +365,15 @@ class Variable:
         
         if isinstance(idx, SimpleIndex):
             resolved = idx.resolve(length)
-            return self.get_data_at_index(data[resolved], indexes[1:])
+            if resolved >= len(data):
+                # code IOR-1
+                raise IndexOutOfRangeException(
+                    pos=pos,
+                    index_value=resolved,
+                    length=len(data),
+                    code="1"
+                )
+            return self.get_data_at_index(data[resolved], indexes[1:], pos)
             
         elif isinstance(idx, RangeIndex):
             start, end = idx.resolve(length)
@@ -366,7 +387,7 @@ class Variable:
                     return Text(sliced_data)
                 return sliced_data
             else:
-                return [self.get_data_at_index(item, indexes[1:]) for item in sliced_data]
+                return [self.get_data_at_index(item, indexes[1:], pos) for item in sliced_data]
                 
         elif isinstance(idx, ListIndex):
             resolved = idx.resolve(length)
@@ -377,10 +398,10 @@ class Variable:
                     return ''.join(data[i] for i in resolved)
                 return [data[i] for i in resolved]
             else:
-                return [self.get_data_at_index(data[i], indexes[1:]) for i in resolved]
+                return [self.get_data_at_index(data[i], indexes[1:], pos) for i in resolved]
         else:
             # Legacy plain int index
-            return self.get_data_at_index(data[idx], indexes[1:])
+            return self.get_data_at_index(data[idx], indexes[1:], pos)
 
     def _list_shape(self, data):
         if not isinstance(data, list):
@@ -389,9 +410,9 @@ class Variable:
             return [0]
         return [len(data)] + self._list_shape(data[0])
 
-    def get(self):
+    def get(self, pos = None):
         if self.index is not None and len(self.index) > 0:
-            data = self.get_data_at_index(self.data, self.index)
+            data = self.get_data_at_index(self.data, self.index, ScriptErrors.UNKNOWN_POSITION if pos is None else pos)
             if isinstance(data, Text):
                 return Expression(TYPE_STRING, data.value)
             if isinstance(data, list):
