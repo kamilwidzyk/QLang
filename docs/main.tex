@@ -67,6 +67,14 @@
   \renewcommand{\contentsname}{Contents}
 }
 
+\addto\captionspolish{
+  \renewcommand{\figurename}{Figure}
+}
+
+\addto\captionspolish{
+  \renewcommand{\tablename}{Table}
+}
+
 \newtcblisting{codebox}{
     colback=codebg,
     colframe=black!10,
@@ -183,5 +191,21 @@
 
 \newpage
 \input{chapter-5-places-and-communication/places-and-communication}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Chapter E   %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% WARNING: Change section couter to letters starting from 'E'
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\theHsection}{appendix.\Alph{section}}
+\setcounter{section}{4}
+
+\newpage
+\input{chapter-E-error-codes/error_codes}
 
 \end{document}

@@ -1,0 +1,188 @@
+\section{Error codes}\label{sec:error_codes}
+
+When the interpreter encounters any error, it appears in the interpreter terminal formatted inside a red box. 
+Errors are not displayed inside place consoles. After the error is printed out, execution of places is interrupted and interpreter exits.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{chapter-E-error-codes/img/error_box.png}
+    \caption{Description of error box elements}
+    \label{fig:error_box_description}
+\end{figure}
+
+\noindent Description of each element inside the error box:
+\begin{itemize}
+    \item \textbf{Type} - When the error happend, can be
+        \begin{itemize}
+            \item SYNTAX ERROR - Syntax error was detected in the initial check, code execution did not start. 
+            \item RUNTIME ERROR - Error was discovered during code execution.
+        \end{itemize}   
+    \item \textbf{Title} - Category of the error
+    \item \textbf{Code} - Code directly related to specific error. For the full list refer to list below. There are NO codes for syntax errors(code is not displayed).
+    \item \textbf{Description} - Short description of what went wrong
+    \item \textbf{Context} - Shows few lines above and below. Yellow mark indicates the most likely cause. In rare cases there might be no context to show.
+\end{itemize}
+
+\noindent Every error code follows the same format:
+\begin{center}
+\texttt{<letters>-<number>}
+\end{center}
+
+\noindent The letters are compiled of capital letters of the exception that were raised - like a category of what happend. 
+The number narrows it down to the precise case. Below is a table of every set of letter and the section it is described at. 
+Letters are unique to each exception. Some error numbers in the sequence might be missing(eg. 1, 2, 4, 5). 
+
+\newpage
+
+\begin{table}[h!]
+    \caption{List of all error code letters}
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Letters} & \textbf{Exception} & \textbf{Section} \\ \hline
+        ATE & AssignmentToExpression & \ref{sec:error_code_ate} \\ \hline
+        BEV & BuiltinExpectsValue & \ref{sec:error_code_bev} \\ \hline
+        CFV & CantFindVariable & \ref{sec:error_code_cfv} \\ \hline
+        DBZ & DivideByZeroException & \ref{sec:error_code_dbz} \\ \hline
+        DQA & DirectQuantumAccess & \ref{sec:error_code_dqa} \\ \hline
+        EAV & ExpectedAValue & \ref{sec:error_code_eav} \\ \hline
+        FNF & FileNotFound & \ref{sec:error_code_fnf} \\ \hline
+        FR & FunctionRedeclaration & \ref{sec:error_code_fr} \\ \hline
+        I & Internal & \ref{sec:error_code_i} \\ \hline
+        INI & IndexNotInt & \ref{sec:error_code_ini} \\ \hline
+        IOR & IndexOutOfRange & \ref{sec:error_code_ior} \\ \hline
+        IT & IncompatibleType & \ref{sec:error_code_it} \\ \hline
+        KANS & KeywordArgumentsNotSupported & \ref{sec:error_code_kans} \\ \hline
+        MA & MissingArg & \ref{sec:error_code_ma} \\ \hline
+        MOZ & ModuloOverZero & \ref{sec:error_code_moz} \\ \hline
+        NFTC & NoFunctionToCall & \ref{sec:error_code_nftc} \\ \hline
+        NNV & NetworkNotVariable & \ref{sec:error_code_nnv} \\ \hline
+        NPS & NoParentScope & \ref{sec:error_code_nps} \\ \hline
+        ONI & ObsNotIndexed & \ref{sec:error_code_oni} \\ \hline
+        ONS & OperationNotSupported & \ref{sec:error_code_ons} \\ \hline
+        OTM & OperatorTypeMismatch & \ref{sec:error_code_otm} \\ \hline
+        PDNA & PlaceDeclarationNotAllowed & \ref{sec:error_code_pdna} \\ \hline
+        PPI & PacketPayloadInvalid & \ref{sec:error_code_ppi} \\ \hline
+        PSNI & PacketSizeNotInteger & \ref{sec:error_code_psni} \\ \hline
+        RKA & RepeatedKeywordArg & \ref{sec:error_code_rka} \\ \hline
+        SE & SizeError & \ref{sec:error_code_se} \\ \hline
+        SM & ShapeMismatch & \ref{sec:error_code_sm} \\ \hline
+        TM & TestMode & \ref{sec:error_code_tm} \\ \hline
+        TMA & TooMuchArguments & \ref{sec:error_code_tma} \\ \hline
+        UA & UnknownArg & \ref{sec:error_code_ua} \\ \hline
+        UCT & UnsupportedConversionType & \ref{sec:error_code_uct} \\ \hline
+        UTU & UnknownTimeUnit & \ref{sec:error_code_utu} \\ \hline
+        VC & VariableCall & \ref{sec:error_code_vc} \\ \hline
+        VR & VariableRedefiniotion & \ref{sec:error_code_vr} \\ \hline
+        WDNN & WaitDurationNotNumeric & \ref{sec:error_code_wdnn} \\ \hline
+    \end{tabular}
+\end{table}
+
+\newpage
+\subsection{ATE - AssignmentToExpression}\label{sec:error_code_ate}
+
+\newpage
+\subsection{BEV - BuiltinExpectsValue}\label{sec:error_code_bev}
+
+\newpage
+\subsection{CFV - CantFindVariable}\label{sec:error_code_cfv}
+
+\newpage
+\subsection{DBZ - DivideByZero}\label{sec:error_code_dbz}
+
+\newpage
+\subsection{DQA - DirectQuantumAccess}\label{sec:error_code_dqa}
+
+\newpage
+\subsection{EAV - ExpectedAValue}\label{sec:error_code_eav}
+
+\newpage
+\subsection{FNF - FileNotFound}\label{sec:error_code_fnf}
+
+\newpage
+\subsection{FR - FunctionRedeclaration}\label{sec:error_code_fr}
+
+\newpage
+\subsection{I - Internal}\label{sec:error_code_i}
+
+\newpage
+\subsection{INI - IndexNotInt}\label{sec:error_code_ini}
+
+\newpage
+\subsection{IOR - IndexOutOfRange}\label{sec:error_code_ior}
+
+\newpage
+\subsection{IT - IncompatibleType}\label{sec:error_code_it}
+
+\newpage
+\subsection{KANS - KeywordArgumentsNotSupported}\label{sec:error_code_kans}
+
+\newpage
+\subsection{MA - MissingArg}\label{sec:error_code_ma}
+
+\newpage
+\subsection{MOZ - ModuloOverZero}\label{sec:error_code_moz}
+
+\newpage
+\subsection{NFTC - NoFunctionToCall}\label{sec:error_code_nftc}
+
+\newpage
+\subsection{NNV - NetworkNotVariable}\label{sec:error_code_nnv}
+
+\newpage
+\subsection{NPS - NoParentScope}\label{sec:error_code_nps}
+
+\newpage
+\subsection{ONI - ObsNotIndexed}\label{sec:error_code_oni}
+
+\newpage
+\subsection{ONS - OperationNotSupported}\label{sec:error_code_ons}
+
+\newpage
+\subsection{OTM - OperatorTypeMismatch}\label{sec:error_code_otm}
+
+\newpage
+\subsection{PDNA - PlaceDeclarationNotAllowed}\label{sec:error_code_pdna}
+
+\newpage
+\subsection{PPI - PacketPayloadInvalid}\label{sec:error_code_ppi}
+
+\newpage
+\subsection{PSNI - PacketSizeNotInteger}\label{sec:error_code_psni}
+
+\newpage
+\subsection{RKA - RepeatedKeywordArg}\label{sec:error_code_rka}
+
+\newpage
+\subsection{SE - SizeError}\label{sec:error_code_se}
+
+\newpage
+\subsection{SM - ShapeMismatch}\label{sec:error_code_sm}
+
+\newpage
+\subsection{TM - TestMode}\label{sec:error_code_tm}
+
+\newpage
+\subsection{TMA - TooMuchArguments}\label{sec:error_code_tma}
+
+\newpage
+\subsection{UA - UnknownArg}\label{sec:error_code_ua}
+
+\newpage
+\subsection{UCT - UnsupportedConversionType}\label{sec:error_code_uct}
+
+\newpage
+\subsection{UTU - UnknownTimeUnit}\label{sec:error_code_utu}
+
+\newpage
+\subsection{VC - VariableCall}\label{sec:error_code_vc}
+
+\newpage
+\subsection{VR - VariableRedefiniotion}\label{sec:error_code_vr}
+
+\newpage
+\subsection{WDNN - WaitDurationNotNumeric}\label{sec:error_code_wdnn}
+
+\newpage
+
+

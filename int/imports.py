@@ -60,9 +60,9 @@ def _resolve_import_path(path: str, base_dir: str | None) -> str:
         if result is not None:
             return result
 
-        if prefix == "lib":
+        if prefix in ["lib", "stdlib"]:
             project_root = _find_project_root(base_dir or cwd)
-            candidate_path = os.path.normpath(os.path.join(project_root, "lib", inner_path))
+            candidate_path = os.path.normpath(os.path.join(project_root, prefix, inner_path))
             if os.path.exists(candidate_path):
                 return candidate_path
 
