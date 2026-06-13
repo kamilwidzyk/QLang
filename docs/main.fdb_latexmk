@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1781385259.40427 "c:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/main.tex" "main.pdf" "main" 1781385259.96099 2
+["pdflatex"] 1781387749.51335 "c:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/main.tex" "main.pdf" "main" 1781387750.16365 2
   "C:/Users/widzy/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1779054282 13350272 0abdaab1d7bc1071c8bac7655cc78a2c ""
   "C:/Users/widzy/AppData/Local/Programs/MiKTeX/fonts/tfm/jknappen/ec/ecrm1095.tfm" 993062124 3172 eb6efaa83c6c52473a1c403f376eab0f ""
   "C:/Users/widzy/AppData/Local/Programs/MiKTeX/fonts/tfm/public/cm/cmr10.tfm" 1136765053 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
@@ -27,9 +27,9 @@
   "C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/l3backend/l3backend-pdftex.def" 1774811737 30909 7dedb28cb21a1e79c47a35a35ae3c507 ""
   "C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/l3kernel/expl3.sty" 1774812389 6558 f72ebe51bdca4990db99e72c8133397c ""
   "C:/Users/widzy/AppData/Local/Programs/MiKTeX/tex/latex/l3packages/xparse/xparse.sty" 1761203377 10176 c2fc1c663b3f3899ddac6e6ed3fb1d7e ""
-  "c:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/main.tex" 1781379998 5989 9487eadddc834bdeb47b1adcfad780e9 ""
-  "main.aux" 1781385251 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
-  "main.tex" 1781379998 5989 9487eadddc834bdeb47b1adcfad780e9 ""
+  "c:/Users/widzy/Desktop/Kompilatory git/Kompilatory 3/Kompilatory/docs/main.tex" 1781387594 6113 9494404d3045a71981711849fe50ca23 ""
+  "main.aux" 1781387741 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
+  "main.tex" 1781387594 6113 9494404d3045a71981711849fe50ca23 ""
   (generated)
   "main.aux"
   "main.log"

@@ -30,7 +30,11 @@
     \IfStrEq{#1}{section}{%
         \hyperref[#2]{Section~\ref*{#2} -- \getrefname{#2}}%
     }{%
-        \hyperref[#2]{\getrefname{#2}}%
+        \IfStrEq{#1}{table}{%
+            \hyperref[#2]{Table~\ref*{#2} -- \getrefname{#2}}%
+        }{%
+            \hyperref[#2]{\getrefname{#2}}%
+        }%
     }%
 }
 

@@ -36,6 +36,7 @@ Letters are unique to each exception. Some error numbers in the sequence might b
 
 \begin{table}[h!]
     \caption{List of all error code letters}
+    \label{tab:list_error_code_letters}
     \centering
     \begin{tabular}{|c|c|c|}
         \hline
@@ -73,116 +74,47 @@ Letters are unique to each exception. Some error numbers in the sequence might b
         UCT & UnsupportedConversionType & \ref{sec:error_code_uct} \\ \hline
         UTU & UnknownTimeUnit & \ref{sec:error_code_utu} \\ \hline
         VC & VariableCall & \ref{sec:error_code_vc} \\ \hline
-        VR & VariableRedefiniotion & \ref{sec:error_code_vr} \\ \hline
+        VR & VariableRedefinition & \ref{sec:error_code_vr} \\ \hline
         WDNN & WaitDurationNotNumeric & \ref{sec:error_code_wdnn} \\ \hline
     \end{tabular}
 \end{table}
 
-\newpage
-\subsection{ATE - AssignmentToExpression}\label{sec:error_code_ate}
 
-\newpage
-\subsection{BEV - BuiltinExpectsValue}\label{sec:error_code_bev}
 
-\newpage
-\subsection{CFV - CantFindVariable}\label{sec:error_code_cfv}
-
-\newpage
-\subsection{DBZ - DivideByZero}\label{sec:error_code_dbz}
-
-\newpage
-\subsection{DQA - DirectQuantumAccess}\label{sec:error_code_dqa}
-
-\newpage
-\subsection{EAV - ExpectedAValue}\label{sec:error_code_eav}
-
-\newpage
-\subsection{FNF - FileNotFound}\label{sec:error_code_fnf}
-
-\newpage
-\subsection{FR - FunctionRedeclaration}\label{sec:error_code_fr}
-
-\newpage
-\subsection{I - Internal}\label{sec:error_code_i}
-
-\newpage
-\subsection{INI - IndexNotInt}\label{sec:error_code_ini}
-
-\newpage
-\subsection{IOR - IndexOutOfRange}\label{sec:error_code_ior}
-
-\newpage
-\subsection{IT - IncompatibleType}\label{sec:error_code_it}
-
-\newpage
-\subsection{KANS - KeywordArgumentsNotSupported}\label{sec:error_code_kans}
-
-\newpage
-\subsection{MA - MissingArg}\label{sec:error_code_ma}
-
-\newpage
-\subsection{MOZ - ModuloOverZero}\label{sec:error_code_moz}
-
-\newpage
-\subsection{NFTC - NoFunctionToCall}\label{sec:error_code_nftc}
-
-\newpage
-\subsection{NNV - NetworkNotVariable}\label{sec:error_code_nnv}
-
-\newpage
-\subsection{NPS - NoParentScope}\label{sec:error_code_nps}
-
-\newpage
-\subsection{ONI - ObsNotIndexed}\label{sec:error_code_oni}
-
-\newpage
-\subsection{ONS - OperationNotSupported}\label{sec:error_code_ons}
-
-\newpage
-\subsection{OTM - OperatorTypeMismatch}\label{sec:error_code_otm}
-
-\newpage
-\subsection{PDNA - PlaceDeclarationNotAllowed}\label{sec:error_code_pdna}
-
-\newpage
-\subsection{PPI - PacketPayloadInvalid}\label{sec:error_code_ppi}
-
-\newpage
-\subsection{PSNI - PacketSizeNotInteger}\label{sec:error_code_psni}
-
-\newpage
-\subsection{RKA - RepeatedKeywordArg}\label{sec:error_code_rka}
-
-\newpage
-\subsection{SE - SizeError}\label{sec:error_code_se}
-
-\newpage
-\subsection{SM - ShapeMismatch}\label{sec:error_code_sm}
-
-\newpage
-\subsection{TM - TestMode}\label{sec:error_code_tm}
-
-\newpage
-\subsection{TMA - TooMuchArguments}\label{sec:error_code_tma}
-
-\newpage
-\subsection{UA - UnknownArg}\label{sec:error_code_ua}
-
-\newpage
-\subsection{UCT - UnsupportedConversionType}\label{sec:error_code_uct}
-
-\newpage
-\subsection{UTU - UnknownTimeUnit}\label{sec:error_code_utu}
-
-\newpage
-\subsection{VC - VariableCall}\label{sec:error_code_vc}
-
-\newpage
-\subsection{VR - VariableRedefiniotion}\label{sec:error_code_vr}
-
-\newpage
-\subsection{WDNN - WaitDurationNotNumeric}\label{sec:error_code_wdnn}
-
-\newpage
+\input{chapter-E-error-codes/ate/AssignmentToExpression}
+\input{chapter-E-error-codes/bev/BuiltinExpectsValue}
+\input{chapter-E-error-codes/cfv/CantFindVariable}
+\input{chapter-E-error-codes/dbz/DivideByZeroException}
+\input{chapter-E-error-codes/dqa/DirectQuantumAccess}
+\input{chapter-E-error-codes/eav/ExpectedAValue}
+\input{chapter-E-error-codes/fnf/FileNotFound}
+\input{chapter-E-error-codes/fr/FunctionRedeclaration}
+\input{chapter-E-error-codes/i/Internal}
+\input{chapter-E-error-codes/ini/IndexNotInt}
+\input{chapter-E-error-codes/ior/IndexOutOfRange}
+\input{chapter-E-error-codes/it/IncompatibleType}
+\input{chapter-E-error-codes/kans/KeywordArgumentsNotSupported}
+\input{chapter-E-error-codes/ma/MissingArg}
+\input{chapter-E-error-codes/moz/ModuloOverZero}
+\input{chapter-E-error-codes/nftc/NoFunctionToCall}
+\input{chapter-E-error-codes/nnv/NetworkNotVariable}
+\input{chapter-E-error-codes/nps/NoParentScope}
+\input{chapter-E-error-codes/oni/ObsNotIndexed}
+\input{chapter-E-error-codes/ons/OperationNotSupported}
+\input{chapter-E-error-codes/otm/OperatorTypeMismatch}
+\input{chapter-E-error-codes/pdna/PlaceDeclarationNotAllowed}
+\input{chapter-E-error-codes/ppi/PacketPayloadInvalid}
+\input{chapter-E-error-codes/psni/PacketSizeNotInteger}
+\input{chapter-E-error-codes/rka/RepeatedKeywordArg}
+\input{chapter-E-error-codes/se/SizeError}
+\input{chapter-E-error-codes/sm/ShapeMismatch}
+\input{chapter-E-error-codes/tm/TestMode}
+\input{chapter-E-error-codes/tma/TooMuchArguments}
+\input{chapter-E-error-codes/ua/UnknownArg}
+\input{chapter-E-error-codes/uct/UnsupportedConversionType}
+\input{chapter-E-error-codes/utu/UnknownTimeUnit}
+\input{chapter-E-error-codes/vc/VariableCall}
+\input{chapter-E-error-codes/vr/VariableRedefinition}
+\input{chapter-E-error-codes/wdnn/WaitDurationNotNumeric}
 
 

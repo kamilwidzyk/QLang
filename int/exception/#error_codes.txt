@@ -169,7 +169,7 @@ SizeErrorException -> SE
 TryingToModifyConstException -> TTMC
     1:
 
-VariableRedefiniotionException -> VR
+VariableRedefinitionException -> VR
     1: int/context/variable/declaration.py
         Variable with that name already exists
         TEST: errors/variables/redefinition.ql
