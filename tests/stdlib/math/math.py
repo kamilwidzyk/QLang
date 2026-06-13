@@ -14,6 +14,8 @@ def test_stdlib_math() -> bool:
     
     expected_output = "5.0\n10.0\n3\n2\n7\n10\n50\n5\n2\n10\n-1.5\n-2.2\n20\n42\n42\n100\n5.0\n"
 
+    print(place_log["global"])
+
     if place_log["global"] != expected_output:
         print("Expected: " + expected_output.replace("\n", "\\n"))
         print("Got: " + place_log["global"].replace("\n", "\\n"))

@@ -1,20 +1,30 @@
+// Returns absolute value of a number
 function abs(num x) {
-    if(x < 0) {
-        return 0 - x;
-    }
-    return x;
+    return x < 0 ? -x : x;
 }
 
-function minimum(num a, num b) {
-    if(a < b) {
-        return a;
+// Returns minimum of all given numbers
+function minimum(...nums) {
+    num result = 0;
+    obs first = T;
+    iterate nums as n {
+        if(first){
+            first = F;
+            result = n;
+        }else result = n < result ? n : result;
     }
-    return b;
+    return result;
 }
 
-function maximum(num a, num b) {
-    if(a > b) {
-        return a;
+// Returns maximum of all given numbers
+function maximum(...nums) {
+    num result = 0;
+    obs first = T;
+    iterate nums as n {
+        if(first){
+            first = F;
+            result = n;
+        }else result = n > result ? n : result;
     }
-    return b;
+    return result;
 }

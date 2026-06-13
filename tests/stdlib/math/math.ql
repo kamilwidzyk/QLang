@@ -1,4 +1,4 @@
-<< "stdlib/math.ql" >>
+<< "stdlib:math.ql" >>
 
 println(abs(5.0)); // 5.0
 println(abs(0.0 - 10.0)); // 10.0

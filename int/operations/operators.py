@@ -205,7 +205,7 @@ def do_operation_minus(right): # -right
         return do_operation_not(right)
     
 
-    return Expression(right.type, -right.value)
+    return Expression(right.type, -(right.extract_value()))
 
 # PLUS
 def do_operation_plus(right): # +right

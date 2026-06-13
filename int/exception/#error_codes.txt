@@ -313,6 +313,7 @@ NoFunctionToCallException -> NFTC
 FileNotFoundException -> FNF
     1: int/context/function/common.py
         Imported file path does not exist
+        TEST: errors/functions/builtin/import_source/file_not_found.ql
 
 VariableCallException -> VC
     1: int/context/function/function_call.py
@@ -420,6 +421,9 @@ OperationNotSupportedException -> ONS
     8: int/operations/operators.py
         Binary conversion requires an integer source value
         TEST: errors/operators/binary/source_not_int.ql
+    11: int/operations/operators.py
+        Float cast requires a number
+        TEST: errors/operators/float_cast/float_cast_str.ql
 
 ShapeMismatchException -> SM
     1: int/context/variable/declaration.py
