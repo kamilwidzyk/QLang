@@ -246,6 +246,10 @@ NoFunctionToCallException -> NFTC
     1: int/context/function/function_call.py
         Function is not declared
 
+FileNotFoundException -> FNF
+    1: int/context/function/common.py
+        Imported file path does not exist
+
 VariableCallException -> VC
     1: int/context/function/function_call.py
         Attempted calling a variable

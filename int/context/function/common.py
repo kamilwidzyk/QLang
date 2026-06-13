@@ -38,6 +38,7 @@ from ...exception.builtin_expects_value import BuiltinExpectsValueException
 from ...exception.cant_find_variable import CantFindVariableException
 from ...exception.no_parent_scope import NoParentScopeException
 from ...exception.place_decl_not_allowed import PlaceDeclarationNotAllowedException
+from ...exception.file_not_found import FileNotFoundException
 
 class FunctionReturn(Exception):
     """Control flow exception raised when a function returns a value."""
@@ -103,8 +104,16 @@ def _coerce_import_path(value: Any, func_name: str, pos) -> str:
 
 
 def  _import_source_functions(self: Place, file_path: str, pos):
-    with open(file_path, 'r', encoding='utf-8') as handle:
-        source_text = handle.read()
+    try:
+        with open(file_path, 'r', encoding='utf-8') as handle:
+            source_text = handle.read()
+    except FileNotFoundError:
+        # code FNF-1
+        raise FileNotFoundException(
+            pos=pos,
+            file_path=file_path,
+            code="1"
+        )
 
     processed_text = preprocess_text(source_text, os.path.dirname(file_path))
     tree = parse_ql_text(processed_text)
