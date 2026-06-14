@@ -1,0 +1,1 @@
+random(val=10); 

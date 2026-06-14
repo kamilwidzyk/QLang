@@ -1,0 +1,1 @@
+show_console(val=10); 

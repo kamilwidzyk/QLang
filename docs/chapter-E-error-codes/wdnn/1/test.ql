@@ -1,0 +1,1 @@
+wait("two" seconds);

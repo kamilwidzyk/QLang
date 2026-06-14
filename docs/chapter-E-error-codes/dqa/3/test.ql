@@ -1,0 +1,2 @@
+state x;
+input(x);

@@ -1,0 +1,1 @@
+num x[2.5] = receive num;

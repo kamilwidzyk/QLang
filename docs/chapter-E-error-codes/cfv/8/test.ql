@@ -1,0 +1,1 @@
+reset non_existing_var;

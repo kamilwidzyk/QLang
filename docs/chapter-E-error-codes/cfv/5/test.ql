@@ -1,0 +1,1 @@
+input(non_existing_var);

@@ -1,0 +1,1 @@
+show_console(2); 
