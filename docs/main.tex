@@ -31,7 +31,11 @@
     \IfStrEq{#1}{section}{%
         \hyperref[#2]{Section~\ref*{#2} -- \getrefname{#2}}%
     }{%
-        \hyperref[#2]{\getrefname{#2}}%
+        \IfStrEq{#1}{table}{%
+            \hyperref[#2]{Table~\ref*{#2} -- \getrefname{#2}}%
+        }{%
+            \hyperref[#2]{\getrefname{#2}}%
+        }%
     }%
 }
 
@@ -216,6 +220,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%   Chapter E   %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% WARNING: Change section couter to letters starting from 'E'
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\theHsection}{\Alph{section}}
+
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\theHsubsection}{\Alph{section}.\arabic{subsection}}
+
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+\renewcommand{\theHsubsubsection}{\Alph{section}.\arabic{subsection}.\arabic{subsubsection}}
+
+\setcounter{section}{4}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
 
 \newpage
 \input{chapter-E-error-codes/error_codes}

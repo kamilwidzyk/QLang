@@ -1,6 +1,7 @@
 place Alice {
     for i from 0 to 5 {
         num x = (i * 19) % 13;
+        wait(1 second); // simulate heavy computation
         send x to Bob as "number";
     }
     text status = "done";
@@ -20,6 +21,7 @@ place Bob {
     obs running = T;
 
     while(running){
+        wait(100 ms); // avoid high CPU load
         if (available text named "status"){
             text status = receive text named "status";
             println(receive_numbers());

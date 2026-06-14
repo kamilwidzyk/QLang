@@ -63,6 +63,7 @@ quantum computation:
 \end{tabular}
 \end{center}
 
+\newpage
 \subsubsection{Type Casting}
 
 QLang provides the built-in \texttt{num()} function to cast and parse values into the \texttt{num} type. It can parse integer, floating-point, hexadecimal (prefixed with \texttt{0x}), and binary (prefixed with \texttt{0b}) numbers from text strings, automatically ignoring surrounding whitespace. If the string is not a valid number, the interpreter will raise a runtime error.
@@ -151,6 +152,7 @@ or \texttt{F}); otherwise, returns \texttt{1} if \texttt{x} is zero, \texttt{0} 
 \end{tabular}
 \end{center}
 
+\newpage
 \subsubsection{Increment and Decrement}
 
 \input{chapter-3-language-basics/qlang/increment.tex}
@@ -180,6 +182,7 @@ elements after any appends:
 
 \input{chapter-3-language-basics/qlang/size_getter.tex}
 
+\newpage
 \subsubsection{The \texttt{reset} Operator}
 
 The \texttt{reset} operator restores a variable to its initial value as
@@ -196,6 +199,7 @@ performs printf-style interpolation:
 
 \input{chapter-3-language-basics/qlang/formatting.tex}
 
+\newpage
 \subsubsection{The Type Operator \texttt{\$}}
 
 The \texttt{\$} prefix operator dynamically evaluates and returns the type name of an 
@@ -210,7 +214,7 @@ QLang provides special stream operators for converting data between integer numb
 
 \begin{itemize}
     \item \texttt{array >> num} — Evaluates an array of binary values ($0$ or $1$) and converts it into a single \texttt{num} integer. The first element of the array is treated as the Least Significant Bit (LSB).
-    \item \texttt{expr > size > obs} — Takes a numeric expression and extracts a specified \texttt{size} number of bits, converting it into an array of observations (\texttt{obs}). The least significant bit becomes the first element of the resulting array.
+    \item \texttt{expr >size> obs} — Takes a numeric expression and extracts a specified \texttt{size} number of bits, converting it into an array of observations (\texttt{obs}). The least significant bit becomes the first element of the resulting array.
 \end{itemize}
 
 \input{chapter-3-language-basics/qlang/binary.tex}
@@ -222,6 +226,7 @@ Multiple carets chain upward, one level per caret. See
 Section~\ref{sec:parent-operator} for a full description.
 
 % ─────────────────────────────────────────────
+\newpage
 \subsection{Control Flow}\label{sec:control-flow}
 
 \subsubsection{Conditional Statements}
@@ -235,6 +240,7 @@ expression:
 
 \input{chapter-3-language-basics/qlang/control_flow.tex}
 
+\newpage
 \subsubsection{For Loop}
 
 The \texttt{for} loop iterates over a numeric range with an optional step.
@@ -254,6 +260,7 @@ expressions.
 
 \input{chapter-3-language-basics/qlang/while_loop.tex}
 
+\newpage
 \subsubsection{Iterate Loop}
 
 The \texttt{iterate} loop traverses every element of an array. The current
@@ -274,6 +281,7 @@ the next one.
 
 
 % ─────────────────────────────────────────────
+\newpage
 \subsection{Functions}\label{sec:functions}
 
 Functions are declared with the \texttt{function} keyword. Parameters are
@@ -285,6 +293,7 @@ with the \texttt{return} statement.
 
 \input{chapter-3-language-basics/qlang/functions.tex}
 
+\newpage
 \subsubsection{Named Arguments}
 
 Arguments can be passed by name, which allows them to be supplied in any
@@ -327,6 +336,7 @@ characters. The interpreter keeps prompting until a valid value is entered.
 \input{chapter-3-language-basics/qlang/input.tex}
 
 % ─────────────────────────────────────────────
+\newpage
 \subsection{Time and Delays}\label{sec:time-delays}
 
 QLang provides two ways to pause the execution of a program block: the built-in \texttt{wait} statement and the \texttt{sleep()} function. 
