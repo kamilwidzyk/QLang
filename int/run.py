@@ -368,7 +368,14 @@ class QLangErrorListener(ErrorListener):
             if is_stack(0, QLangParser.ShortIfExprContext):
                 title = "BadShortIf"
                 msg = "Did you forget ':'?"
-        
+        elif re.match("extraneous input '.*' expecting '.*'", msg):
+            matches = re.match("extraneous input '(.*)' expecting '(.*)'", msg)
+            
+            title = "TooMuch"
+            if(len(matches.groups()) == 2):
+                msg = f"I was prepared for '{matches.groups()[1]}', not '{matches.groups()[0]}'"
+            else:
+                msg = "I was prepared for something else"
         
         
         
@@ -475,7 +482,10 @@ def main():
         # TODO: There will be the script errors class called
         log_test("SYNTAX_ERRORS=1")
 
+        selected_err = None
         for i, err in enumerate(error_listener.errors):
+            if(err["title"] != ""):
+                selected_err = err
             print(f"Error at Line {err['line']}, Col {err['start_col']}-{err['end_col']}: {err['message']}")
             log_test(f"SYNTAX_ERROR_LINE[{i}]={err['line']}")
             log_test(f"SYNTAX_ERROR_COL_START[{i}]={err['start_col']}")
@@ -484,7 +494,30 @@ def main():
             log_test(f"SYNTAX_ERROR_TITLE[{i}]={err['title']}")
             log_test(f"SYNTAX_ERROR_STACK[{i}]={err['stack']}")
 
-        return
+        if(selected_err is None):
+            if(len(error_listener.errors) > 0):
+                selected_err = error_listener.errors[0]
+
+        if selected_err is None:
+            scriptErrors.showError(
+                pos=ScriptErrors.UNKNOWN_POSITION,
+                error_type="SYNTAX ERROR",
+                title="WhoKnows",
+                msg="Fix your mess, please."
+            )
+        else:
+            scriptErrors.showError(
+                pos=ScriptErrors.Position(
+                    start_line=selected_err["line"],
+                    start_col=selected_err["start_col"],
+                    end_line=selected_err["line"],
+                    end_col=selected_err["end_col"]
+                ),
+                error_type="SYNTAX ERROR",
+                title=selected_err["title"],
+                msg=selected_err["message"]
+            )
+        exit()
     
     log_test("SYNTAX_ERRORS=0")
     if(SYNTAX_CHECK_MODE): # exit if SYNTAX_CHECK_MODE is active

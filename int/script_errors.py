@@ -229,6 +229,9 @@ class ScriptErrors:
         """
         log(SC_ER, DEBUG, f"Error parameters: start_line={pos.start.line} start_col={pos.start.col} end_line={pos.end.line} end_col={pos.end.col} code={code} msg={msg}")
 
+        if(code is None):
+            code = "???-?"
+
         if test_mode_enabled():
             error_index = self.error_count
             log_test(f"ERROR_LINE_START[{error_index}]={pos.start_line()}")
