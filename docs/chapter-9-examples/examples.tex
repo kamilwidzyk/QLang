@@ -1,0 +1,58 @@
+\section{Examples of Usage}\label{sec:examples}
+
+\Needspace{8\baselineskip}
+\subsection{Example: Quantum Teleportation}
+\label{sec:teleportation}
+
+Quantum teleportation transfers the state of a qubit from one place to
+another using a shared entangled pair and two classical bits of
+communication. The sender measures their qubits and sends the classical
+results; the receiver applies correction gates based on those results to
+recover the original state.
+
+\input{chapter-5-quantum-computing/qlang/teleportation.tex}
+% tu sie doda wynik
+
+% ─────────────────────────────────────────────
+\Needspace{8\baselineskip}
+\subsection{Example: Superdense Coding}
+\label{sec:superdense}
+
+Superdense coding allows two classical bits of information to be
+transmitted using only one qubit, provided the sender and receiver share
+an entangled pair beforehand. The sender encodes the two bits by applying
+gates to their half of the pair and sends the qubit; the receiver decodes
+both bits by measuring the pair jointly.
+
+\input{chapter-5-quantum-computing/qlang/superdense_coding.tex}
+
+% tu sie doda wynik
+
+
+\Needspace{8\baselineskip}
+\subsection{Example: Distributed Prime Checker}
+\label{sec:worker-prime-example}
+
+The following example demonstrates a manager-worker pattern where a
+\texttt{Manager} place distributes tasks to four \texttt{Worker} places and
+collects results. Each worker checks whether a number is prime and sends back
+the result. To avoid duplicating code, the actual worker logic is written in a
+separate file (\texttt{worker\_code.ql}) and included using the
+\texttt{<< ""..."" >>} operator.
+
+The main program (\texttt{worker\_prime.ql}):
+
+\input{chapter-6-places-and-communication/qlang/worker_prime.tex}
+
+And the corresponding \texttt{worker\_code.ql} file that is included by each worker:
+
+\input{chapter-6-places-and-communication/qlang/worker_code.tex}
+
+The Manager dispatches numbers to workers in round-robin fashion. Each worker
+runs in a loop, receiving tasks, computing results, and sending them back.
+When the maximum number is reached, the Manager sends a shutdown signal
+(\texttt{-1}) to each worker. The \texttt{send}/\texttt{receive} pair with
+\texttt{named "task"} and \texttt{named "result"} ensures that task packets
+and result packets are never confused.
+
+

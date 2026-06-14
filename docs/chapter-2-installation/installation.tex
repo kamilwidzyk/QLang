@@ -1,0 +1,34 @@
+\section{Installation \& Setup}\label{sec:installation-and-setup}
+
+% ─────────────────────────────────────────────
+\subsection{Requirements}\label{sec:requirements}
+
+Before you can run a QLang program, ensure your system meets the following requirements:
+
+\begin{itemize}
+    \item \textbf{Python 3.14}.
+    \item \textbf{uv}.
+    \item \textbf{Java Runtime Environment (JRE)}.
+\end{itemize}
+
+% ─────────────────────────────────────────────
+\subsection{Running a QLang Program}\label{sec:running}
+
+QLang source files use the \texttt{.ql} extension. To execute a QLang program, pass the file path to the interpreter.
+
+\begin{codebox}
+run.bat <path-to-.ql-file>
+\end{codebox}
+
+% ─────────────────────────────────────────────
+\subsection{Project Structure}\label{sec:project-structure}
+
+The QLang repository is organized as follows:
+
+\begin{itemize}
+    \item \texttt{int/} — Contains the core interpreter logic, AST generation, memory management, and runtime contexts.
+    \item \texttt{antlr/} — Contains the ANTLR4 grammar file (\texttt{QLang.g4}) and tools for generating the parser.
+    \item \texttt{examples/} — A collection of sample \texttt{.ql} scripts demonstrating language features.
+    \item \texttt{docs/} — The LaTeX source for this documentation.
+    \item \texttt{run.bat} — The script to generate the parser and execute \texttt{.ql} files.
+\end{itemize}

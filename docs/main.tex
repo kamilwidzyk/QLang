@@ -2,7 +2,7 @@
 \usepackage[a4paper, margin=1.5cm]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[polish]{babel}
+\usepackage[english]{babel}
 \usepackage{amsmath}
 \usepackage{fontspec}
 \usepackage{unicode-math}
@@ -11,6 +11,7 @@
 \usepackage{verbatim}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{longtable}
 \tcbuselibrary{listings,breakable,skins}
 \usepackage{caption}
 \captionsetup{justification=raggedright}
@@ -30,11 +31,7 @@
     \IfStrEq{#1}{section}{%
         \hyperref[#2]{Section~\ref*{#2} -- \getrefname{#2}}%
     }{%
-        \IfStrEq{#1}{table}{%
-            \hyperref[#2]{Table~\ref*{#2} -- \getrefname{#2}}%
-        }{%
-            \hyperref[#2]{\getrefname{#2}}%
-        }%
+        \hyperref[#2]{\getrefname{#2}}%
     }%
 }
 
@@ -69,14 +66,6 @@
 
 \addto\captionspolish{%
   \renewcommand{\contentsname}{Contents}
-}
-
-\addto\captionspolish{
-  \renewcommand{\figurename}{Figure}
-}
-
-\addto\captionspolish{
-  \renewcommand{\tablename}{Table}
 }
 
 \newtcblisting{codebox}{
@@ -173,41 +162,60 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\input{chapter-2-language-basics/language_basics}
+\input{chapter-2-installation/installation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%   Chapter 3   %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\input{chapter-3-quantum-computing/quantum-computing}
+\input{chapter-3-language-basics/language_basics}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%   Chapter 4   %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\input{chapter-4-control-flow-and-scope-management/control-flow-and-scope-management}
+\input{chapter-4-scope-and-arrays/scope_and_arrays}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%   Chapter 5   %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newpage
-\input{chapter-5-places-and-communication/places-and-communication}
+\input{chapter-5-quantum-computing/quantum-computing}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Chapter 6   %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newpage
+\input{chapter-6-places-and-communication/places-and-communication}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Chapter 7   %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newpage
+\input{chapter-7-standard-library/standard_library}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Chapter 8   %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\input{chapter-8-debugging/debugging}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%   Chapter 9   %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\input{chapter-9-examples/examples}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%   Chapter E   %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% WARNING: Change section couter to letters starting from 'E'
-\renewcommand{\thesection}{\Alph{section}}
-\renewcommand{\theHsection}{appendix.\Alph{section}}
-\setcounter{section}{4}
 
 \newpage
 \input{chapter-E-error-codes/error_codes}
