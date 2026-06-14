@@ -57,6 +57,7 @@ _LATEX_ESCAPES = {
     '~': '\\~{}',
     '"': '\\string"',
     "'": '\\string\'',
+    '@': '\\string@',
 }
 
 

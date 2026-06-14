@@ -1,0 +1,7 @@
+(*@\textcolor{codebox_type}{\textbf{const}}@*) (*@\textcolor{codebox_type}{\textbf{obs}}@*) (*@\textcolor{black}{MAX\_SIZE}@*)(*@\textcolor{codebox_comment}{[}@*)(*@\textcolor{codebox_number}{8}@*)(*@\textcolor{codebox_operator}{]}@*) (*@\textcolor{codebox_operator}{=}@*) (*@\textcolor{codebox_number}{100}@*)(*@\textcolor{codebox_operator}{;}@*)   (*@\textcolor{codebox_comment}{// sized obs constant}@*)
+(*@\textcolor{codebox_type}{\textbf{const}}@*) (*@\textcolor{codebox_type}{\textbf{num}}@*) (*@\textcolor{black}{EPSILON}@*) (*@\textcolor{codebox_operator}{=}@*) (*@\textcolor{codebox_number}{0.0001}@*)(*@\textcolor{codebox_operator}{;}@*)    (*@\textcolor{codebox_comment}{// num constant}@*)
+
+(*@\textcolor{codebox_type}{\textbf{num}}@*) (*@\textcolor{black}{x}@*) (*@\textcolor{codebox_operator}{=}@*) (*@\textcolor{codebox_number}{10}@*)(*@\textcolor{codebox_operator}{;}@*)
+(*@\textcolor{black}{x}@*)++(*@\textcolor{codebox_operator}{;}@*)       (*@\textcolor{codebox_comment}{// still mutable}@*)
+(*@\textcolor{codebox_type}{\textbf{const}}@*) (*@\textcolor{black}{x}@*)(*@\textcolor{codebox_operator}{;}@*)   (*@\textcolor{codebox_comment}{// freeze: further assignments raise an error}@*)
+

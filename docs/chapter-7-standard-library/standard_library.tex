@@ -1,0 +1,57 @@
+\section{Standard Library}\label{sec:standard-library}
+
+This chapter documents the standard library built-in functions and additional operator overloads. These features provide native support for generating random values, mathematical rounding, and specific string/array operations.
+
+% ─────────────────────────────────────────────
+\subsection{Random Generation}\label{sec:random-generation}
+
+QLang includes globally available built-in functions for generating random values. These functions do not support keyword arguments.
+
+\begin{itemize}
+    \item \texttt{seed(value)} — Initializes the internal pseudorandom number generator with the specified numeric seed. If called with no arguments, it returns the current seed.
+    \item \texttt{random()} — Returns a pseudorandom number in the range $[0.0, 1.0)$.
+\end{itemize}
+
+% ─────────────────────────────────────────────
+\subsection{Mathematical Rounding}\label{sec:math-rounding}
+
+The rounding functions take a numeric value and an optional \texttt{decimals} argument. If \texttt{decimals} is omitted or is less than or equal to $0$, the function removes any fractional part (returning a whole number). Otherwise, it returns a number rounded to the specified fractional precision.
+
+\begin{itemize}
+    \item \texttt{cut(val, decimals=0)} — Truncates the fractional part of \texttt{val} towards zero.
+    \item \texttt{round(val, decimals=0)} — Rounds \texttt{val} to the nearest number. Halfway values are rounded away from zero.
+    \item \texttt{floor(val, decimals=0)} — Returns the largest whole number less than or equal to \texttt{val}.
+    \item \texttt{ceil(val, decimals=0)} — Returns the smallest whole number greater than or equal to \texttt{val}.
+\end{itemize}
+
+\input{chapter-7-standard-library/qlang/stdlib.tex}
+
+% ─────────────────────────────────────────────
+\subsection{Advanced Operator Overloading}\label{sec:adv-operator-overloading}
+
+QLang provides implicit operator overloads for \texttt{text} variables and arrays. These operators perform data transformations, such as string manipulation and array concatenation.
+
+\begin{center}
+\begin{tabular}{|p{3cm}|p{9cm}|}
+\hline
+\textbf{Expression} & \textbf{Behavior} \\
+\hline
+\texttt{text - text} & 
+    Removes all occurrences of the characters present in the right-hand string from the left-hand string. \\
+\hline
+\texttt{text * num} & 
+    Repeats the text a specified number of times. \\
+\hline
+\texttt{text / text} & 
+    Splits the left-hand string by the right-hand separator string, returning an array of parts. \\
+\hline
+\texttt{array + array} & 
+    Concatenates two arrays into a single array. \\
+\hline
+\texttt{array + element} & 
+    Appends a single element to the end of the array. \\
+\hline
+\end{tabular}
+\end{center}
+
+\input{chapter-7-standard-library/qlang/overloads.tex}
