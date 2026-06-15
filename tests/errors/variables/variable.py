@@ -238,10 +238,10 @@ def test_errors_variable_shape_mismatch() -> bool:
         return False
 
     if not print_error_entry(
-        line_start=-1, 
-        line_end=-1, 
-        col_start=-1, 
-        col_end=-1, 
+        line_start=2, 
+        line_end=2, 
+        col_start=5, 
+        col_end=13, 
         code="SM-1"
         ):
         return False

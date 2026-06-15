@@ -1,0 +1,248 @@
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py control\for control_for
+RET: 0
+STDOUT:
+[34mRunning tests in for.py...[0m
+[32m     >>>>> Running test_control_for <<<<<[0m
+FOR1
+
+Expected: FOR1\n0 1 2 3 4 \nFOR2\n5 4 3 2 1 \nFOR3\n5 6 7 8 9 \nFOR4\n5 7 9 \nFOR5\n0 1 3 7 \nFOR6\n5 6 7 \nFOR7\n10 8 6 4 2 \nFOR8\n0 1 3 7 10 11 13 17 \nFOR9\n0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 \nFOR10\n0 12\n1 12\n2 12\n
+Got: FOR1\n
+[33m     >>>>> Finished test_control_for <<<<<[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | control\for\for.py[36m -> [0mcontrol_for [2m[37m[uv run python -m tests.test control\for control_for][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py control_flow\wait wait_statement
+RET: 0
+STDOUT:
+[34mRunning tests in wait.py...[0m
+[32m     >>>>> Running test_wait_statement <<<<<[0m
+Expected: Start\nWaited 500ms\nWaited 1s\nWaited 0.1s\n
+Got: Start\nWaited 500ms\n
+[33m     >>>>> Finished test_wait_statement <<<<<[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | control_flow\wait\wait.py[36m -> [0mwait_statement [2m[37m[uv run python -m tests.test control_flow\wait wait_statement][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py errors\operators\math\divide_by_zero errors_operators_math_divide_by_zero
+RET: 0
+STDOUT:
+[34mRunning tests in div_by_0.py...[0m
+[32m     >>>>> Running test_errors_operators_math_divide_by_zero <<<<<[0m
+[31mERROR_ENTRY: line 3..3, col 14..15, code=DBZ-2 [FAIL][0m
+No exact error match found for expected entry.
+No error entries found at all.
+[33m     >>>>> Finished test_errors_operators_math_divide_by_zero <<<<<[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | [33mERRORS [0merrors\operators\math\divide_by_zero\div_by_0.py[36m -> [0merrors_operators_math_divide_by_zero [2m[37m[uv run python -m tests.test errors\operators\math\divide_by_zero errors_operators_math_divide_by_zero][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py errors\operators\math\divide_by_zero errors_operators_math_divide_eq_zero
+RET: 0
+STDOUT:
+[34mRunning tests in div_by_0.py...[0m
+[32m     >>>>> Running test_errors_operators_math_divide_eq_zero <<<<<[0m
+[31mERROR_ENTRY: line 4..4, col 6..7, code=DBZ-1 [FAIL][0m
+No exact error match found for expected entry.
+No error entries found at all.
+[33m     >>>>> Finished test_errors_operators_math_divide_eq_zero <<<<<[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | [33mERRORS [0merrors\operators\math\divide_by_zero\div_by_0.py[36m -> [0merrors_operators_math_divide_eq_zero [2m[37m[uv run python -m tests.test errors\operators\math\divide_by_zero errors_operators_math_divide_eq_zero][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py errors\operators\math\mod_over_zero errors_operators_math_modulo_over_zero
+RET: 0
+STDOUT:
+[34mRunning tests in mod_over_zero.py...[0m
+[32m     >>>>> Running test_errors_operators_math_modulo_over_zero <<<<<[0m
+[31mERROR_ENTRY: line 3..3, col 6..7, code=MOZ-1 [FAIL][0m
+No exact error match found for expected entry.
+No error entries found at all.
+[33m     >>>>> Finished test_errors_operators_math_modulo_over_zero <<<<<[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | [33mERRORS [0merrors\operators\math\mod_over_zero\mod_over_zero.py[36m -> [0merrors_operators_math_modulo_over_zero [2m[37m[uv run python -m tests.test errors\operators\math\mod_over_zero errors_operators_math_modulo_over_zero][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py errors\operators\math\mod_over_zero errors_operators_math_modulo_eq_zero
+RET: 0
+STDOUT:
+[34mRunning tests in mod_over_zero.py...[0m
+[32m     >>>>> Running test_errors_operators_math_modulo_eq_zero <<<<<[0m
+[31mERROR_ENTRY: line 4..4, col 6..7, code=MOZ-2 [FAIL][0m
+No exact error match found for expected entry.
+No error entries found at all.
+[33m     >>>>> Finished test_errors_operators_math_modulo_eq_zero <<<<<[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | [33mERRORS [0merrors\operators\math\mod_over_zero\mod_over_zero.py[36m -> [0merrors_operators_math_modulo_eq_zero [2m[37m[uv run python -m tests.test errors\operators\math\mod_over_zero errors_operators_math_modulo_eq_zero][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py errors\operators\something_equal errors_operators_div_equal
+RET: 0
+STDOUT:
+[34mRunning tests in something_equal.py...[0m
+[32m     >>>>> Running test_errors_operators_div_equal <<<<<[0m
+[31mERROR_ENTRY: line 6..6, col 1..2, code=ATE-3 [FAIL][0m
+No exact error match found for expected entry.
+No error entries found at all.
+[33m     >>>>> Finished test_errors_operators_div_equal <<<<<[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | [33mERRORS [0merrors\operators\something_equal\something_equal.py[36m -> [0merrors_operators_div_equal [2m[37m[uv run python -m tests.test errors\operators\something_equal errors_operators_div_equal][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py function\call function_call
+RET: 0
+STDOUT:
+[34mRunning tests in call.py...[0m
+[32m     >>>>> Running test_function_call <<<<<[0m
+F1
+F2 x=10
+F3 x=5 y=10
+F4 x=5 y=10 z=15
+
+Expected: F1\nF2 x=10\nF3 x=5 y=10\nF4 x=5 y=10 z=15\n10\nF6\n
+Got: F1\nF2 x=10\nF3 x=5 y=10\nF4 x=5 y=10 z=15\n
+[33m     >>>>> Finished test_function_call <<<<<[0m
+[34mRunning tests in use_args.py...[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | function\call\call.py[36m -> [0mfunction_call [2m[37m[uv run python -m tests.test function\call function_call][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py imports imports
+RET: 0
+STDOUT:
+[34mRunning tests in imports.py...[0m
+[32m     >>>>> Running test_imports <<<<<[0m
+
+Expected: 5\n1\n2\n3\n
+Got: 
+[33m     >>>>> Finished test_imports <<<<<[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | imports\imports.py[36m -> [0mimports [2m[37m[uv run python -m tests.test imports imports][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================
+RUN: c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\.venv\Scripts\python.exe c:\Users\widzy\Desktop\Kompilatory git\Kompilatory 3\Kompilatory\tests\test.py io\print io_print
+RET: 0
+STDOUT:
+[34mRunning tests in print.py...[0m
+[32m     >>>>> Running test_io_print <<<<<[0m
+This is a string
+This is a string + a number: 42
+This is a string + a list: [1, 2, 3]
+This is a string + a list of strings: [a, b, c]
+42 is a number + a string
+[1, 2, 3] is a list + a string
+[a, b, c] is a list of strings + a string
+This is a string concatenated with another string
+This is a string concatenated with a list: [1, 2, 3]
+This is a string and a mixed list: [1, two, 3.0]
+This is a string and a nested list: [1, [2, 3], 4]
+This is a string and a nested list of strings: [a, [b, c], d]
+This is a string [a, b, c] concatenated with a list and another string
+
+Expected: This is a string\nThis is a string + a number: 42\nThis is a string + a list: [1, 2, 3]\nThis is a string + a list of strings: [a, b, c]\n42 is a number + a string\n[1, 2, 3] is a list + a string\n[a, b, c] is a list of strings + a string\nThis is a string concatenated with another string\nThis is a string concatenated with a list: [1, 2, 3]\nThis is a string and a mixed list: [1, two, 3.0]\nThis is a string and a nested list: [1, [2, 3], 4]\nThis is a string and a nested list of strings: [a, [b, c], d]\nThis is a string [a, b, c] concatenated with a list and another string\nThe value of x is: 10\nThe value of y is: 3.14\nThe value of a is: T\nThe value of b is: 8\nThe value of s is: Hello, World!\nThe value of z is: [1, 2, 3, 4.0]\n
+Got: This is a string\nThis is a string + a number: 42\nThis is a string + a list: [1, 2, 3]\nThis is a string + a list of strings: [a, b, c]\n42 is a number + a string\n[1, 2, 3] is a list + a string\n[a, b, c] is a list of strings + a string\nThis is a string concatenated with another string\nThis is a string concatenated with a list: [1, 2, 3]\nThis is a string and a mixed list: [1, two, 3.0]\nThis is a string and a nested list: [1, [2, 3], 4]\nThis is a string and a nested list of strings: [a, [b, c], d]\nThis is a string [a, b, c] concatenated with a list and another string\n
+[33m     >>>>> Finished test_io_print <<<<<[0m
+[30m
+
+[42m          #####>-- Test results: --<#####          [0m
+
+  [31mFAILED[0m | io\print\print.py[36m -> [0mio_print [2m[37m[uv run python -m tests.test io\print io_print][0m
+
+[37m[1mSummary: 0/1 tests passed.
+[0m
+[31m	1 failed test![0m
+
+
+STDERR:
+
+================================================================================

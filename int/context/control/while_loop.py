@@ -6,7 +6,7 @@ from ...script_errors import ScriptErrors
 if TYPE_CHECKING:
     from place import Place
 
-from ..statement import BreakLoop
+from ..statement.continue_break import BreakLoop
 
 from .if_condition import check_condition
 

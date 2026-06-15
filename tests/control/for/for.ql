@@ -92,8 +92,8 @@ for i from 0 to 3 {
     function increase_x(){
         x += 2;
     }
-
     num x = 10;
+
 
     increase_x();
 

@@ -9,7 +9,7 @@ from ..exception.invalid_payload import PacketPayloadInvalidException
 
 from ..script_errors import ScriptErrors
 from ..consts import *
-from ..expression import Expression, TYPE_BOOL, TYPE_INT, TYPE_LIST, TYPE_NUM, TYPE_OBS, TYPE_STATE, TYPE_TEXT
+from ..expression import Expression, TYPE_BOOL, TYPE_INT, TYPE_LIST, TYPE_NUM, TYPE_OBS, TYPE_STATE, TYPE_TEXT, ValueResolver
 from ..variable import Variable
 from ..obs import Obs, ObsRegister
 from ..text import Text
@@ -147,6 +147,8 @@ def _serialize_value(value: Any, var_type: Any) -> Any:
     """
     Prepare value for travel thru the network
     """
+    #print("serialize input: ", value)
+    #print("serialize input type: ", type(value))
     if isinstance(value, list):
         return [_serialize_value(v, var_type) for v in value]
 
@@ -162,6 +164,9 @@ def _serialize_value(value: Any, var_type: Any) -> Any:
                 return {'__qstate__': True, 'uid': value.value.uid}
             # Fallback: try to serialize the raw value
             return _serialize_value(value.value)
+        else:
+            #print("Expression, not state")
+            return _serialize_value(value.get().value, value.type)
 
     if isinstance(value, State):
         return {'__qstate__': True, 'uid': value.uid}
@@ -176,8 +181,9 @@ def _serialize_value(value: Any, var_type: Any) -> Any:
         return {'__num__': value.get_value()} 
 
     if isinstance(value, Text):
-        return {'__text__': value.value}
-
+        print("Text detected")
+        return {'__text__': value.get()}
+    
     return value
 
 
@@ -185,8 +191,10 @@ def _serialize_variable(variable: Variable) -> Any:
     """
     Duplicate from older version
     """
-    print("Serializing variable:", variable.name, "of type:", variable.type)
-    print("serialized: ", _serialize_value(variable.data, variable.type))
+    #print("Serializing variable:", variable.name, "of type:", variable.type)
+    #print("data:", variable.data)
+    #print("data type: ", type(variable.data))
+    #print("serialized: ", _serialize_value(variable.data, variable.type))
     return _serialize_value(variable.data, variable.type)
 
 
@@ -322,6 +330,9 @@ def handle_send_statement(self: Place, block: Any, parent: Any, pos: ScriptError
             )
 
     variable = handle_variable_expression(self, expr_ctx, block, ScriptErrors.Position.extract(expr_ctx), return_variable=True)
+    #print("+++++++++++++++++ send_statement: variable:", variable)
+    #print("+++++++++++++++++ send_statement: variable type:", variable.type)
+    #print("+++++++++++++++++ send_statement: variable get:", variable.get().get().get())
 
     size = None
 
@@ -413,12 +424,15 @@ def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: Script
         log_packet=self.packet_log_enabled,
     )
 
+    #print("RECEIVED PAYLOAD: ", payload)
+
     if var_type == TYPE_STATE:
         received_data = _deserialize_value(self, payload, TYPE_STATE)
         var = Variable(var_name, var_type, dimensions, quantum_client=self.quantum_client, initial_data=received_data)
     else:
         var = Variable(var_name, var_type, dimensions, quantum_client=self.quantum_client)
         deserialized = _deserialize_value(self, payload, var_type)
+        #print("DESERIALIZED: ", deserialized)
         if dimensions != [0]:
             var.set(Expression(TYPE_LIST, deserialized))
         else:
@@ -427,13 +441,13 @@ def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: Script
             elif var_type == TYPE_NUM:
                 var.set(Expression(TYPE_NUM, deserialized))
             elif var_type == TYPE_TEXT:
-                var.set(Expression(TYPE_TEXT, deserialized))
+                var.set(deserialized)
             else:
                 var.set(Expression(TYPE_INT, deserialized))
 
-    print("Receive scope create")
-    print(var_name, var, type(var))
-    print(var.get().get_value())
+    #print("Receive scope create")
+    #print(var_name, var, type(var))
+    #print(var.get().get_value())
     self.scopes.create(var_name, var)
 
 

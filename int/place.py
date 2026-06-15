@@ -27,7 +27,7 @@ FloatCastExprContext = QLangParser.FloatCastExprContext
 from .exception.exit_exception import ExitException
 
 ######################## CONTEXT HANDLERS #############################
-from .context.statement              import handle_statement
+from .context.statement.statement              import handle_statement
 
 ##### VARIABLES #####
 from .context.variable.declaration   import handle_variable_declaration, handle_const_variable_declaration
@@ -100,6 +100,8 @@ from .context.quantum import handle_gate_statement, handle_measure_expr
 from .context.operator.parent import handle_operator_parent
 from .context.operator.const import handle_operator_const
 from .context.network import handle_send_statement, handle_receive_declaration, handle_available_expression
+
+from .context.statement.continue_break import handle_continue, handle_break
 
 class Place:
     """
@@ -179,7 +181,7 @@ class Place:
         """
         Executes given block of code in the context of this place.
         """
-        from .context.statement import ContinueLoop
+        from .context.statement.continue_break import ContinueLoop
 
         if isinstance(block, BlockCtx):
             for child in self.handle_block(block, parent=parent):
@@ -234,7 +236,8 @@ class Place:
 
 
 
-
+            breakStatementCtx:          handle_break,
+            continueStatementCtx:       handle_continue,
             IoStmtCtx:              handle_io_statement,
             VarExprCtx:             handle_variable_expression,
             PlaceMemberCtx:         handle_place_member,

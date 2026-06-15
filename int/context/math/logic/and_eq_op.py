@@ -11,7 +11,7 @@ from ....operations.variables import do_variable_assignment
 if TYPE_CHECKING:
     from place import Place
 
-
+from ....expression import Expression, TYPE_BOOL
 
 def handle_and_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     # expr '&=' expr
@@ -27,8 +27,10 @@ def handle_and_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
 
     left_variable = handle_variable_expression(self, left_expr, block, pos, return_variable=True)
 
-    new_value = do_operation_and(left_variable.get(), right_value)
-    return do_variable_assignment(self, left_variable, new_value, pos)
+    bool_result = do_operation_and(left_variable.get(), right_value).value
+
+    do_variable_assignment(self, left_variable, bool_result, pos)
+    return Expression(TYPE_BOOL, bool_result)
 
     
     

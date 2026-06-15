@@ -1,2 +1,2 @@
 obs key[?] = [];
-print("OK");
+println("OK");

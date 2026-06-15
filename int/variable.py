@@ -27,6 +27,8 @@ class Variable:
         self.is_dynamic = any(isinstance(d, int) and d < 0 for d in dimensions)
         self.data = None
         self.is_list = False
+        if not self.is_dynamic and initial_data is not None and isinstance(initial_data, list) and self.dimensions == [0]:
+            self.is_dynamic = True
         self.index = index # this is used when handler returns a Variable with access index
         self.quantum_client = quantum_client
         self.initial_value = None
@@ -49,8 +51,11 @@ class Variable:
             exit()
 
         if initial_data is not None:
-            self.data = initial_data
-            self.is_list = isinstance(initial_data, list)
+            if self.is_dynamic and isinstance(initial_data, list):
+                self.data = ValueResolver.wrap_list(self.type, initial_data, self.quantum_client)
+            else:
+                self.data = initial_data
+            self.is_list = isinstance(self.data, list)
 
     def _create_array_of(self, cls, dimensions, size=None):
         if not dimensions:
@@ -98,7 +103,7 @@ class Variable:
         else:
             self.data = Text("")
     
-    def assign_values(self, data, values):
+    def assign_values(self, data, values, is_dynamic=False):
         if isinstance(values, Expression):
             values = values.value
         if isinstance(data, list):
@@ -110,19 +115,27 @@ class Variable:
                     right_shape=0,
                     code="1"
                 )
-            if len(data) != len(values):
-                # code SM-1
-                raise ShapeMismatchException(
-                    pos=ScriptErrors.UNKNOWN_POSITION,
-                    left_shape=len(data),
-                    right_shape=len(values),
-                    code="1"
-                )
-        
-            for d, v in zip(data, values):
-                self.assign_values(d, v)
+            
+            if is_dynamic:
+                for i in range(len(values)):
+                    if i < len(data):
+                        self.assign_values(data[i], values[i], is_dynamic)
+                    else:
+                        data.append(values[i])
+            else:
+                if len(data) != len(values) and not is_dynamic:
+                    # code SM-1
+                    raise ShapeMismatchException(
+                        pos=ScriptErrors.UNKNOWN_POSITION,
+                        left_shape=len(data),
+                        right_shape=len(values),
+                        code="1"
+                    )
+            
+                for d, v in zip(data, values):
+                    self.assign_values(d, v, is_dynamic)
         else:
-            val = values.extract_raw_value() if hasattr(values, 'extract_raw_value') else Expression._extract_value_from(values)
+            val = ValueResolver.extract_raw_value(values)
             data.set(val)
 
     def set(self, new_value: Expression, allow_const_init: bool = False, pos: ScriptErrors.Position = None):
@@ -210,33 +223,37 @@ class Variable:
                 if new_value.type != TYPE_LIST:
                     log(VARIABLE, FATAL, "List expression required")
                     exit()
-                self.assign_values(element, new_value.value)
+                self.assign_values(element, new_value.value, self.is_dynamic)
             else:
-                val = new_value.value.extract_raw_value() if hasattr(new_value.value, 'extract_raw_value') else Expression._extract_value_from(new_value.value)
+                val = ValueResolver.extract_raw_value(new_value)
                 element.set(val)
             return
 
         if self.is_list:
+            if isinstance(new_value, list):
+                self.assign_values(self.data, new_value, self.is_dynamic)
+                return
+
             if new_value.type != TYPE_LIST and not (new_value.shape is not None and new_value.shape != [0]):
                 log(VARIABLE, FATAL, "List expression required")
                 exit()
 
             if self.is_dynamic:
-                self.data = new_value.value
+                self.data = ValueResolver.wrap_list(self.type, new_value.value, self.quantum_client)
                 self.is_list = isinstance(self.data, list)
                 return
 
-            self.assign_values(self.data, new_value.value)
+            self.assign_values(self.data, new_value.value, self.is_dynamic)
         else:
             if isinstance(self.data, Text):
                 # Setting entire string
-                self.data.value = str(new_value.value) if new_value.value is not None else ""
+                self.data.value = str(new_value) if new_value is not None else ""
             elif self.type == "Function":
                 self.data = new_value.extract_raw_value() if hasattr(new_value, 'extract_raw_value') else Expression._extract_value_from(new_value)
             elif self.type == TYPE_STATE and self.declared_type == TYPE_ANY:
-                self.data = new_value.extract_raw_value() if hasattr(new_value, 'extract_raw_value') else Expression._extract_value_from(new_value)
+                self.data = ValueResolver.extract_raw_value(new_value)
             else:
-                val = new_value.value.extract_raw_value() if hasattr(new_value.value, 'extract_raw_value') else Expression._extract_value_from(new_value.value)
+                val = ValueResolver.extract_raw_value(new_value)
                 self.data.set(val)
 
     def _default_scalar_value(self):
@@ -431,32 +448,19 @@ class Variable:
         return Expression(self.type, self.data, shape=len(self.data) if self.is_list else None)
     
     def get_value(self):
-        data = self.get()
-        if isinstance(data, Text):
-            return data.get()
-        elif isinstance(data, (Obs, Num)):
-            return data.get()
-        else:
-            return data
+        return ValueResolver.extract_raw_value(self.data)
         
     def _extract_value_from(value):
-        if isinstance(value, (Expression, Variable)):
-            return Expression._extract_value_from(value.get_value())
-        return value
+        return ValueResolver.extract_raw_value(value)
 
     def extract_value(self):
-        return Expression._extract_value_from(self)
+        return ValueResolver.extract_raw_value(self)
 
     def extract_raw_value(self):
-        val = self
-        while hasattr(val, 'get_value'):
-            val = val.get_value()
-        return val
+        return ValueResolver.extract_raw_value(self)
         
     def __get_other_value(self, other):
-        while hasattr(other, 'get_value'):
-            other = other.get_value()
-        return other
+        return ValueResolver.resolve_for_operation(other)
 
     
     def __lt__(self, other):

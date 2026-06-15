@@ -6,7 +6,7 @@ from ...consts import *
 from ...num import Num
 from ...expression import Expression, TYPE_BOOL, TYPE_INT, TYPE_FLOAT, TYPE_LIST, TYPE_TEXT
 
-from ..statement import BreakLoop, ContinueLoop
+from ..statement.continue_break import BreakLoop, ContinueLoop
 
 if TYPE_CHECKING:
     from place import Place
@@ -98,7 +98,7 @@ def handle_iterate(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posit
     try:
         for idx, element in enumerate(elements): # iterate over the list
             self.scopes.push(pos, scope_type="iterate_iteration")
-            
+            continue_requested = False
             try:
                 # set the iteration variable to the current element
                 element_var = _expression_from_element(element, elements.dimensions if isinstance(elements, Expression) and elements.type == TYPE_LIST else None)
@@ -112,10 +112,18 @@ def handle_iterate(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posit
                 # execute the loop block
                 try:
                     self.execute_block(block.block(), block)
+                except ContinueLoop:
+                    #print("continue catched, skipping to next iteration.")
+                    continue_requested = True
                 except BreakLoop:
+                    #print("break catched, exiting loop.")
                     break
             finally:
                 self.scopes.pop()
+
+            if continue_requested:
+                #print("Continue requested, skipping to next iteration.")
+                continue
     
     finally:
         self.scopes.pop()

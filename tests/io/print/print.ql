@@ -21,17 +21,20 @@ println("The value of y is: " + y);
 obs a = 1;
 println("The value of a is: " + a);
 
-obs b[5] = 8;
-println("The value of b is: " + (b >> num));
+obs b[?] = 8 >5> obs;
+println("The value of b is: " + b);
 
 text s = "Hello, World!";
 println("The value of s is: " + s);
 
-num z = [1, 2, 3, 4.0];
+num z[?] = [1, 2, 3, 4.0];
 println("The value of z is: " + z);
 
-num nested_list = [1, [2, 3], 4];
+num nested_list[?] = [1, [2, 3], 4];
 println("The value of nested_list is: " + nested_list);
+
+obs bits[?] = (123 >10> obs);
+println("The value of bits is: " + bits);
 
 
 

@@ -1,5 +1,6 @@
-from .logger import log,WARNING
+from typing import Any
 
+from .logger import log,WARNING
 from .expression import *
 
 
@@ -16,15 +17,11 @@ class Text:
     def set(self,new_value: str|Any):
         if isinstance(new_value, str):
             self.value = new_value
-        elif type(new_value).__name__ == "Expression":
-            self.value = str(new_value.value)
         else:
-            self.value = new_value
+            self.value = ValueResolver.to_primitive(new_value)
         
     def __get_other_value(self, other):
-        while hasattr(other, 'get_value'):
-            other = other.get_value()
-        return other
+        return ValueResolver.resolve_for_operation(other)
         
     def __len__(self):
         return len(self.value)
@@ -103,16 +100,9 @@ class Text:
         return not hasattr(item, 'get_value')
 
     def __get_value_of_list(self, other_list):
-        # fix this: every item in a list can be a list or a multileyered classes with 'get_value' method(value has to be exreacted until no 'get_value' attr is left)
-
-        if self.__is_item_extracted(other_list):
-            return other_list
-        
         if isinstance(other_list, list):
             return [self.__get_value_of_list(item) for item in other_list]
-        if hasattr(other_list, 'get_value'):
-            return self.__get_other_value(other_list)
-
+        return ValueResolver.extract_raw_value(other_list)
 
 
     def __mod__(self, other):

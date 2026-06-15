@@ -39,7 +39,7 @@ def handle_mod_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
         # code MOZ-2
         raise ModuloOverZeroException(ScriptErrors.Position.extract(right_expr), code="2")
 
-    new_value = do_operation_mod(var_value, right_value)
+    new_value = do_operation_mod(var_value, right_value).value
     left_variable.set(new_value)
     self.scopes.set(var_name, left_variable)
     return new_value

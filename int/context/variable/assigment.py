@@ -8,21 +8,14 @@ from ...consts import *
 from ...exception.cant_find_variable import CantFindVariableException
 from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ...index_types import SimpleIndex, RangeIndex, ListIndex
-from ...expression import TYPE_BOOL, TYPE_FLOAT, TYPE_INT, TYPE_NUM, TYPE_OBS, Expression, TYPE_STATE
+from ...expression import TYPE_BOOL, TYPE_FLOAT, TYPE_INT, TYPE_NUM, TYPE_OBS, Expression, TYPE_STATE, ValueResolver
 from ...variable import Variable
 
 if TYPE_CHECKING:
     from place import Place
 
 def _coerce_index_value(value):
-    if isinstance(value, Variable):
-        value = value.extract_raw_value()
-
-    if isinstance(value, Expression):
-        value = value.extract_raw_value()
-
-    if hasattr(value, "get_value"):
-        value = value.get_value()
+    value = ValueResolver.extract_raw_value(value)
 
     if isinstance(value, list):
         return [_coerce_index_value(item) for item in value]
@@ -162,7 +155,7 @@ def handle_assigment(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
         # code DQA-5
         raise DirectQuantumAccessException(pos=pos, code="5")
 
-    assign_val = self.handle_block(block.expr(), block)
+    assign_val = ValueResolver.resolve_for_operation(self.handle_block(block.expr(), block))
     var.set(assign_val, pos=pos)
     
     self.scopes.set(var.name, var)

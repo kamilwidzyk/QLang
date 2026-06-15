@@ -16,8 +16,7 @@ from ..variable import Variable
 from ..text import Text
 
 def is_string_or_text(expr) -> bool:
-    return (isinstance(expr, Expression) and expr.type in [TYPE_STRING, TYPE_TEXT]) \
-        or isinstance(expr, Text) or (isinstance(expr, Variable) and expr.type == TYPE_TEXT)
+    return ValueResolver.is_string_or_text(expr)
 
 
 def _resolve_indexed_variable(expr):
@@ -27,70 +26,43 @@ def _resolve_indexed_variable(expr):
 
 
 def is_list(expr) -> bool:
-    expr = _resolve_indexed_variable(expr)
-    return (isinstance(expr, Expression) and (expr.type == TYPE_LIST or isinstance(expr.value, list))) \
-        or (isinstance(expr, Variable) and (expr.type in [TYPE_LIST, TYPE_ARRAY] or expr.is_list)) \
-        or isinstance(expr, list) \
-        or (hasattr(expr, 'data') and isinstance(expr.data, list))
+    return ValueResolver.is_list(expr)
+
+def is_bool(expr) -> bool:
+    return ValueResolver.is_bool(expr)
 
 def extract_string(expr) -> str:
-    if isinstance(expr, Expression) and expr.type in [TYPE_STRING, TYPE_TEXT]:
-        return expr.value if expr.type == TYPE_STRING else expr.value.get()
-    elif isinstance(expr, Text):
-        return expr.get()
-    elif isinstance(expr, Variable) and expr.type == TYPE_TEXT:
-        return expr.data.get()
-    else:
-        # code: EAV-1
+    try:
+        return ValueResolver.extract_string(expr)
+    except Exception:
         raise ExpectedAValueException(ScriptErrors.Position(), "a string or text expression", code="1")
     
 def extract_list(expr) -> list:
-    expr = _resolve_indexed_variable(expr)
-    ret_val = None
-    if isinstance(expr, Expression) and (expr.type == TYPE_LIST or isinstance(expr.value, list)):
-        ret_val = expr.value
-    elif isinstance(expr, Variable) and (expr.type in [TYPE_LIST, TYPE_ARRAY] or expr.is_list):
-        ret_val = expr.data
-    elif isinstance(expr, list):
-        ret_val = expr
-    elif hasattr(expr, 'data') and isinstance(expr.data, list):
-        ret_val = expr.data
-    else:
-        # code: EAV-2
+    try:
+        return ValueResolver.extract_list(expr)
+    except Exception:
         raise ExpectedAValueException(ScriptErrors.Position(), "a list expression", code="2")
-    
-    if isinstance(ret_val, list):
-        return [x.get_value() if isinstance(x, Expression) else x for x in ret_val]
-    return ret_val
 
 def flatten_expressions_list(lst):
     return [x.get_value() if isinstance(x, Expression) else x for x in lst]
 
 
 def _extract_scalar_value(value):
-    if isinstance(value, Expression):
-        return _extract_scalar_value(value.get_value())
-    if isinstance(value, Variable):
-        return _extract_scalar_value(value.get_value())
-    if isinstance(value, bool):
-        return int(value)
-    if isinstance(value, (int, float)):
-        return value
-    if isinstance(value, Obs):
-        return int(value.get_value())
-    return value
+    raw = ValueResolver.resolve_for_operation(value)
+    if isinstance(raw, bool):
+        return int(raw)
+    if isinstance(raw, (int, float)):
+        return raw
+    if isinstance(raw, Obs):
+        return int(raw.get_value())
+    return raw
 
 
 def do_operation_bits_to_int(expr, pos: ScriptErrors.Position = None):
     pos = pos or ScriptErrors.Position()
-    if isinstance(expr, Expression) and isinstance(expr.value, list):
-        values = expr.value
-    elif isinstance(expr, list):
-        values = expr
-    elif hasattr(expr, 'data') and isinstance(expr.data, list):
-        values = expr.data
-    else:
-        # code: ONS-4
+    try:
+        values = ValueResolver.extract_list(expr)
+    except Exception:
         raise OperationNotSupportedException(pos, "Binary conversion requires a list of bits", code="4")
 
     if not isinstance(values, list):
@@ -99,12 +71,7 @@ def do_operation_bits_to_int(expr, pos: ScriptErrors.Position = None):
 
     total = 0
     for index, bit in enumerate(values):
-        if isinstance(bit, Expression):
-            bit = bit.get_value()
-        if isinstance(bit, Variable):
-            bit = bit.get_value()
-        if isinstance(bit, Obs):
-            bit = int(bit.get_value())
+        bit = ValueResolver.extract_raw_value(bit)
         if isinstance(bit, bool):
             bit = int(bit)
         if isinstance(bit, float):
@@ -126,11 +93,7 @@ def do_operation_bits_to_int(expr, pos: ScriptErrors.Position = None):
 
 def do_operation_int_to_bits(expr, size: int, pos: ScriptErrors.Position = None):
     pos = pos or ScriptErrors.Position()
-    value = expr
-    if isinstance(expr, Expression):
-        value = expr.get_value()
-    if isinstance(expr, Variable):
-        value = expr.get_value()
+    value = ValueResolver.resolve_for_operation(expr)
 
     if isinstance(value, bool):
         value = int(value)
@@ -177,12 +140,7 @@ def _list_shape(values):
 # FLOAT CAST
 def do_operation_float_cast(left, pos: ScriptErrors.Position = None): # left.0
     pos = pos or ScriptErrors.Position()
-    val = left
-    if isinstance(left, Expression):
-        val = left.get_value()
-    elif hasattr(left, 'get_value'):
-        val = left.get_value()
-        
+    val = ValueResolver.resolve_for_operation(left)
     try:
         return Expression(TYPE_FLOAT, float(val))
     except (ValueError, TypeError):
@@ -212,25 +170,32 @@ def do_operation_plus(right): # +right
     return right
 
 def convert_value(value):
-    result = None
-    if isinstance(value, (Num, ObsRegister, Text)):
-        result = convert_value(value.get_value())
-    if isinstance(value, Expression):
-        result = convert_value(value.get_value())
     if isinstance(value, Variable):
-        result = convert_value(value.get_value())
-    if isinstance(value, list):
-        result = [convert_value(x) for x in value]
-    if isinstance(value, (int, float)):
-        result = value
-    if isinstance(value, str):
-        result = value
-    if isinstance(value, bool):
-        result = 'T' if value else 'F'
-    if isinstance(value, Obs):
-        result = 'T' if value.get_value() else 'F'
+        value = value.get_value()
+    return ValueResolver.convert_value(value)
 
-    return result
+def force_to_string(value, inside_list=False):
+    if isinstance(value, list):
+        return '[' + ', '.join(force_to_string(item, inside_list=True) for item in value) + ']'
+    if isinstance(value, Obs):
+        return 'T' if value.get_value() else 'F'
+    if isinstance(value, bool):
+        return 'T' if value else 'F'
+    if isinstance(value, str):
+        if inside_list:
+            return '"' + value + '"'
+        return value
+    if isinstance(value, (int, float)):
+        return str(value)
+    if isinstance(value, Num):
+        return str(value.get_value())
+    if isinstance(value, Text):
+        if inside_list:
+            return '"' + value.get_value() + '"'
+        return value.get_value()
+    if isinstance(value, Expression):
+        return force_to_string(value.get_value(), inside_list=inside_list)
+    return str(value)
 
 # ADD
 def do_operation_add(left, right): # left + right
@@ -238,13 +203,23 @@ def do_operation_add(left, right): # left + right
         list_str = ", ".join(make_list_str(x) if isinstance(x, list) else str(x) for x in x)
         return "[" + list_str + "]"
     
+    if is_bool(left):
+        left = ValueResolver.extract_raw_value(left)
+        left = Expression(TYPE_INT, 1 if left else 0)
+
+    if is_bool(right):
+        right = ValueResolver.extract_raw_value(right)
+        right = Expression(TYPE_INT, 1 if right else 0)
+
+    
+    
     if is_string_or_text(left) and is_list(right):
         # string + list
         left_str = extract_string(left)
         right_list = extract_list(right)
         converted_list = convert_value(right_list)
         flat_list = flatten_expressions_list(converted_list)
-        list_str = make_list_str(flat_list)
+        list_str = force_to_string(flat_list)
         result = left_str + list_str
         return Expression(TYPE_STRING, result)
     
@@ -254,7 +229,7 @@ def do_operation_add(left, right): # left + right
         left_list = extract_list(left)
         converted_list = convert_value(left_list)
         flat_list = flatten_expressions_list(converted_list)
-        list_str = make_list_str(flat_list)
+        list_str = force_to_string(flat_list)
         result = list_str + right_str
         return Expression(TYPE_STRING, result)
 
@@ -264,28 +239,28 @@ def do_operation_add(left, right): # left + right
             right_list = extract_list(right)
             combined = left_list + right_list
         else:
-            right_val = right.get_value() if hasattr(right, 'get_value') else right
+            right_val = ValueResolver.resolve_for_operation(right)
             combined = left_list + [right_val]
         return Expression(TYPE_LIST, combined, shape=_list_shape(combined))
 
     if is_string_or_text(left) and hasattr(right, 'get_value'):
         # string + other
         left_str = extract_string(left)
-        right_val = convert_value(right.get_value())
-        result = left_str + str(right_val)
+        right_val = force_to_string(right.get_value())
+        result = left_str + right_val
         return Expression(TYPE_STRING, result)
     
     if is_string_or_text(right) and hasattr(left, 'get_value'):
         # other + string
         right_str = extract_string(right)
-        left_val = convert_value(left.get_value())
-        result = str(left_val) + right_str
+        left_val = force_to_string(left.get_value())
+        result = left_val + right_str
         return Expression(TYPE_STRING, result)
     
     if is_string_or_text(left) or is_string_or_text(right):
         # String concatenation
-        left_str = str(left.value) if left.value is not None else ""
-        right_str = str(right.value) if right.value is not None else ""
+        left_str = ValueResolver.extract_string(left)
+        right_str = ValueResolver.extract_string(right)
         return Expression(TYPE_STRING, left_str + right_str)
     
     result_type = get_max_type(left, right)
@@ -293,6 +268,15 @@ def do_operation_add(left, right): # left + right
 
 # SUB
 def do_operation_sub(left, right): # left - right
+    if is_bool(left):
+        left = ValueResolver.extract_raw_value(left)
+        left = Expression(TYPE_INT, 1 if left else 0)
+
+    if is_bool(right):
+        right = ValueResolver.extract_raw_value(right)
+        right = Expression(TYPE_INT, 1 if right else 0)
+
+
     if is_string_or_text(left) and is_string_or_text(right):
         # String subtraction: remove characters
         left_str = extract_string(left) 
@@ -344,7 +328,13 @@ def do_operation_mod(left, right): # left % right
         return Expression(TYPE_STRING, result)
 
     result_type = get_max_type(left, right)
-    return Expression(result_type, left.get_value() % right.get_value())
+
+    if hasattr(left, 'get_value'):
+        left = left.get_value()
+    if hasattr(right, 'get_value'):
+        right = right.get_value()
+
+    return Expression(result_type, left % right)
 
 # DIV
 def do_operation_div(left, right): # left / right
@@ -376,6 +366,14 @@ def do_operation_pow(left, right): # left ** right
 
 # AND 
 def do_operation_and(left, right): # left && right
+    if is_bool(left):
+        left = ValueResolver.extract_raw_value(left)
+        left = Expression(TYPE_INT, 1 if left else 0)
+
+    if is_bool(right):
+        right = ValueResolver.extract_raw_value(right)
+        right = Expression(TYPE_INT, 1 if right else 0)
+        
     if hasattr(left, 'get_value') and hasattr(right, 'get_value'):
         return Expression(TYPE_BOOL, bool(left.get_value()) and bool(right.get_value()))
     return Expression(TYPE_BOOL, bool(left) and bool(right))
@@ -384,6 +382,14 @@ def do_operation_and(left, right): # left && right
 
 # OR
 def do_operation_or(left, right): # left || right
+    if is_bool(left):
+        left = ValueResolver.extract_raw_value(left)
+        left = Expression(TYPE_INT, 1 if left else 0)
+
+    if is_bool(right):
+        right = ValueResolver.extract_raw_value(right)
+        right = Expression(TYPE_INT, 1 if right else 0)
+
     if hasattr(left, 'get_value') and hasattr(right, 'get_value'):
         return Expression(TYPE_BOOL, bool(left.get_value()) or bool(right.get_value()))
     return Expression(TYPE_BOOL, bool(left) or bool(right))

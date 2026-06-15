@@ -4,7 +4,7 @@
 
 # Functions in this file should not raise any exceptions, all error handling should be done in the context!
 
-from ..expression import Expression
+from ..expression import Expression, ValueResolver
 
 def extract_variable_value(variable):
     while hasattr(variable, 'get_value'):
@@ -13,7 +13,7 @@ def extract_variable_value(variable):
 
 # PRE DECREMENT
 def do_variable_pre_decrement(place, variable, pos=None): # --expr
-    var_value = extract_variable_value(variable)
+    var_value = ValueResolver.extract_value(variable)
     var_type = variable.get().type
     var_value -= 1
     variable.set(Expression(var_type, var_value))
@@ -24,7 +24,7 @@ def do_variable_pre_decrement(place, variable, pos=None): # --expr
 # POST DECREMENT
 def do_variable_post_decrement(place, variable, pos=None): # expr--
     var_name = variable.name
-    orig_value = extract_variable_value(variable)
+    orig_value =  ValueResolver.extract_value(variable)
     orig_type = variable.get().type
     variable.set(Expression(orig_type, orig_value - 1))
     place.scopes.set(var_name, variable)
@@ -33,7 +33,7 @@ def do_variable_post_decrement(place, variable, pos=None): # expr--
 # PRE INCREMENT
 def do_variable_pre_increment(place, variable, pos=None): # ++expr
     var_name = variable.name
-    var_value = extract_variable_value(variable)
+    var_value = ValueResolver.extract_value(variable)
     var_type = variable.get().type
     var_value += 1
     variable.set(Expression(var_type, var_value))
@@ -43,7 +43,7 @@ def do_variable_pre_increment(place, variable, pos=None): # ++expr
 # POST INCREMENT
 def do_variable_post_increment(place, variable, pos=None): # expr++
     var_name = variable.name
-    orig_value = extract_variable_value(variable)
+    orig_value = ValueResolver.extract_value(variable)
     orig_type = variable.get().type
     variable.set(Expression(orig_type, orig_value + 1))
     place.scopes.set(var_name, variable)
@@ -55,4 +55,4 @@ def do_variable_assignment(place, variable, new_value, pos=None): # var = expr
     var_type = variable.type
     variable.set(new_value)
     place.scopes.set(var_name, variable)
-    return Expression(var_type, new_value.value)
+    return Expression(var_type, new_value.value if hasattr(new_value, 'value') else new_value)

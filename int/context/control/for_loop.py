@@ -5,8 +5,8 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 from ...num import Num
 
-from ...expression import Expression, TYPE_INT
-from ..statement import BreakLoop, ContinueLoop
+from ...expression import Expression, TYPE_INT, ValueResolver
+from ..statement.continue_break import BreakLoop, ContinueLoop
 from ...operations.compare import do_compare_greater, do_compare_less
 
 if TYPE_CHECKING:
@@ -65,27 +65,25 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     start_val, end_val, step_val = parse_expr(*expressions)
 
     # Set the counter to start value
-    counter.set(start_val.extract_value())
+    counter.set(ValueResolver.extract_raw_value(start_val))
     self.scopes.set(var_name, counter)
 
     try:
         # Repeat block until condition is met:
         # (start > end && counter > end) || (start < end && counter < end)
-        while (do_compare_greater(start_val, end_val, pos) and do_compare_greater(counter.get(), end_val, pos)) or \
-              (do_compare_less(start_val, end_val, pos) and do_compare_less(counter.get(), end_val, pos)):
+        while (do_compare_greater(start_val, end_val, pos).get_value() and do_compare_greater(counter.get(), end_val, pos).get_value()) or \
+              (do_compare_less(start_val, end_val, pos).get_value() and do_compare_less(counter.get(), end_val, pos).get_value()):
             # Push new scope for this iteration to clear variables from previous iteration
             self.scopes.push(pos, scope_type="for_iteration")
             
             # Run code inside
+            continue_requested = False
             try:
                 try:
                     self.execute_block(block.block(), parent=block)
                 except ContinueLoop:
-                    # continue to next iteration of loop body
-                    break
+                    continue_requested = True
             except BreakLoop:
-                # break out of the while loop entirely
-                self.scopes.pop()
                 break
             finally:
                 # Pop iteration scope to clear variables for next iteration
@@ -96,6 +94,9 @@ def handle_for_loop(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
 
             # Increment counter by step value
             self.scopes.modify(var_name, lambda x: x + step_val)
+
+            if continue_requested:
+                continue
     finally:
         # Exit scope
         self.scopes.pop()

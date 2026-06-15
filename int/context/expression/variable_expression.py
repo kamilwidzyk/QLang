@@ -31,6 +31,8 @@ def _is_state_access_allowed(parent: Any) -> bool:
 
 
 def _finalize_variable_access(variable: Any, parent: Any, pos: ScriptErrors.Position, return_variable: bool, error_code: str):
+    print("finalize var access")
+    #print(variable.get().get())
     if return_variable:
         return variable
 
@@ -40,8 +42,6 @@ def _finalize_variable_access(variable: Any, parent: Any, pos: ScriptErrors.Posi
     if isinstance(variable, Variable):
         if variable.type == TYPE_STATE and not _is_state_access_allowed(parent):
             raise DirectQuantumAccessException(pos=pos, code=error_code)
-        if variable.type == TYPE_NUM:
-            return variable.get_value()
         return variable.get()
 
     if isinstance(variable, Num):
@@ -78,6 +78,7 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
     # ID ('[' expr ']')*
     var_name = block.ID().getText()
+    print("Variable expression: ", var_name)
 
     if not self.scopes.exists(var_name):
         # code: CFV-3
@@ -88,6 +89,7 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
         )
 
     variable = self.scopes.get(var_name)
+    print(variable.get_value())
 
     index = []
     
@@ -95,6 +97,8 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
         index.append(
             handle_index(self, idx_ctx, block)
         )
+
+    print(index)
 
     # For lists (like varargs), handle indexing directly
     if isinstance(variable, list):

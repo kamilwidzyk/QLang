@@ -14,7 +14,8 @@ from ...expression import (
     TYPE_OBS,
     TYPE_STATE,
     TYPE_TEXT,
-    TYPE_ANY
+    TYPE_ANY,
+    ValueResolver
 )
 from ...variable import Variable
 from ...exception.no_function_to_call import NoFunctionToCallException
@@ -152,9 +153,18 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
             if len(dimensions) == 1 and dimensions[0] == 0:
                 dimensions = [0]
             
+            print("PARAMETER")
             var = Variable(param.name, type_const, dimensions, quantum_client=self.quantum_client)
+            print(var.name)
+            print(var.get_value())
+            
             if param_value is not None:
-                var.set(param_value)
+                # --- FIX: Ensure we cleanly extract raw value expressions or primitives
+                if isinstance(param_value, Expression):
+                    var.set(param_value, allow_const_init=True)
+                else:
+                    var.set(Expression(type_const, param_value), allow_const_init=True)
+                    
             new_scope.vars[param.name] = var
     
     # Switch execution context

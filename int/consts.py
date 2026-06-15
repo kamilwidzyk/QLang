@@ -10,6 +10,33 @@ from .QLang.QLangParser import QLangParser
 TerminalCtx = TerminalNode
 ProgramCtx = QLangParser.ProgramContext
 StatementCtx = QLangParser.StatementContext
+## STATEMENTS ##
+constDeclarationCtx = QLangParser.ConstDeclarationContext
+varDeclarationCtx = QLangParser.VarDeclarationContext
+receiveDeclCtx = QLangParser.ReceiveDeclarationContext
+sendStatementCtx = QLangParser.SendStatementContext
+gateStatementCtx = QLangParser.GateStatementContext
+assignmentStatementCtx = QLangParser.AssignmentStatementContext
+functionCallStatementCtx = QLangParser.FunctionCallStatementContext
+ifStatementCtx = QLangParser.IfStatementContext
+forStatementCtx = QLangParser.ForStatementContext
+whileStatementCtx = QLangParser.WhileStatementContext
+iterateStatementCtx = QLangParser.IterateStatementContext
+waitStatementCtx = QLangParser.WaitStatementContext
+ioStatementCtx = QLangParser.IoStatementContext
+breakStatementCtx = QLangParser.BreakStatementContext
+continueStatementCtx = QLangParser.ContinueStatementContext
+returnStatementCtx = QLangParser.ReturnStatementContext
+blockStatementCtx = QLangParser.BlockStatementContext
+functionDeclStatementCtx = QLangParser.FunctionDeclStatementContext
+exprStatementCtx = QLangParser.ExprStatementContext
+semicolorStatementCtx = QLangParser.SemicolonStatementContext
+
+
+
+
+
+
 ### FUNCTION DECLARATION ###
 FunctionDeclCtx = QLangParser.FunctionDeclContext
 FunctionDeclStatementCtx = QLangParser.FunctionDeclStatementContext

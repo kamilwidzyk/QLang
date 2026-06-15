@@ -28,5 +28,5 @@ def handle_string(self: Place, block: Any, parent: Any, pos: ScriptErrors.Positi
     content = content.replace('\\\'', '\'')
     content = content.replace('\\"', '"')
     content = content.replace('\\`', '`')
-    
+
     return Expression(TYPE_STRING, content)

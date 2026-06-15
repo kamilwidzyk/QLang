@@ -37,6 +37,8 @@ TYPE_ANY = "any"
 
 from .text import Text
 
+import traceback
+
 
 def type_to_rank(value):
     if hasattr(value, 'type'):
@@ -88,6 +90,272 @@ def get_max_type(left, right):
 
 
 
+class ValueResolver:
+    @staticmethod
+    def is_state(value):
+        return type(value).__name__ == 'State'
+
+    @staticmethod
+    def _resolve_indexed_variable(value):
+        if hasattr(value, 'index') and value.index:
+            if hasattr(value, 'get'):
+                try:
+                    return value.get()
+                except Exception:
+                    pass
+        return value
+
+    @staticmethod
+    def extract_raw_value(value):
+        #print('extract_raw_value: ', value)
+        val = ValueResolver._resolve_indexed_variable(value)
+        for _ in range(50):
+            #print("iteration: ", val)
+            if ValueResolver.is_state(val):
+                break
+            if isinstance(val, list):
+                return [ValueResolver.extract_raw_value(item) for item in val]
+            if hasattr(val, 'get'):
+                #print("get")
+                try:
+                    val = val.get()
+                    continue
+                except TypeError:
+                    break
+            if hasattr(val, 'get_value'):
+                #print("get_value")
+                try:
+                    val = val.get_value()
+                    if hasattr(val, 'value'):
+                        val = val.value
+                    continue
+                except TypeError:
+                    break
+            
+            break
+        if isinstance(val, list):
+            return [ValueResolver.extract_raw_value(item) for item in val]
+        return val
+
+    @staticmethod
+    def extract_value(value):
+        return ValueResolver.extract_raw_value(value)
+
+    @staticmethod
+    def to_primitive(value):
+        value = ValueResolver._resolve_indexed_variable(value)
+        if isinstance(value, Expression):
+            return ValueResolver.to_primitive(value.get_value())
+
+        if hasattr(value, 'get_value'):
+            try:
+                return ValueResolver.to_primitive(value.get_value())
+            except TypeError:
+                pass
+
+        if hasattr(value, 'get'):
+            try:
+                return ValueResolver.to_primitive(value.get())
+            except TypeError:
+                pass
+
+        if hasattr(value, 'value'):
+            return ValueResolver.to_primitive(value.value)
+        if hasattr(value, 'data'):
+            return ValueResolver.to_primitive(value.data)
+        return value
+
+    @staticmethod
+    def resolve_for_operation(value):
+        #print("resolve_for_operation: ", value)
+        value = ValueResolver._resolve_indexed_variable(value)
+        for _ in range(50):
+            #print("resolve iteration: ", value)
+            if ValueResolver.is_state(value):
+                break
+            if isinstance(value, Expression):
+                value = value.get_value()
+                continue
+            if hasattr(value, 'get_value'):
+                # Preserve wrapper objects that have custom value semantics.
+                # Unwrapping Obs/ObsRegister/Num/Text too early breaks operations like string concatenation.
+                if type(value).__name__ in ('Obs', 'Num', 'Text'):
+                    break
+                try:
+                    new_value = value.get_value()
+                except TypeError:
+                    break
+                if new_value is value:
+                    break
+                value = new_value
+                continue
+
+            if hasattr(value, 'get'):
+                try:
+                    new_value = value.get()
+                except TypeError:
+                    break
+                if new_value is value:
+                    break
+                value = new_value
+                continue
+
+            if hasattr(value, 'value') and not isinstance(value, (int, float, str, bool, list)):
+                value = value.value
+                continue
+
+            if hasattr(value, 'data') and not isinstance(value, (int, float, str, bool, list)):
+                value = value.data
+                continue
+
+            break
+
+        return value
+
+    @staticmethod
+    def is_list(expr):
+        from .expression import TYPE_LIST
+        expr = ValueResolver.resolve_for_operation(expr)
+        return (
+            isinstance(expr, list)
+            or (hasattr(expr, 'type') and expr.type == TYPE_LIST)
+            or (hasattr(expr, 'data') and isinstance(expr.data, list))
+        )
+    
+    @staticmethod
+    def is_bool(expr):
+        from .expression import TYPE_BOOL
+        expr = ValueResolver.resolve_for_operation(expr)
+        return (
+            isinstance(expr, bool)
+            or (hasattr(expr, 'type') and expr.type == TYPE_BOOL)
+            or (hasattr(expr, 'data') and isinstance(expr.data, bool))
+        )
+
+    @staticmethod
+    def is_string_or_text(expr):
+        from .expression import TYPE_STRING, TYPE_TEXT
+        expr = ValueResolver.resolve_for_operation(expr)
+        if isinstance(expr, str):
+            return True
+        if hasattr(expr, 'type') and expr.type in [TYPE_STRING, TYPE_TEXT]:
+            return True
+        from .text import Text
+        return isinstance(expr, Text)
+
+    @staticmethod
+    def extract_list(expr):
+        expr = ValueResolver.resolve_for_operation(expr)
+        if hasattr(expr, 'type') and expr.type == TYPE_LIST:
+            return expr.value
+        if isinstance(expr, list):
+            return expr
+        if hasattr(expr, 'data') and isinstance(expr.data, list):
+            return expr.data
+        raise TypeError('Expected a list expression')
+
+    @staticmethod
+    def extract_string(expr):
+        #print("extract_string:", expr)
+        expr = ValueResolver.resolve_for_operation(expr)
+        from .text import Text
+        if hasattr(expr, 'type') and expr.type == TYPE_STRING:
+            return expr.value
+        if hasattr(expr, 'type') and expr.type == TYPE_TEXT:
+            return expr.value
+        if isinstance(expr, Text):
+            return expr.get()
+        if isinstance(expr, str):
+            return expr
+        raise TypeError('Expected a string or text expression')
+
+    @staticmethod
+    def convert_value(value):
+        value = ValueResolver.resolve_for_operation(value)
+        from .obs import Obs
+        from .num import Num
+        from .text import Text
+        if isinstance(value, (Num, Obs, Text)):
+            return ValueResolver.convert_value(value.get_value())
+        if isinstance(value, Expression):
+            return ValueResolver.convert_value(value.get_value())
+        if hasattr(value, 'data') and isinstance(value.data, list):
+            return [ValueResolver.convert_value(x) for x in value.data]
+        if isinstance(value, list):
+            return [ValueResolver.convert_value(x) for x in value]
+        if isinstance(value, (int, float, str)):
+            return value
+        if isinstance(value, bool):
+            return 'T' if value else 'F'
+        if isinstance(value, Obs):
+            return 'T' if value.get_value() else 'F'
+        return value
+
+    @staticmethod
+    def list_shape(values):
+        if not isinstance(values, list):
+            return []
+        if len(values) == 0:
+            return [0]
+
+        def item_shape(item):
+            if isinstance(item, Expression) and item.type == TYPE_LIST:
+                if isinstance(item.shape, list):
+                    return item.shape
+                if isinstance(item.shape, int):
+                    return [item.shape]
+                return []
+            if isinstance(item, list):
+                return ValueResolver.list_shape(item)
+            return []
+
+        first_shape = item_shape(values[0])
+        for element in values[1:]:
+            if item_shape(element) != first_shape:
+                return None
+        return [len(values)] + first_shape
+
+    @staticmethod
+    def wrap_value(type_name, value, quantum_client=None):
+        from .obs import Obs
+        from .num import Num
+        from .text import Text
+        from .state import State
+
+        if type_name == TYPE_OBS:
+            if isinstance(value, Obs):
+                return value
+            obj = Obs()
+            if value is not None:
+                obj.set(value)
+            return obj
+        if type_name == TYPE_NUM:
+            if isinstance(value, Num):
+                return value
+            obj = Num()
+            if value is not None:
+                obj.set(value)
+            return obj
+        if type_name == TYPE_TEXT:
+            if isinstance(value, Text):
+                return value
+            obj = Text('')
+            if value is not None:
+                obj.set(value)
+            return obj
+        if type_name == TYPE_STATE:
+            if value is not None and type(value).__name__ == 'State':
+                return value
+            return State(client=quantum_client)
+        return value
+
+    @staticmethod
+    def wrap_list(type_name, values, quantum_client=None):
+        if not isinstance(values, list):
+            return ValueResolver.wrap_value(type_name, values, quantum_client)
+        return [ValueResolver.wrap_list(type_name, v, quantum_client) for v in values]
+
+
 class Expression:
     def __init__(self, type: str, value=None, variable=None, shape=None):
         self.type = type         # internal type
@@ -110,9 +378,27 @@ class Expression:
         if self.variable is not None:
             return len(self.variable)
         if self.value is not None:
+            if isinstance(self.value, bool):
+                return 1 if self.value else 0
             return len(self.value)
         return 0
-    
+
+    def __bool__(self):
+        if self.variable is not None:
+            return bool(self.variable)
+        value = self.value
+        if isinstance(value, bool):
+            return value
+        if value is None:
+            return False
+        if isinstance(value, (int, float)):
+            return value != 0
+        if isinstance(value, str):
+            return len(value) != 0
+        if isinstance(value, list):
+            return len(value) != 0
+        return True
+
     def __getitem__(self, key):
         if self.variable is not None:
             return self.variable[key]
@@ -130,56 +416,22 @@ class Expression:
 
     def get_value(self):
         val = self.get()
-        if hasattr(val, 'get_value'):
-            if val.__class__.__name__ == 'State':
-                return val
+        if hasattr(val, 'get_value') and not ValueResolver.is_state(val):
             return val.get_value()
         return val
 
     @staticmethod
     def _to_primitive(value):
-        # Force-extract primitive numeric/string from wrappers.
-        if isinstance(value, Expression):
-            return Expression._to_primitive(value.get_value())
+        return ValueResolver.to_primitive(value)
 
-        if hasattr(value, 'get_value'):
-            try:
-                return Expression._to_primitive(value.get_value())
-            except TypeError:
-                pass
-
-        if hasattr(value, 'get'):
-            try:
-                return Expression._to_primitive(value.get())
-            except TypeError:
-                pass
-
-        if hasattr(value, 'value'):
-            return Expression._to_primitive(value.value)
-        if hasattr(value, 'data'):
-            return Expression._to_primitive(value.data)
-        return value
-    
     def _extract_value_from(value):
-        from .variable import Variable
-
-        if isinstance(value, (Expression, Variable)):
-            return Expression._extract_value_from(value.get_value())
-        return value
+        return ValueResolver.extract_raw_value(value)
 
     def extract_value(self):
-        return Expression._extract_value_from(self)
+        return ValueResolver.extract_raw_value(self)
 
     def extract_raw_value(self):
-        val = self
-        while hasattr(val, 'get_value'):
-            if val.__class__.__name__ == 'State':
-                break
-            val = val.get_value()
-        return val
-
-    def __bool__(self):
-        return bool(self.get_value())
+        return ValueResolver.extract_raw_value(self)
 
     def __get_other_value(self, other):
         # Deterministic unwrapping loop. Try common accessors in order until

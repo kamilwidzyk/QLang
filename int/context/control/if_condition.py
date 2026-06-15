@@ -27,8 +27,11 @@ def _choose_body(conditions: list, bodies: list, pos) -> Any:
     Returns the chosen body or None if no condition is satisfied and there is no else block.
     """
     for cond, body in zip(conditions, bodies):
+        #print("Condition: ", cond.get_value())
         if check_condition(cond, pos):
+            #print("Condition satisfied, executing body")
             return body
+        #print("Condition not satisfied, checking next condition")
 
     # If no condition is satisfied, but there is an else block, select it
     if len(bodies) > len(conditions):

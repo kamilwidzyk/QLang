@@ -140,7 +140,7 @@ def test_text_index() -> bool:
 
     print(place_log["global"])
 
-    expected_output = "a\nab\nab\0c\n"
+    expected_output = "a\nab\nabc\n"
 
     return place_log["global"] == expected_output
 

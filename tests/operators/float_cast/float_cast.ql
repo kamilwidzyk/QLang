@@ -28,7 +28,7 @@ num arr1d[3] = [10, 20, 30];
 println(arr1d[1].0); // 20.0
 
 // List cast
-any my_list = [4, 5, 6];
+any my_list[?] = [4, 5, 6];
 println(my_list[2].0); // 6.0
 
 // Lexer edge cases

@@ -17,21 +17,27 @@ class Num:
     def __init__(self,initial_value: float = 0.0):
         self.value = float(initial_value)
 
-    def set(self,new_value: float|Expression|int):
-        if isinstance(new_value, float):
+    def set(self,new_value: float|Expression|int|bool):
+        if isinstance(new_value, bool):
+            self.is_float = False
+            self.value = 1 if new_value else 0
+        elif isinstance(new_value, float):
             self.is_float = True
             self.value = new_value
         elif isinstance(new_value, Expression):
-            if new_value.type == TYPE_FLOAT:
+            if new_value.type == TYPE_BOOL:
+                self.is_float = False
+                self.value = 1 if ValueResolver.extract_raw_value(new_value) else 0
+            elif new_value.type == TYPE_FLOAT:
                 self.is_float = True
             elif new_value.type == TYPE_NUM:
                 self.is_float = new_value.is_float
             elif new_value.type in TYPE_INT:
                 self.is_float = False
-            val = new_value.value
-            while hasattr(val, 'get_value'):
-                val = val.get_value()
-            self.value = val
+            
+            if new_value.type != TYPE_BOOL:
+                val = ValueResolver.extract_raw_value(new_value.value)
+                self.value = val
         elif type(new_value).__name__ == 'Num':
             self.is_float = new_value.is_float
             self.value = new_value.value
@@ -56,9 +62,7 @@ class Num:
         return self.get().value
     
     def __get_other_value(self, other):
-        while hasattr(other, 'get_value'):
-            other = other.get_value()
-        return other
+        return ValueResolver.resolve_for_operation(other)
 
     def __lt__(self, other):
         return Expression(TYPE_BOOL, self.get_value() < self.__get_other_value(other))
@@ -79,18 +83,13 @@ class Num:
         return Expression(TYPE_BOOL, self.get_value() != self.__get_other_value(other))
     
     def __extract_value(self, value):
-        while hasattr(value, 'get_value'):
-            value = value.get_value()
-        return value
+        return ValueResolver.extract_raw_value(value)
 
     def __list_to_str(self, lst):
         lst = self.__extract_value(lst)
         if isinstance(lst, list):
             return "[" + ", ".join(self.__list_to_str(x) for x in lst) + "]"
-        else:
-            if isinstance(lst, Expression):
-                return str(lst.get_value())
-            return str(lst)
+        return str(lst)
         
 
 

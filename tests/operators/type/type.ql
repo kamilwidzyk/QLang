@@ -10,7 +10,7 @@ println($multi); // list
 obs bit = 1;
 println($bit); // obs
 
-obs bytes[8] = 42;
+obs bytes[8] = 42 >8> obs;
 println($bytes); // list
 
 
@@ -40,7 +40,7 @@ println($foo); // function
 any mixed[?] = ["123", 123, 1.0];
 println($mixed); // list
 
-any mixed_list = ["a", 3];
+any mixed_list[?] = ["a", 3];
 println($mixed_list[1]); // num
 
 any any_num = 5;

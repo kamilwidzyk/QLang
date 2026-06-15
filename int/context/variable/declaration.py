@@ -1,12 +1,13 @@
 from typing import Any, TYPE_CHECKING
 
 from int.exception.direct_quantum_access import DirectQuantumAccessException
+from int.type_inference import infer_type_from_value
 
 from ...script_errors import ScriptErrors
 from ...consts import *
 import copy
 
-from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_STATE, TYPE_TEXT, TYPE_ANY, TYPE_OBS_REGISTER, TYPE_STATE_REGISTER
+from ...expression import TYPE_STRING, Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_STATE, TYPE_TEXT, TYPE_ANY, TYPE_OBS_REGISTER, TYPE_STATE_REGISTER, ValueResolver
 from ...logger import log, VARIABLE, FATAL
 from ...operations.operators import do_operation_int_to_bits
 from ...obs import Obs, ObsRegister
@@ -116,12 +117,28 @@ def _is_list_like_expression(value: Any) -> bool:
     )
 
 
+def shapes_match(good_shape, to_check):
+    if -100 in good_shape:
+        return True
+    if to_check is None and good_shape is not None:
+        return False
+    if len(good_shape) != len(to_check):
+        return False
+    
+    for i in range(len(good_shape)):
+        print(good_shape[i], to_check[i])
+        if good_shape[i] != to_check[i] and good_shape[i] != -100:
+            return False
+        
+    return True
 
 def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: str, is_const: bool = False):
     """
     Handles declaration of a single variable in varDecl or constDecl
     ||| varAssign: ID sizeVar* ('=' expr)?;
     """
+    print("Variable subdeclaration")
+    print(block.getText())
 
     var_name = block.ID().getText()
 
@@ -142,6 +159,10 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
         dim = handle_variable_sizevar(self, size, block)
         dimensions.append(dim if dim != '?' else -100)
 
+    print("dimensions: ")
+    print(dimensions)
+
+    default_scalar_declaration = len(block.sizeVar()) == 0
     # Remember if it was dynamic
     is_dynamic = -100 in [d for d in dimensions if isinstance(d, int)] or len(dimensions) == 0
     
@@ -169,9 +190,16 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
             pos=ScriptErrors.Position.extract(block.expr()),
             code="7"
         )
-
+    
     var_dims = dimensions
+    var = Variable(var_name, type, var_dims, quantum_client=self.quantum_client, is_const=is_const, initial_data=initial_data)
+        
+
     if initial_value is not None:
+        #print("raw initial value: ")
+        # print(initial_value)
+        initial_value = ValueResolver.extract_raw_value(initial_value)
+        """
         if type == TYPE_OBS and not isinstance(initial_value, list) and not _is_list_like_expression(initial_value) and dimensions != [0]:
             size = dimensions[0] if isinstance(dimensions, list) else dimensions
             if isinstance(initial_value, Expression) and initial_value.type in [TYPE_INT, TYPE_NUM]:
@@ -180,34 +208,77 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                 initial_value = do_operation_int_to_bits(Expression(TYPE_INT, initial_value), size)
             else:
                 initial_value = Expression(TYPE_LIST, [initial_value], shape=1)
+        """
+        #print("initial value: ", initial_value)
+
+        if isinstance(initial_value, list):
+            shape = _list_shape(initial_value)
+            if not shapes_match(var_dims, shape) and (type != TYPE_ANY or is_dynamic):
+                # code: SM-1
+                raise ShapeMismatchException(
+                    pos=ScriptErrors.Position.extract(block),
+                    left_shape=var_dims,
+                    right_shape=shape,
+                    code="1"
+                )
+            
+            initial_value = Expression(TYPE_LIST, initial_value, shape=shape)
+            if is_dynamic:
+                initial_data = initial_value.value
+
+            var.set(initial_value, allow_const_init=is_const)
+            var.initial_value = copy.deepcopy(initial_value)
+
+
+
+
+            #print("initial value shape: ", shape)
+            #print("var dimensions: ", var_dims)
+
+
+
+        else:
+            
+            #print("-------------------- DECLARATION: ", var_name)
+            #print("initial_value: ", initial_value)
+
+
+            initial_type = infer_type_from_value(initial_value)
+
+            #print("infered_type: ", initial_type)
+            #print("var type: ", type)
+
+            var.set(initial_value, allow_const_init=is_const)
+            var.initial_value = initial_value
+
+        """
+
 
         if isinstance(initial_value, list):
             initial_value = _normalize_list_values(initial_value)
             value_shape = _list_shape(initial_value)
 
-            expected_shapes = [dimensions]
+            print("initial value shape: ", value_shape)
 
             is_valid_shape = False
-            for expected in expected_shapes:
-                if isinstance(value_shape, list) and value_shape == expected:
-                    is_valid_shape = True
-                    break
-                if isinstance(value_shape, int):
-                    if isinstance(expected, list) and len(expected) == 1 and value_shape == expected[0]:
+            if is_dynamic and dimensions == [0] and default_scalar_declaration:
+                is_valid_shape = True
+            else:
+                expected_shapes = [dimensions]
+                for expected in expected_shapes:
+                    if isinstance(value_shape, list) and value_shape == expected:
                         is_valid_shape = True
                         break
-                    if expected == value_shape:
-                        is_valid_shape = True
-                        break
+                    if isinstance(value_shape, int):
+                        if isinstance(expected, list) and len(expected) == 1 and value_shape == expected[0]:
+                            is_valid_shape = True
+                            break
+                        if expected == value_shape:
+                            is_valid_shape = True
+                            break
 
             if value_shape is None or not is_valid_shape:
-                # code: SM-1
-                raise ShapeMismatchException(
-                    pos=ScriptErrors.Position.extract(block),
-                    left_shape=dimensions,
-                    right_shape=value_shape,
-                    code="1"
-                )
+                
 
             initial_value = Expression(TYPE_LIST, initial_value, shape=value_shape)
             if is_dynamic:
@@ -229,22 +300,25 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
             if isinstance(dimensions, int):
                 dimensions = [dimensions]
 
-            expected_shapes = [dimensions]
-            if is_dynamic and isinstance(dimensions, list) and any(isinstance(d, int) and d < 0 for d in dimensions):
-                expected_shapes.append(value_shape)
-
             is_valid_shape = False
-            for expected in expected_shapes:
-                if isinstance(value_shape, list) and value_shape == expected:
-                    is_valid_shape = True
-                    break
-                if isinstance(value_shape, int):
-                    if isinstance(expected, list) and len(expected) == 1 and value_shape == expected[0]:
+            if is_dynamic and dimensions == [0] and default_scalar_declaration:
+                is_valid_shape = True
+            else:
+                expected_shapes = [dimensions]
+                if is_dynamic and isinstance(dimensions, list) and any(isinstance(d, int) and d < 0 for d in dimensions):
+                    expected_shapes.append(value_shape)
+
+                for expected in expected_shapes:
+                    if isinstance(value_shape, list) and value_shape == expected:
                         is_valid_shape = True
                         break
-                    if expected == value_shape:
-                        is_valid_shape = True
-                        break
+                    if isinstance(value_shape, int):
+                        if isinstance(expected, list) and len(expected) == 1 and value_shape == expected[0]:
+                            is_valid_shape = True
+                            break
+                        if expected == value_shape:
+                            is_valid_shape = True
+                            break
 
             if value_shape is None or not is_valid_shape:
                 # code: SM-1
@@ -254,13 +328,13 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                     right_shape=value_shape,
                     code="1"
                 )
-
-    var = Variable(var_name, type, var_dims, quantum_client=self.quantum_client, is_const=is_const, initial_data=initial_data)
-    if initial_value is not None:
-        var.set(initial_value, allow_const_init=is_const)
-        var.initial_value = copy.deepcopy(initial_value)
+        """
 
     self.scopes.create(var_name, var)
+
+    newly_created = self.scopes.get(var_name)
+    #print("newly created: ", newly_created.get().get().get())
+
 
     
 

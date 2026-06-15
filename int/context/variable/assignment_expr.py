@@ -4,7 +4,7 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 from ..expression.variable_expression import handle_variable_expression
 from ..operator.pre_post import is_variable
-from ...expression import TYPE_STATE
+from ...expression import TYPE_STATE, ValueResolver
 
 from ...exception.assignment_to_expression import AssignmentToExpressionException
 from ...exception.direct_quantum_access import DirectQuantumAccessException
@@ -32,7 +32,7 @@ def handle_assignment_expr(self: Place, block: Any, parent: Any, pos: ScriptErro
         # code DQA-6
         raise DirectQuantumAccessException(pos=pos, code="6")
     
-    right_value = self.handle_block(right_expr, block)
+    right_value = ValueResolver.resolve_for_operation(self.handle_block(right_expr, block))
         
     var_name = left_variable.name
     left_variable.set(right_value, pos=pos)

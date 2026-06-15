@@ -69,8 +69,7 @@ class ObsRegister:
                 raise ValueError(f"List length {len(new_value)} does not match register size {self.size}")
 
             for i, bit in enumerate(new_value):
-                if isinstance(bit, Expression):
-                    bit = bit.get_value()
+                bit = ValueResolver.extract_raw_value(bit)
                 if isinstance(bit, bool):
                     self[i] = int(bit)
                 elif isinstance(bit, int):
@@ -107,9 +106,7 @@ class ObsRegister:
         return self.get()
     
     def __get_other_value(self, other):
-        while hasattr(other, 'get_value'):
-            other = other.get_value()
-        return other
+        return ValueResolver.resolve_for_operation(other)
 
     def __str__(self):
         return str(self.get_value())
@@ -303,8 +300,6 @@ class Obs:
             self.state = 0
         elif new_value == 1 or new_value == True:
             self.state = 1
-        elif new_value == []:
-            self.state = None
         else:
             log(OBS, FATAL, "There was an attempt at setting " + str(new_value) + " as obs value")
             exit()
@@ -335,9 +330,7 @@ class Obs:
         return 1
     
     def __get_other_value(self, other):
-        while hasattr(other, 'get_value'):
-            other = other.get_value()
-        return other
+        return ValueResolver.resolve_for_operation(other)
         
     def __lt__(self, other):
         return Expression(TYPE_BOOL, self.get_value() < self.__get_other_value(other))

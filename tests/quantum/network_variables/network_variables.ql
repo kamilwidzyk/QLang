@@ -1,4 +1,5 @@
 place Sender {
+    packet_log(1);
     text t1 = "Hello";
     text to_whom = "Receiver";
     text msg_name = "greeting";
@@ -7,6 +8,7 @@ place Sender {
 }
 
 place Receiver {
+    packet_log(1);
     text expected_sender = "Sender";
     text expected_msg = "greeting";
 

@@ -39,7 +39,7 @@ println(f); // T
 // [DEF] FFFTTT\n
 
 print("[G] ");
-obs g[3] = 3;
+obs g[3] = 3 >3> obs;
 print(g[0]); // T
 print(g[1]); // T
 print(g[2]); // F
