@@ -21,6 +21,7 @@ from ...variable import Variable
 from ...exception.no_function_to_call import NoFunctionToCallException
 from ...exception.variable_call import VariableCallException
 from ...exception.incompatible_type import IncompatibleTypeException
+from ...exception.spellcheck import get_spellcheck_suggestion
 
 from .common import (
     _collect_call_args,
@@ -76,10 +77,18 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
     # Check if the function exists
     if not self.scopes.exists(func_name):
         # code NFTC-1
+        possibilities = self.scopes.get_all_names() + [
+            "parent", "seed", "random", "packet_log", "show_console", 
+            "cut", "round", "floor", "ceil", "sleep", "__ql_import_source__",
+            "print", "println", "debug", "input", "wait", "num",
+            "measure", "measurex", "reset"
+        ]
+        suggestion = get_spellcheck_suggestion(func_name, possibilities)
         raise NoFunctionToCallException(
             pos=block_pos, 
             func_name=func_name,
-            code="1"
+            code="1",
+            suggestion=suggestion
         )
 
     # Get the function

@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from place import Place
 
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.spellcheck import get_spellcheck_suggestion
 
 def handle_reference(self: Place, block: Any, parent: Any, pos: ScriptErrors.Position):
     """
@@ -19,6 +20,7 @@ def handle_reference(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
 
     if not self.scopes.exists(ID):
         # code: CFV-7
-        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), ID, code="7")
+        suggestion = get_spellcheck_suggestion(ID, self.scopes.get_all_names())
+        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), ID, code="7", suggestion=suggestion)
 
     return self.scopes.get(ID)
