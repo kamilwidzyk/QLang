@@ -39,4 +39,4 @@ def handle_rel_comp(self: Place, block: Any, parent: Any, pos: ScriptErrors.Posi
     elif operation == '>=':
         result = do_compare_greater_equal(_value_of(left), _value_of(right), pos)
 
-    return Expression(TYPE_BOOL, result)
+    return result

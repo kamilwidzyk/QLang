@@ -29,8 +29,6 @@ def handle_var(self: "Place", block: Any, parent: Any) -> Variable:
         next_index = handle_index(self, index, block)
         index_list.append(next_index)
 
-    print(index_list)
-
     var = self.scopes.get(var_name)
     var.index = index_list
 

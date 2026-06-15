@@ -107,7 +107,7 @@ class QuantumNetwork:
             log(QNET, DEBUG, info)
 
     
-    def wait_for(self, target_id: str, src_id: str | None, msg_id: str | None, quantum: bool, size: int, log_packet: bool = False) -> Any:
+    def wait_for(self, target_id: str, src_id: str | None, msg_id: str | None, quantum: bool, size: int | None, log_packet: bool = False) -> Any:
         """
         Waits for specified packet to arrive
 
@@ -116,7 +116,8 @@ class QuantumNetwork:
             src_id (str|None): Optional name of the place that sent the packet
             msg_id (str|None): Optional packet type
             quantum (bool): type of data sent, True=qubit False=classic
-            size (int): data size in bits, used to match the packet 
+            size (int|None): data size in bits, used to match the packet 
+                or None to accept any size
             log_packet (bool): if True, log receive/wait activity for this place
         Returns:
             Content of the mathing packet
@@ -137,7 +138,7 @@ class QuantumNetwork:
                 for i, packet in enumerate(self.packet_pool):
 
                     # check size and quantum/classical
-                    if packet.size != size:
+                    if size is not None and packet.size != size:
                         continue
                     if packet.quantum != quantum:
                         continue

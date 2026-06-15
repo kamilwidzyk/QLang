@@ -303,6 +303,8 @@ class Obs:
             self.state = 0
         elif new_value == 1 or new_value == True:
             self.state = 1
+        elif new_value == []:
+            self.state = None
         else:
             log(OBS, FATAL, "There was an attempt at setting " + str(new_value) + " as obs value")
             exit()

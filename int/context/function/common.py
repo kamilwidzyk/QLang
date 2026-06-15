@@ -122,8 +122,21 @@ def  _import_source_functions(self: Place, file_path: str, pos):
                 code="1"
             )
 
+        if _is_import_source_statement(top_level_item):
+            self.handle_block(top_level_item.statement(), top_level_item)
+            continue
+
         if top_level_item.functionDecl() is not None:
             self.handle_block(top_level_item.functionDecl(), top_level_item.functionDecl())
+
+
+def _is_import_source_statement(top_level_item: Any) -> bool:
+    statement = top_level_item.statement()
+    if statement is None:
+        return False
+
+    text = statement.getText()
+    return text.startswith("__ql_import_source__(")
 
 
 

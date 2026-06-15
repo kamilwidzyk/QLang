@@ -46,8 +46,9 @@ varAssign: ID sizeVar* ('=' expr)?;  /** Deklaracja zmiennej z możliwym rozmiar
 varNoAssign: ID sizeVar*;            /** Deklaracja zmiennej z możliwym rozmiarem bez przypisania */
 
 // Do parametrów funkcji przy deklaracji
-varParam: ID ('[' INT_NUMBER ']')?;             /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym rozmiarem */
-varParamDefault: ID ('[' INT_NUMBER ']')* ('=' expr)?; /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym rozmiarem i przypisaniem wartości domyślnej */
+paramSizeVar: '[' (INT_NUMBER | QUESTION) ']';
+varParam: ID paramSizeVar?;             /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym lub dowolnym rozmiarem */
+varParamDefault: ID paramSizeVar* ('=' expr)?; /** Zapis zmiennej jako parametr funkcji w deklaracji z możliwym stałym lub dowolnym rozmiarem i przypisaniem wartości domyślnej */
 
 // Do użycia zmiennej w wyrażeniach
 index

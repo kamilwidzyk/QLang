@@ -17,6 +17,7 @@ from antlr4 import *
 from antlr4.tree.Tree import TerminalNode
 from .QLang.QLangLexer import QLangLexer
 from .QLang.QLangParser import QLangParser
+import traceback
 
 BinaryFromListExprContext = QLangParser.BinaryFromListExprContext
 BinaryToListExprContext = QLangParser.BinaryToListExprContext
@@ -315,6 +316,24 @@ class Place:
 
         }
         pos = ScriptErrors.Position.extract(block)
+
+        if block is None:
+            parent_type = parent.__class__.__name__ if parent is not None else "None"
+            parent_text = parent.getText() if hasattr(parent, 'getText') else None
+            msg = [
+                f"handle_block received None, parent type: {parent_type}",
+                f"Parent text: {parent_text}",
+                "Stack:",
+                *traceback.format_stack(limit=10)
+            ]
+            with open("debug_handle_block.log", "a", encoding="utf-8") as debug_file:
+                debug_file.write("\n".join(str(x) for x in msg))
+                debug_file.write("\n---\n")
+            log(PLACE, FATAL, "handle_block received None, parent type: " + parent_type)
+            if parent_text is not None:
+                log(PLACE, FATAL, "Parent text: " + str(parent_text))
+            log(PLACE, FATAL, "Stack:\n" + "\n".join(traceback.format_stack(limit=10)))
+            exit()
 
         # scan handlers for given block instance
         try:

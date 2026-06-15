@@ -11,12 +11,15 @@ if TYPE_CHECKING:
 def handle_param_varParamDefault(self: Place, block: Any, parent: Any, type: str):
     """
      Handles the parsing of a parameter with optional default value and size.
-     ||| varParamDefault: ID ('[' INT_NUMBER ']')* ('=' expr)?;
+     ||| varParamDefault: ID paramSizeVar* ('=' expr)?;
     """
     param_name = block.ID().getText()
     param_size = []
-    for size_num in block.INT_NUMBER():
-        param_size.append(self.handle_block(size_num, block))
+    for size_var in block.paramSizeVar():
+        if size_var.INT_NUMBER() is not None:
+            param_size.append(int(size_var.INT_NUMBER().getText()))
+        elif size_var.QUESTION() is not None:
+            param_size.append(-100)
     param_default = None
     if block.expr():
         param_default = self.handle_block(block.expr(), block)

@@ -8,7 +8,7 @@ from ...consts import *
 from ...exception.cant_find_variable import CantFindVariableException
 from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ...index_types import SimpleIndex, RangeIndex, ListIndex
-from ...expression import TYPE_FLOAT, TYPE_INT, Expression, TYPE_STATE
+from ...expression import TYPE_BOOL, TYPE_FLOAT, TYPE_INT, TYPE_NUM, TYPE_OBS, Expression, TYPE_STATE
 from ...variable import Variable
 
 if TYPE_CHECKING:
@@ -52,29 +52,30 @@ def handle_index(self: Place, block: Any, parent: Any):
         start_expr = self.handle_block(block.expr(0), block)
         end_expr = self.handle_block(block.expr(1), block)
 
-        if(start_expr.type not in [TYPE_FLOAT, TYPE_INT]):
+        if(start_expr.type not in [TYPE_FLOAT, TYPE_INT, TYPE_BOOL, TYPE_NUM, TYPE_OBS]):
             # code INI-2
             raise IndexNotIntException(
                 ScriptErrors.Position.extract(block.expr(0)),
                 code="2"
             )
-        if(end_expr.type not in [TYPE_FLOAT, TYPE_INT]):
+        if(end_expr.type not in [TYPE_FLOAT, TYPE_INT, TYPE_BOOL, TYPE_NUM, TYPE_OBS]):
             # code INI-3
             raise IndexNotIntException(
                 ScriptErrors.Position.extract(block.expr(1)),
                 code="3"
             )
 
-        start_val = start_expr.value
-        end_val = end_expr.value
+        start_val = start_expr.get_value() if hasattr(start_expr, 'get_value') else start_expr.value
+        end_val = end_expr.get_value() if hasattr(end_expr, 'get_value') else end_expr.value
 
-        if(start_val != int(start_val)): # start index is not int
+        if(float(start_val) != int(start_val)): # start index is not int
             # code INI-2
             raise IndexNotIntException(
                 ScriptErrors.Position.extract(block.expr(0)),
                 code="2"
             )
-        if(end_val != int(end_val)): # end index is not int
+        if(float(end_val) != int(end_val)): # end index is not int
+            print("End value is not int:", end_val)
             # code INI-3
             raise IndexNotIntException(
                 ScriptErrors.Position.extract(block.expr(1)),
@@ -98,7 +99,7 @@ def handle_index(self: Place, block: Any, parent: Any):
                 indices.append(index_values)
 
         for i in indices:
-            if(i != int(i)): # one of the indicies is not int
+            if(float(i) != int(i)): # one of the indicies is not int
                 # code INI-4
                 raise IndexNotIntException(
                     ScriptErrors.Position.extract(block),
@@ -112,7 +113,7 @@ def handle_index(self: Place, block: Any, parent: Any):
 
     if isinstance(index_value, list):
         for i in index_value:
-            if(i != int(i)): # one of the indicies is not int
+            if(float(i) != int(i)): # one of the indicies is not int
                 # code INI-4
                 raise IndexNotIntException(
                     ScriptErrors.Position.extract(block),
@@ -121,8 +122,7 @@ def handle_index(self: Place, block: Any, parent: Any):
         return ListIndex(index_value)
     
 
-    print(index_value)
-    if(index_value != int(index_value)):
+    if(float(index_value) != int(index_value)):
         # code INI-5
         raise IndexNotIntException(
             ScriptErrors.Position.extract(block),

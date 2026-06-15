@@ -24,3 +24,20 @@ def test_variable_obs() -> bool:
         return False
     
     return True
+
+
+def test_obs_dynamic_empty_list() -> bool:
+    run_in_test_mode("tests\\variables\\obs\\dynamic_empty_list.ql")
+
+    test_lines = extract_test_lines_from_log()
+    if(SYNTAX_ERRORS in test_lines):
+        print("\t ! Syntax errors")
+        return False
+
+    place_log = read_place_files_as_dict()
+    if place_log.get("global") != "OK\n":
+        print("Expected: OK\\n")
+        print("Got: " + repr(place_log.get("global")))
+        return False
+
+    return True

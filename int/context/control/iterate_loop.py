@@ -33,10 +33,6 @@ def _expression_from_element(element: Any, dimensions: list = None) -> Expressio
     Convert any element to an expression, trying to preserve its type if possible.
     """
     if isinstance(element, Expression):
-        print("EXPRESSION IN ITERATE:", element.type, element.value)
-        if element.type == TYPE_LIST:
-            print("DIMENSIONS:", dimensions)
-
         return element
 
     raw = Expression._to_primitive(element)

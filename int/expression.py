@@ -141,10 +141,19 @@ class Expression:
         # Force-extract primitive numeric/string from wrappers.
         if isinstance(value, Expression):
             return Expression._to_primitive(value.get_value())
+
         if hasattr(value, 'get_value'):
-            return Expression._to_primitive(value.get_value())
+            try:
+                return Expression._to_primitive(value.get_value())
+            except TypeError:
+                pass
+
         if hasattr(value, 'get'):
-            return Expression._to_primitive(value.get())
+            try:
+                return Expression._to_primitive(value.get())
+            except TypeError:
+                pass
+
         if hasattr(value, 'value'):
             return Expression._to_primitive(value.value)
         if hasattr(value, 'data'):
@@ -176,12 +185,10 @@ class Expression:
         # Deterministic unwrapping loop. Try common accessors in order until
         # we reach a Python primitive (int/float/str/bool/list) or exhaust attempts.
         for _ in range(10):
-            # Direct Expression objects -> primitive via get_value()
             if isinstance(other, Expression):
                 other = other.get_value()
                 continue
 
-            # Objects exposing get_value() (Variable, Num, etc.)
             if hasattr(other, 'get_value'):
                 try:
                     new = other.get_value()
@@ -189,10 +196,11 @@ class Expression:
                         break
                     other = new
                     continue
-                except Exception:
+                except TypeError:
                     pass
+                except Exception:
+                    break
 
-            # Objects exposing get() (Variables sometimes)
             if hasattr(other, 'get'):
                 try:
                     new = other.get()
@@ -200,10 +208,11 @@ class Expression:
                         break
                     other = new
                     continue
-                except Exception:
+                except TypeError:
                     pass
+                except Exception:
+                    break
 
-            # Common value containers
             if hasattr(other, 'value') and not isinstance(other, (int, float, str, bool, list)):
                 try:
                     new = other.value
@@ -212,7 +221,7 @@ class Expression:
                     other = new
                     continue
                 except Exception:
-                    pass
+                    break
 
             if hasattr(other, 'data') and not isinstance(other, (int, float, str, bool, list)):
                 try:
@@ -222,26 +231,9 @@ class Expression:
                     other = new
                     continue
                 except Exception:
-                    pass
+                    break
 
             break
-
-        return other
-
-        # Extra fallback: handle wrapped numeric types that slipped through
-        # (e.g., Num). Use name-check to avoid hard import cycles.
-        try:
-            if type(other).__name__ == 'Num':
-                if hasattr(other, 'get_value'):
-                    other = other.get_value()
-                elif hasattr(other, 'get'):
-                    other = other.get()
-                elif hasattr(other, 'value'):
-                    other = other.value
-                elif hasattr(other, 'data'):
-                    other = other.data
-        except Exception:
-            pass
 
         return other
     

@@ -6,9 +6,13 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 import copy
 
-from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_STATE, TYPE_TEXT, TYPE_ANY
+from ...expression import Expression, TYPE_INT, TYPE_LIST, TYPE_OBS, TYPE_NUM, TYPE_STATE, TYPE_TEXT, TYPE_ANY, TYPE_OBS_REGISTER, TYPE_STATE_REGISTER
 from ...logger import log, VARIABLE, FATAL
 from ...operations.operators import do_operation_int_to_bits
+from ...obs import Obs, ObsRegister
+from ...num import Num
+from ...text import Text
+from ...state import State, StateRegister
 
 from ...exception.size_error import SizeErrorException
 from ...exception.variable_redefinition import VariableRedefiniotionException
@@ -46,17 +50,23 @@ def _list_shape(values: Any) -> list | None:
 
 def _normalize_list_values(values: Any) -> Any:
     """
-    Unwraps unnecessary Expression nesting in list
+    Normalize list values for declaration.
+    - Preserve wrapper objects (Obs, Num, Text, State) for variable storage.
+    - Unwrap Expression containers and lists recursively.
     """
     if isinstance(values, list):
         return [_normalize_list_values(v) for v in values]
 
     if isinstance(values, Expression):
-        return values
+        if values.type in [TYPE_OBS, TYPE_NUM, TYPE_TEXT, TYPE_STATE, TYPE_OBS_REGISTER, TYPE_STATE_REGISTER]:
+            return values.value
+        if values.type == TYPE_LIST:
+            return _normalize_list_values(values.value)
+        return _normalize_list_values(values.get_value())
 
-    if hasattr(values, 'get') and not isinstance(values, Expression):
+    if hasattr(values, 'get') and not isinstance(values, Expression) and not isinstance(values, (Obs, Num, Text, State)):
         try:
-            return values.get()
+            return _normalize_list_values(values.get())
         except Exception:
             pass
 
@@ -71,18 +81,39 @@ def handle_variable_sizevar(self: Place, block: any, parent: any):
     """
     if block.expr():
         expr = self.handle_block(block.expr(), block)
-        if expr.type != TYPE_INT:
+        expr = _coerce_size_expression(expr)
+        if expr is None:
             # code SE-1
             raise SizeErrorException(ScriptErrors.Position.extract(block), code="1")
-        
-        if expr.value <= 0:
+
+        if expr <= 0:
             # code SE-2
             raise SizeErrorException(ScriptErrors.Position.extract(block), code="2")
 
-        return expr.value
+        return expr
     elif block.getText().find('?') != -1:
         # Dynamic size
         return '?'
+
+
+def _coerce_size_expression(expr: Any) -> int | None:
+    if isinstance(expr, Expression) and expr.type == TYPE_INT:
+        return int(expr.value)
+
+    if isinstance(expr, Expression) and expr.type == TYPE_NUM:
+        value = expr.value
+        if hasattr(value, "get"):
+            value = value.get()
+        if isinstance(value, Expression):
+            return _coerce_size_expression(value)
+
+    return None
+
+
+def _is_list_like_expression(value: Any) -> bool:
+    return isinstance(value, Expression) and (
+        value.type == TYPE_LIST or isinstance(value.value, list)
+    )
 
 
 
@@ -115,6 +146,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
     is_dynamic = -100 in [d for d in dimensions if isinstance(d, int)] or len(dimensions) == 0
     
     initial_value = None
+    initial_data = None
 
     if block.expr():
         initial_value = self.handle_block(block.expr(), block)
@@ -138,11 +170,9 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
             code="7"
         )
 
-    var = Variable(var_name, type, dimensions, quantum_client=self.quantum_client, is_const=is_const)
+    var_dims = dimensions
     if initial_value is not None:
-        if type == TYPE_OBS and not isinstance(initial_value, list) and not (
-            isinstance(initial_value, Expression) and initial_value.type == TYPE_LIST
-        ) and dimensions != [0]:
+        if type == TYPE_OBS and not isinstance(initial_value, list) and not _is_list_like_expression(initial_value) and dimensions != [0]:
             size = dimensions[0] if isinstance(dimensions, list) else dimensions
             if isinstance(initial_value, Expression) and initial_value.type in [TYPE_INT, TYPE_NUM]:
                 initial_value = do_operation_int_to_bits(initial_value, size)
@@ -162,9 +192,13 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                 if isinstance(value_shape, list) and value_shape == expected:
                     is_valid_shape = True
                     break
-                if isinstance(value_shape, int) and len(expected) == 1 and value_shape == expected[0]:
-                    is_valid_shape = True
-                    break
+                if isinstance(value_shape, int):
+                    if isinstance(expected, list) and len(expected) == 1 and value_shape == expected[0]:
+                        is_valid_shape = True
+                        break
+                    if expected == value_shape:
+                        is_valid_shape = True
+                        break
 
             if value_shape is None or not is_valid_shape:
                 # code: SM-1
@@ -176,32 +210,41 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                 )
 
             initial_value = Expression(TYPE_LIST, initial_value, shape=value_shape)
-        elif isinstance(initial_value, Expression) and initial_value.type == TYPE_LIST:
-            if(is_dynamic):
-                dimensions = initial_value.shape
-                var.dimensions = dimensions
-            value_shape = initial_value.shape
-            initial_value = Expression(TYPE_LIST, initial_value.value, shape=value_shape)
-            
             if is_dynamic:
-                var_dims = value_shape if isinstance(value_shape, list) else [value_shape]
-            else:
+                initial_data = initial_value.value
+        elif _is_list_like_expression(initial_value):
+            initial_value = Expression(
+                TYPE_LIST,
+                _normalize_list_values(initial_value.value),
+                shape=initial_value.shape
+            )
+            value_shape = initial_value.shape
+
+            if is_dynamic:
                 var_dims = dimensions
-            var = Variable(var_name, type, var_dims, quantum_client=self.quantum_client, is_const=is_const)
-            
+                initial_data = initial_value.value
+
+            initial_value = Expression(TYPE_LIST, initial_value.value, shape=value_shape)
+
             if isinstance(dimensions, int):
                 dimensions = [dimensions]
 
             expected_shapes = [dimensions]
+            if is_dynamic and isinstance(dimensions, list) and any(isinstance(d, int) and d < 0 for d in dimensions):
+                expected_shapes.append(value_shape)
 
             is_valid_shape = False
             for expected in expected_shapes:
                 if isinstance(value_shape, list) and value_shape == expected:
                     is_valid_shape = True
                     break
-                if isinstance(value_shape, int) and len(expected) == 1 and value_shape == expected[0]:
-                    is_valid_shape = True
-                    break
+                if isinstance(value_shape, int):
+                    if isinstance(expected, list) and len(expected) == 1 and value_shape == expected[0]:
+                        is_valid_shape = True
+                        break
+                    if expected == value_shape:
+                        is_valid_shape = True
+                        break
 
             if value_shape is None or not is_valid_shape:
                 # code: SM-1
@@ -212,6 +255,8 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
                     code="1"
                 )
 
+    var = Variable(var_name, type, var_dims, quantum_client=self.quantum_client, is_const=is_const, initial_data=initial_data)
+    if initial_value is not None:
         var.set(initial_value, allow_const_init=is_const)
         var.initial_value = copy.deepcopy(initial_value)
 

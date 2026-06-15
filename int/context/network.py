@@ -91,6 +91,10 @@ def _evaluate_size(self: Place, size_block: Any) -> int:
     """
     Evaluates the size of a packet
     """
+    if size_block.expr() is None:
+        # Dynamic size marker '?'
+        return -100
+
     expr = self.handle_block(size_block.expr(), size_block)
     if expr.type != TYPE_INT:
         # code PSNI-1
@@ -139,12 +143,12 @@ def _derive_packet_size(variable: Any, explicit_size: int | None = None) -> int:
     return 1
 
 
-def _serialize_value(value: Any) -> Any:
+def _serialize_value(value: Any, var_type: Any) -> Any:
     """
     Prepare value for travel thru the network
     """
     if isinstance(value, list):
-        return [_serialize_value(v) for v in value]
+        return [_serialize_value(v, var_type) for v in value]
 
     if isinstance(value, Expression):
         # Avoid calling `get_value()` for quantum `State` expressions
@@ -162,14 +166,17 @@ def _serialize_value(value: Any) -> Any:
     if isinstance(value, State):
         return {'__qstate__': True, 'uid': value.uid}
 
+    if var_type == TYPE_OBS:
+        return {'__obs__': int(value.get_value() if hasattr(value, 'get_value') else value)}
+
     if isinstance(value, Obs):
         return {'__obs__': int(value.get())}
 
     if isinstance(value, Num):
-        return value.get_value()
+        return {'__num__': value.get_value()} 
 
     if isinstance(value, Text):
-        return value.value
+        return {'__text__': value.value}
 
     return value
 
@@ -178,7 +185,9 @@ def _serialize_variable(variable: Variable) -> Any:
     """
     Duplicate from older version
     """
-    return _serialize_value(variable.data)
+    print("Serializing variable:", variable.name, "of type:", variable.type)
+    print("serialized: ", _serialize_value(variable.data, variable.type))
+    return _serialize_value(variable.data, variable.type)
 
 
 def _deserialize_state_payload(payload: Any) -> Any:
@@ -216,16 +225,32 @@ def _deserialize_value(self: Place, payload: Any, var_type: str) -> Any:
     if var_type == TYPE_OBS:
         if isinstance(payload, dict) and payload.get('__obs__') is not None:
             return payload['__obs__']
-        if isinstance(payload, dict) and payload.get('__obsreg__') is not None:
-            return payload['__obsreg__']
         if isinstance(payload, list):
-            return payload
+            result = []
+            for item in payload:
+                result.append(_deserialize_value(self, item, var_type))
+            return result
+        
         return payload
 
     if var_type == TYPE_NUM:
+        if isinstance(payload, dict) and payload.get('__num__') is not None:
+            return payload['__num__']
+        if isinstance(payload, list):
+            result = []
+            for item in payload:
+                result.append(_deserialize_value(self, item, var_type))
+            return result
         return payload
 
     if var_type == TYPE_TEXT:
+        if isinstance(payload, dict) and payload.get('__text__') is not None:
+            return payload['__text__']
+        if isinstance(payload, list):
+            result = []
+            for item in payload:
+                result.append(_deserialize_value(self, item, var_type))
+            return result
         return payload
 
     return payload
@@ -371,7 +396,7 @@ def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: Script
     src_id, msg_id = _get_receive_filters(self, block, pos)
     quantum = _is_quantum_type(var_type)
 
-    packet_size = dimensions[0] if dimensions[0] != 0 else 1
+    packet_size = None if dimensions[0] == -100 else (dimensions[0] if dimensions[0] != 0 else 1)
     if isinstance(packet_size, int) and packet_size <= 0:
         # code: PSNI-3
         raise PacketSizeNotIntegerException(
@@ -406,6 +431,9 @@ def handle_receive_declaration(self: Place, block: Any, parent: Any, pos: Script
             else:
                 var.set(Expression(TYPE_INT, deserialized))
 
+    print("Receive scope create")
+    print(var_name, var, type(var))
+    print(var.get().get_value())
     self.scopes.create(var_name, var)
 
 
