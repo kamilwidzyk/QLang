@@ -3,6 +3,7 @@ from typing import Any, TYPE_CHECKING
 from ...script_errors import ScriptErrors
 
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.spellcheck import get_spellcheck_suggestion
 from ...variable import TYPE_LIST, TYPE_ARRAY, Variable
 from ...expression import Expression, TYPE_INT, TYPE_ARRAY, TYPE_BOOL, TYPE_FLOAT, TYPE_TEXT, TYPE_OBS, TYPE_NUM, TYPE_STRING
 
@@ -59,10 +60,12 @@ def handle_expression_size_getter(self: Place, block: Any, parent: Any, pos: Scr
 
     if not self.scopes.exists(var_name):
         # code: CFV-1
+        suggestion = get_spellcheck_suggestion(var_name, self.scopes.get_all_names())
         raise CantFindVariableException(
             pos=ScriptErrors.Position.extract(block.ID()), 
             var_name=var_name,
-            code="1"
+            code="1",
+            suggestion=suggestion
         )
 
     var = self.scopes.get(var_name)

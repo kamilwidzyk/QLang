@@ -8,6 +8,7 @@ from ...variable import Variable
 from ...QLang.QLangParser import QLangParser
 
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.spellcheck import get_spellcheck_suggestion
 from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ..operator.parent import handle_operator_parent
 from ..variable.assigment import handle_index
@@ -81,10 +82,12 @@ def handle_variable_expression(self: Place, block: Any, parent: Any, pos: Script
 
     if not self.scopes.exists(var_name):
         # code: CFV-3
+        suggestion = get_spellcheck_suggestion(var_name, self.scopes.get_all_names())
         raise CantFindVariableException(
             pos=ScriptErrors.Position.extract(block.ID()), 
             var_name=var_name,
-            code="3"
+            code="3",
+            suggestion=suggestion
         )
 
     variable = self.scopes.get(var_name)

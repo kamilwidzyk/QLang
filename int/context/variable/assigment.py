@@ -6,6 +6,7 @@ from ...script_errors import ScriptErrors
 from ...consts import *
 
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.spellcheck import get_spellcheck_suggestion
 from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ...index_types import SimpleIndex, RangeIndex, ListIndex
 from ...expression import TYPE_BOOL, TYPE_FLOAT, TYPE_INT, TYPE_NUM, TYPE_OBS, Expression, TYPE_STATE
@@ -137,7 +138,8 @@ def handle_var(self: Place, block: Any, parent: Any) -> Variable:
     var_name = block.ID().getText()
 
     if not self.scopes.exists(var_name):
-        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), var_name)
+        suggestion = get_spellcheck_suggestion(var_name, self.scopes.get_all_names())
+        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), var_name, suggestion=suggestion)
 
     index_list = []
     for index in block.index():

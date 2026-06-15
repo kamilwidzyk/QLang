@@ -36,6 +36,7 @@ from ...exception.unknown_args import UnknownArgException
 from ...exception.kwargs_not_supported import KeywordArgumentsNotSupportedException
 from ...exception.builtin_expects_value import BuiltinExpectsValueException
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.spellcheck import get_spellcheck_suggestion
 from ...exception.no_parent_scope import NoParentScopeException
 from ...exception.place_decl_not_allowed import PlaceDeclarationNotAllowedException
 from ...exception.file_not_found import FileNotFoundException
@@ -240,10 +241,12 @@ def _resolve_parent_value(self: Place, block: Any, args: Any, current_scope: Sco
             )
         if var_name not in target_scope.vars:
             # code CFV-4
+            suggestion = get_spellcheck_suggestion(var_name, list(target_scope.vars.keys()))
             raise CantFindVariableException(
                 pos=ScriptErrors.Position.extract(arg_block.ID()),
                 var_name=var_name + " (parent scope)",
-                code="4"
+                code="4",
+                suggestion=suggestion
             )
         variable = target_scope.vars[var_name]
         if hasattr(variable, 'get'):

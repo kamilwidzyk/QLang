@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 from ...exception.test_mode import TestModeException
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.spellcheck import get_spellcheck_suggestion
 from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ...exception.obs_not_indexed import ObsNotIndexedException
 from ...script_errors import ScriptErrors
@@ -49,10 +50,12 @@ def handle_input(self: Place, block: Any, parent: Any, pos: Any):
     if not self.scopes.exists(var_name):
         parent_pos = ScriptErrors.Position.extract(parent) if parent else pos
         # code: CFV-5
+        suggestion = get_spellcheck_suggestion(var_name, self.scopes.get_all_names())
         raise CantFindVariableException(
             pos=parent_pos,
             var_name=var_name,
-            code="5"
+            code="5",
+            suggestion=suggestion
         )
 
     variable = self.scopes.get(var_name)

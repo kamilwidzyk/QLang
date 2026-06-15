@@ -112,6 +112,18 @@ class ScopeManager:
             scope = scope.parent
         return False
 
+    def get_all_names(self) -> list[str]:
+        """
+        Returns a list of all defined variable names across all scopes (from current to global).
+        """
+        names = set()
+        scope = self.current
+        while scope:
+            for name in scope.vars.keys():
+                names.add(name)
+            scope = scope.parent
+        return list(names)
+
     def create(self, name: str, value: Any):
         """
         Creates a variable at current scope and assign it

@@ -2,6 +2,7 @@ from typing import Any, TYPE_CHECKING
 
 from ...script_errors import ScriptErrors
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.spellcheck import get_spellcheck_suggestion
 from ...expression import Expression
 
 if TYPE_CHECKING:
@@ -57,10 +58,12 @@ def handle_type_expr(self: Place, block: Any, parent: Any, pos: ScriptErrors.Pos
         var_name = expr.ID().getText()
         if not self.scopes.exists(var_name):
             # code CFV-2
+            suggestion = get_spellcheck_suggestion(var_name, self.scopes.get_all_names())
             raise CantFindVariableException(
                 pos=ScriptErrors.Position.extract(expr.ID()), 
                 var_name=var_name,
-                code="2"
+                code="2",
+                suggestion=suggestion
             )
         var = self.scopes.get(var_name)
         

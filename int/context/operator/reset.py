@@ -6,6 +6,7 @@ from ...expression import Expression
 from ...variable import Variable
 
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.spellcheck import get_spellcheck_suggestion
 from ...exception.direct_quantum_access import DirectQuantumAccessException
 from ...variable import TYPE_STATE
 from ..variable.assigment import handle_index
@@ -22,7 +23,8 @@ def handle_var(self: "Place", block: Any, parent: Any) -> Variable:
 
     if not self.scopes.exists(var_name):
         # code: CFV-8
-        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), var_name, code="8")
+        suggestion = get_spellcheck_suggestion(var_name, self.scopes.get_all_names())
+        raise CantFindVariableException(ScriptErrors.Position.extract(block.ID()), var_name, code="8", suggestion=suggestion)
 
     index_list = []
     for index in block.index():

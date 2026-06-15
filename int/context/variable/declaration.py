@@ -17,6 +17,7 @@ from ...state import State, StateRegister
 from ...exception.size_error import SizeErrorException
 from ...exception.variable_redefinition import VariableRedefiniotionException
 from ...exception.cant_find_variable import CantFindVariableException
+from ...exception.spellcheck import get_spellcheck_suggestion
 from ...exception.operation_not_supported import OperationNotSupportedException
 from ...exception.shape_mismatch import ShapeMismatchException
 from ...variable import Variable
@@ -131,10 +132,12 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
     if is_const and block.expr() is None:
         # code: CFV-10
+        suggestion = get_spellcheck_suggestion(var_name, self.scopes.get_all_names())
         raise CantFindVariableException(
             pos=ScriptErrors.Position.extract(block.ID()),
             var_name=var_name,
-            code="10"
+            code="10",
+            suggestion=suggestion
         )
 
     dimensions = []
@@ -341,10 +344,12 @@ def handle_const_existing_variable(self: Place, block: any, parent: Any, pos: Sc
 
     if not self.scopes.exists(var_name):
         # code: CFV-10
+        suggestion = get_spellcheck_suggestion(var_name, self.scopes.get_all_names())
         raise CantFindVariableException(
             pos=ScriptErrors.Position.extract(block.ID()),
             var_name=var_name,
-            code="10"
+            code="10",
+            suggestion=suggestion
         )
 
     variable = self.scopes.get(var_name)
