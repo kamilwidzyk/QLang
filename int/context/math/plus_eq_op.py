@@ -29,7 +29,7 @@ def handle_plus_eq_op(self: Place, block: Any, parent: Any, pos: ScriptErrors.Po
         
     var_name = left_variable.name
     var_value = left_variable.get()
-    new_value = do_operation_add(var_value, right_value).value
+    new_value = do_operation_add(var_value, right_value)
     left_variable.set(new_value)
     self.scopes.set(var_name, left_variable)
     return new_value
