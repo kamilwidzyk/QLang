@@ -6,6 +6,7 @@
 */
 
 place Alice{
+    <<"stdlib:utils.ql">>;
     // Prepare entangled pair and send one qubit to Bob
     state qA, qB;
     H qA;
@@ -13,11 +14,13 @@ place Alice{
     send qB to Bob as "qubitB";
 
     // Get two bits of input from user
-    obs bits[2];
+    num number;
     print("Enter number 0-3 (two bits): ");
-    input(bits, 0..3);
-    println("Input '%d' received. Preparing qubit to send..." % bits);
-    println("Bits to send: %d %d" % [bits[0], bits[1]]);
+    input(number, 0..3);
+    println("Input '%d' received. Preparing qubit to send..." % number);
+
+    obs bits[2] = number >2> obs;
+    println("Bits to send: %s" % binary_to_str(bits));
 
     // Encode the two bits into the qubit
     if (bits[0]) Z qA; // Flip phase for bit 0
@@ -29,6 +32,7 @@ place Alice{
 }
 
 place Bob {
+    <<"stdlib:utils.ql">>;
     println("Bob is waiting for qubits from Alice...");
     state qB = receive state from Alice named "qubitB";
     println("Received first qubit from Alice.");
@@ -39,6 +43,6 @@ place Bob {
     CNOT qA -> qB;
     H qA;
     obs result[?] = measure [qA, qB];
-    println("Measurement complete. Decoded bits: %d %d" % [result[0], result[1]]);
-    println("Decoded number: %d" % result);
+    println("Measurement complete. Decoded bits: %s" % binary_to_str(result));
+    println("Decoded number: %d" % (result >> num));
 }

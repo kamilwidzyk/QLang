@@ -1,4 +1,5 @@
 place Manager{
+    <<"stdlib:utils.ql">>;
     // Manager: dispatch numbers to workers and collect prime results.
     num max_number = 1000; // change as needed
     num primes[?]; // list for collecting primes
@@ -20,25 +21,20 @@ place Manager{
         // collect the result
         num result[2] = receive num named "result"; // [number, isPrime]
         println("Received: %d -> %d" % result);
-        if (result[1] == 1) primes += result[0]; 
+        if (result[1]) primes += result[0]; 
 
         // start new task
         if (current_number <= max_number) {
             text target = workers[next_worker];
             send current_number to target as "task";
             current_number++;
-        } else {
-            runningTasks--;
-        }
+        } else runningTasks--;
 
         next_worker = (next_worker + 1) % #workers;
     }
 
-    println("Primes found:");
-    iterate primes as prime{
-        print("%d " % prime);
-    }
-    println("\nTotal: %d primes." % #primes);
+    println("Primes found: " + primes);
+    println("Total: %d primes." % #primes);
 
     // Send shutdown signal to workers
     num shutdown_signal = -1;
@@ -47,7 +43,6 @@ place Manager{
     }
 
     println("Shutdown signals sent to workers. Manager exiting.");
-
 }
 
 // 4 workers, each gets the same code to run

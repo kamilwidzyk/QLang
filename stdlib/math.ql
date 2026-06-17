@@ -28,3 +28,18 @@ function maximum(...nums) {
     }
     return result;
 }
+
+// Returns T if number is prime, F is not
+function is_prime(num n) {
+	num i = 2;
+	while (i**2 <= n) {
+		if (n % i++ == 0) return F;
+	}
+	return T;
+}
+
+// Returns factorial of a given number
+function factorial(num n) {
+    if (n == 0) return 1;
+    return n*factorial(n-1);
+}

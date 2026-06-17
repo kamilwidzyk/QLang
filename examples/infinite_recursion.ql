@@ -1,11 +1,9 @@
-
-
 place systemA{
-    function callMe(obs num[32]){
+    function callMe(num x){
         print("Poziom: ");
-        println(num);
+        println(x);
 
-        callMe(num + 1);
+        callMe(x + 1);
     }
 
     println("Nieskonczona rekurencja");
@@ -14,14 +12,14 @@ place systemA{
 
 
 place systemB{
-    function showNumber(obs num[32]){
+    function showNumber(num x){
         print("Iteracja: ");
-        println(num);
+        println(x);
     }
 
     println("Dluga petla");
 
-    for i from 0 to 1000000000 step 1 {
+    for i from 0 to 1000000000 {
         showNumber(i);
     }
 }
