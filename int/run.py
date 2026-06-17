@@ -384,9 +384,9 @@ class QLangErrorListener(ErrorListener):
         
         # Default message when can't handle it
         # Comment out to see ANTLR output in messages
-        #if title == "":
-        #    title = "Unknown"
-        #    msg = "Fix your mess, please."
+        if title == "":
+            title = "Unknown"
+            msg = "Fix your mess, please."
 
         
         
@@ -478,15 +478,14 @@ def main():
 
     # If any syntax errors found -> show then and stop
     if error_listener.has_errors():
-        print("------ SYNTAX ERRORS FOUND -----------")
-        # TODO: There will be the script errors class called
+        # print("------ SYNTAX ERRORS FOUND -----------")
         log_test("SYNTAX_ERRORS=1")
 
         selected_err = None
         for i, err in enumerate(error_listener.errors):
             if(err["title"] != ""):
                 selected_err = err
-            print(f"Error at Line {err['line']}, Col {err['start_col']}-{err['end_col']}: {err['message']}")
+            #print(f"Error at Line {err['line']}, Col {err['start_col']}-{err['end_col']}: {err['message']}")
             log_test(f"SYNTAX_ERROR_LINE[{i}]={err['line']}")
             log_test(f"SYNTAX_ERROR_COL_START[{i}]={err['start_col']}")
             log_test(f"SYNTAX_ERROR_COL_END[{i}]={err['end_col']}")
