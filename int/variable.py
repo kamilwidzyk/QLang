@@ -216,6 +216,29 @@ class Variable:
                 return
             
             if isinstance(target, list):
+                if getattr(self, 'is_dynamic', False) and last_index >= len(target):
+                    depth = len(self.index)
+                    while len(target) <= last_index:
+                        if depth < len(self.dimensions):
+                            target.append([])
+                        else:
+                            if self.type == TYPE_OBS:
+                                target.append(Obs())
+                            elif self.type == TYPE_NUM:
+                                target.append(Num())
+                            elif self.type == TYPE_TEXT:
+                                target.append(Text(""))
+                            elif self.type == TYPE_STATE:
+                                target.append(State(client=self.quantum_client))
+                            else:
+                                target.append(Num())
+                elif last_index >= len(target):
+                    raise IndexOutOfRangeException(
+                        pos=pos,
+                        index_value=last_index,
+                        length=len(target),
+                        code="1"
+                    )
                 element = target[last_index]
             else:
                 element = target
@@ -224,10 +247,14 @@ class Variable:
                 if new_value.type != TYPE_LIST:
                     log(VARIABLE, FATAL, "List expression required")
                     exit()
-                self.assign_values(element, new_value.value, self.is_dynamic)
+                self.assign_values(element, new_value.value, getattr(self, 'is_dynamic', False))
             else:
-                val = ValueResolver.extract_raw_value(new_value)
-                element.set(val)
+                new_raw_value = getattr(new_value, 'value', new_value)
+                if getattr(self, 'is_dynamic', False) and isinstance(new_raw_value, list) and isinstance(target, list):
+                    target[last_index] = ValueResolver.wrap_list(self.type, new_raw_value, self.quantum_client)
+                else:
+                    val = ValueResolver.extract_raw_value(new_value)
+                    element.set(val)
             return
 
         if self.is_list:
@@ -378,7 +405,7 @@ class Variable:
         else:
             raise TypeError("Variable is not subscriptable")
 
-    def get_data_at_index(self, data, indexes, pos):
+    def get_data_at_index(self, data, indexes, pos, current_depth=1):
         if not indexes:
             return data
             
@@ -388,14 +415,30 @@ class Variable:
         if isinstance(idx, SimpleIndex):
             resolved = idx.resolve(length)
             if resolved >= len(data):
-                # code IOR-1
-                raise IndexOutOfRangeException(
-                    pos=pos,
-                    index_value=resolved,
-                    length=len(data),
-                    code="1"
-                )
-            return self.get_data_at_index(data[resolved], indexes[1:], pos)
+                if getattr(self, 'is_dynamic', False) and isinstance(data, list):
+                    while len(data) <= resolved:
+                        if len(indexes) > 1 or current_depth < len(self.dimensions):
+                            data.append([])
+                        else:
+                            if self.type == TYPE_OBS:
+                                data.append(Obs())
+                            elif self.type == TYPE_NUM:
+                                data.append(Num())
+                            elif self.type == TYPE_TEXT:
+                                data.append(Text(""))
+                            elif self.type == TYPE_STATE:
+                                data.append(State(client=self.quantum_client))
+                            else:
+                                data.append(Num())
+                else:
+                    # code IOR-1
+                    raise IndexOutOfRangeException(
+                        pos=pos,
+                        index_value=resolved,
+                        length=len(data),
+                        code="1"
+                    )
+            return self.get_data_at_index(data[resolved], indexes[1:], pos, current_depth + 1)
             
         elif isinstance(idx, RangeIndex):
             start, end = idx.resolve(length)
