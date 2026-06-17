@@ -1,0 +1,584 @@
+\section{Implementation Report}
+\label{sec:implementation-report}
+
+This chapter provides a technical description of the interpreter's internal
+architecture, the use of ANTLR\,4 for parsing, the stabiliser-based quantum
+simulation engine, the multiprocessing model, and the testing framework.
+
+% ─────────────────────────────────────────────
+\subsection{Project Structure}
+\label{sec:impl-project-structure}
+
+The repository is organised as follows:
+
+\begin{codebox}
+QLang/
+  antlr/
+    QLang.g4              ANTLR4 combined grammar
+    antlr-4.13.2-complete.jar
+  int/                    Interpreter source (Python)
+    QLang/                Generated lexer/parser (output of ANTLR)
+    context/              Handler modules for AST node types
+      control/            for, while, iterate
+      expression/         variables, numbers, lists, booleans
+      function/           declaration and invocation
+      io/                 print, println, debug, input
+      math/               arithmetic and logical operators
+      operator/           comparisons, increment, cast, reset
+      statement/          statement dispatch, break/continue
+      time/               wait
+      variable/           declaration, assignment
+      network.py          send / receive / available
+      quantum.py          gate application and measurement
+    exception/            39 runtime exception classes
+    operations/           arithmetic helpers
+    sim/                  Quantum simulator subsystem
+      data/               Data structures (gates, graph, request, ...)
+      exceptions/         Simulator-specific exceptions
+      simulator.py        Stabiliser tableau core
+      server.py           QuantumServer (separate process)
+      client.py           QuantumClient (per-place proxy)
+    run.py                Entry point
+    place.py              Place class (execution unit)
+    places.py             Place partitioning logic
+    network.py            QuantumNetwork (packet pool)
+    scope.py              Scope manager (variable scoping)
+    variable.py           Variable class
+    expression.py         Expression and ValueResolver
+    function.py           Function / FunctionParam
+    state.py              State (qubit handle)
+    obs.py                Obs / ObsRegister
+    num.py                Num
+    text.py               Text
+    imports.py            Import preprocessor
+    consts.py             ANTLR context type aliases
+    console.py            Per-place console window
+    script_errors.py      Error display (coloured box)
+    logger.py             Logging subsystem
+  stdlib/                 Standard library (.ql files)
+  tests/                  Test framework and test suites
+  highlighter/            VS Code syntax highlighting extension
+  pyproject.toml          Project metadata and dependencies
+  run.bat                 Build-and-run script
+\end{codebox}
+
+\subsubsection{Python Dependencies}
+
+The project is managed by the \texttt{uv} tool. Dependencies declared in
+\texttt{pyproject.toml}:
+
+\begin{center}
+\begin{tabular}{|l|l|p{8cm}|}
+\hline
+\textbf{Package} & \textbf{Version} & \textbf{Role} \\
+\hline
+\texttt{antlr4-python3-runtime} & $\geq$ 4.13.2 & Runtime for the generated parser \\
+\texttt{colorama}               & $\geq$ 0.4.6  & Coloured terminal output \\
+\texttt{pygls}                  & $\geq$ 1.3.0  & Language Server Protocol support \\
+\hline
+\end{tabular}
+\end{center}
+
+The required Python version is \textbf{$\geq$ 3.14}.
+
+% ═══════════════════════════════════════════════
+\subsection{ANTLR 4 Grammar and Parser Generation}
+\label{sec:impl-antlr}
+
+% ─────────────────────────────────────────────
+\subsubsection{Grammar File}
+
+The entire language is defined in a single combined grammar file
+\texttt{antlr/QLang.g4}. A combined grammar means the lexer and
+parser rules coexist in one file.
+
+Parser generation is executed automatically on every interpreter run by the
+\texttt{run.bat} script:
+
+\begin{codebox}
+java -jar antlr-4.13.2-complete.jar \
+     -Dlanguage=Python3 QLang.g4 \
+     -o ..\int\QLang\ -visitor
+\end{codebox}
+
+The generated files (\texttt{QLangLexer.py}, \texttt{QLangParser.py},
+\texttt{QLangVisitor.py}, and token files) are placed in
+\texttt{int/QLang/}.
+
+% ─────────────────────────────────────────────
+\subsubsection{Top-Level Grammar Rules}
+
+\begin{codebox}
+program : topLevelItem* EOF ;
+
+topLevelItem
+    : placeDecl       // place declaration
+    | functionDecl    // function (goes to global place)
+    | statement       // statement (goes to global place)
+    ;
+\end{codebox}
+
+A program is a sequence of top-level items: place declarations,
+function declarations, or statements. Items that are not wrapped in a
+\texttt{place} block belong to the implicit \texttt{global} place.
+
+% ─────────────────────────────────────────────
+\subsubsection{Operators}
+
+ANTLR\,4 resolves the ambiguity of left-recursive expressions by assigning
+higher precedence to alternatives listed earlier in the \texttt{expr} rule.
+The effective precedence table (highest first):
+
+\begin{center}
+\begin{tabular}{|c|l|l|}
+\hline
+\textbf{\#} & \textbf{Operators} & \textbf{Label} \\
+\hline
+1 & \texttt{!x}, \texttt{-x}, \texttt{+x}   & Unary \\
+2 & \texttt{++x}, \texttt{--x}               & Pre-increment / decrement \\
+3 & \texttt{x++}, \texttt{x--}               & Post-increment / decrement \\
+4 & \texttt{x.0} (float cast)                & FloatCastExpr \\
+5 & \texttt{= += -= *= /= \%= **= \&= |=}   & Assignment / compound \\
+6 & \texttt{**}                               & Exponentiation \\
+7 & \texttt{* / \%}                           & Multiplicative \\
+8 & \texttt{+ -}                              & Additive \\
+9 & \texttt{>>}                               & Binary-from-list \\
+10 & \texttt{< > <= >=}                       & Relational \\
+11 & \texttt{== !=}                           & Equality \\
+12 & \texttt{\&\&}                            & Logical AND \\
+13 & \texttt{||}                              & Logical OR \\
+14 & \texttt{\$x}                             & Type query \\
+15 & \texttt{c ? a : b}                       & Ternary \\
+\hline
+\end{tabular}
+\end{center}
+
+% ─────────────────────────────────────────────
+\subsubsection{Lexer Highlights}
+
+\begin{itemize}
+    \item \textbf{Identifiers} use the Unicode pattern
+          \texttt{[\textbackslash p\{L\}\_][\textbackslash p\{L\}\textbackslash p\{N\}\_]*},
+          supporting non-ASCII characters (including Polish letters).
+    \item \textbf{Numbers}: decimal, hexadecimal (\texttt{0x\ldots}),
+          binary (\texttt{0b\ldots}), and scientific notation
+          (\texttt{1.5e10}).
+    \item \textbf{Strings}: three quoting styles --- double quotes, single
+          quotes, and backticks.
+    \item \textbf{Comments}: line (\texttt{//}) and block
+          (\texttt{/* \ldots */}).
+\end{itemize}
+
+% ─────────────────────────────────────────────
+\subsubsection{Custom Error Listener}
+
+The default ANTLR\,4 error listener is replaced by a custom class,
+\texttt{QLangErrorListener} (in \texttt{int/run.py}).  It analyses the
+parser's context stack (\texttt{\_ctx}) to produce user-friendly error
+messages instead of raw ANTLR output.  Over 50 context-specific error
+patterns are defined, each mapping a combination of parser context and
+offending token to a human-readable title and explanation (e.g.\
+\texttt{LeftOpen}, \texttt{BrokenIf}, \texttt{NoVariable},
+\texttt{BadGate}).
+
+% ═══════════════════════════════════════════════
+\subsection{Interpreter Pipeline}
+\label{sec:impl-pipeline}
+
+The full lifecycle of a QLang program is:
+
+\begin{enumerate}
+    \item \textbf{Read} the \texttt{.ql} file (UTF-8).
+    \item \textbf{Preprocess imports}: the preprocessor in \texttt{imports.py}
+          resolves the \texttt{<< "path" >>} and \texttt{<< ""path"" >>}
+          directives before lexing.
+    \item \textbf{Lex and parse} with the ANTLR\,4-generated lexer and parser.
+    \item \textbf{Partition into places}: \texttt{divideIntoPlaces()} in
+          \texttt{places.py} walks the top-level items and groups them by
+          place name. For each place, the source text of every member is
+          stored together with its original line number.
+    \item \textbf{Start the quantum server}: a dedicated
+          \texttt{multiprocessing.Process} running
+          \texttt{QuantumServer.run()}.
+    \item \textbf{Create the packet network}: a shared
+          \texttt{QuantumNetwork} backed by a
+          \texttt{multiprocessing} manager object.
+    \item \textbf{Launch each place} as a separate OS process.
+    \item \textbf{Wait} for all place processes to terminate.
+    \item \textbf{Shut down} the quantum server.
+\end{enumerate}
+
+% ─────────────────────────────────────────────
+\subsubsection{Re-Parsing Inside Place Processes}
+
+Because ANTLR\,4 parse trees are not serialisable with Python's
+\texttt{pickle}, they cannot be shared across \texttt{multiprocessing}
+boundaries.  The interpreter works around this by storing each place's code
+as plain text and \textbf{re-parsing} it inside the child process:
+
+\begin{codebox}
+# inside Place.process_target()
+place_text = "place " + self.name + "{\n"
+for block in self.blocks:
+    place_text += block.text + "\n"
+place_text += "};"
+
+input_stream = InputStream(place_text)
+lexer  = QLangLexer(input_stream)
+parser = QLangParser(CommonTokenStream(lexer))
+tree   = parser.placeDecl()
+
+for member in tree.placeMember():
+    self.handle_block(member.getChild(0), None)
+\end{codebox}
+
+% ═══════════════════════════════════════════════
+\subsection{Handler Dispatch Mechanism}
+\label{sec:impl-dispatch}
+
+Although ANTLR\,4 generates a Visitor base class, the interpreter does
+not use it.  Instead, a type-to-handler dictionary
+is defined in \texttt{Place.handle\_block()}:
+
+\begin{codebox}
+HANDLERS = {
+    TerminalCtx:          handle_terminal,
+    StatementCtx:         handle_statement,
+    VarDeclCtx:           handle_variable_declaration,
+    GateStmtCtx:          handle_gate_statement,
+    MeasureExprCtx:       handle_measure_expr,
+    IfStmtCtx:            handle_if,
+    ForStmtCtx:           handle_for,
+    WhileStmtCtx:         handle_while,
+    ...                   # approximately 70 mappings total
+}
+\end{codebox}
+
+For every AST node, the method iterates over the keys of \texttt{HANDLERS}
+and checks \texttt{isinstance(block, }\texttt{type)}.  When a match is found, the
+corresponding handler function is called with the signature
+\texttt{handler(self, block, parent, pos)}.
+
+Each handler is imported from a dedicated module inside the
+\texttt{int/context/} package.  Type aliases for ANTLR context classes
+(e.g.\ \texttt{VarDeclCtx = QLangParser.VarDeclContext}) are centralised in
+\texttt{int/consts.py}.
+
+% ═══════════════════════════════════════════════
+\subsection{Internal Type System}
+\label{sec:impl-types}
+
+The interpreter distinguishes two layers of types:
+
+\begin{center}
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\textbf{Layer} & \textbf{Types} & \textbf{Purpose} \\
+\hline
+Primitive &
+    \texttt{int}, \texttt{float}, \texttt{bool}, \texttt{string}, \texttt{list} &
+    Internal evaluation types carried by \texttt{Expression} \\
+\hline
+Variable wrapper &
+    \texttt{Obs}, \texttt{Num}, \texttt{State}, \texttt{Text}, \texttt{any} &
+    Language-level types, each backed by a dedicated Python class \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Expression}
+
+\texttt{Expression} (\texttt{int/expression.py}) is the main value carrier
+returned by handlers.  It stores a \texttt{type} string, a \texttt{value},
+and an optional \texttt{shape}.  The class overloads all Python
+arithmetic and comparison dunder methods with automatic type promotion
+following the chain: \texttt{bool} $\rightarrow$ \texttt{int} $\rightarrow$
+\texttt{float} $\rightarrow$ \texttt{string}.
+
+\subsubsection{ValueResolver}
+
+\texttt{ValueResolver} provides static helper methods:
+\begin{itemize}
+    \item \texttt{extract\_raw\_value(v)} --- iteratively unwraps nested
+          \texttt{Expression}/\texttt{Variable}/wrapper objects down to a Python primitive.
+    \item \texttt{resolve\_for\_operation(v)} --- unwraps to the level needed
+          for arithmetic, preserving \texttt{Obs} / \texttt{Num} / \texttt{Text}
+          wrappers that define their own operators.
+    \item \texttt{wrap\_value(type, v)} / \texttt{wrap\_list(\ldots)} ---
+          wraps raw values back into the appropriate class.
+\end{itemize}
+
+\subsubsection{Variable}
+
+\texttt{Variable} (\texttt{int/variable.py}) supports:
+multi-dimensional arrays, dynamic arrays,
+constants, three indexing modes
+(\texttt{SimpleIndex}, \texttt{RangeIndex}, \texttt{ListIndex}),
+character-level indexing into \texttt{Text}, and reset-to-initial-value.
+
+\subsubsection{Scope Manager}
+
+\texttt{ScopeManager} (\texttt{int/scope.py}) implements a
+linked-list stack of scopes.  Each scope stores a
+\texttt{vars} dictionary, a code position, a type label (\texttt{block},
+\texttt{for}, \texttt{if}, \texttt{function}, \ldots), and a parent
+reference.  Variable look-up walks from the current scope upward to the
+global scope.
+
+% ═══════════════════════════════════════════════
+\subsection{Quantum Simulator}
+\label{sec:impl-simulator}
+
+\subsubsection{Client--Server Architecture}
+
+The simulator runs in a dedicated OS process.  Communication
+between places and the simulator uses \texttt{multiprocessing.Queue}:
+
+\begin{itemize}
+    \item One shared command queue --- all places enqueue
+          \texttt{QuantumRequest} objects.
+    \item One response queue per place --- the server returns
+          \texttt{QuantumResponse} to the correct caller.
+\end{itemize}
+
+The server runs
+an infinite loop that dequeues requests, dispatches them to the
+\texttt{QuantumSimulator} instance, and enqueues the response.
+Ten command types are supported: \texttt{CREATE}, \texttt{LIST},
+\texttt{STAB}, \texttt{STATES}, \texttt{HISTORY}, \texttt{GATE},
+\texttt{MEASURE}, \texttt{REMOVE}, \texttt{ALIAS}, \texttt{SEED}.
+
+\subsubsection{Stabiliser Tableau}
+
+The core simulation engine (\texttt{int/sim/simulator.py}) implements the
+stabiliser tableau formalism.  For $n$~qubits, the data structure
+consists of:
+
+\begin{itemize}
+    \item $\mathbf{X}$: a $2n \times n$ bit matrix (X components of Pauli
+          operators).
+    \item $\mathbf{Z}$: a $2n \times n$ bit matrix (Z components).
+    \item $\mathbf{phase}$: a $2n$-element vector (values 0 or 2,
+          representing signs $+1$ and $-1$).
+\end{itemize}
+
+Rows $0 \ldots n{-}1$ are destabilisers, rows $n \ldots 2n{-}1$
+are \emph{stabilisers}.  Each Pauli operator is encoded as a pair of
+bits $(x,\,z)$:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Pauli} & $x$ & $z$ \\
+\hline
+$I$ & 0 & 0 \\
+$X$ & 1 & 0 \\
+$Y$ & 1 & 1 \\
+$Z$ & 0 & 1 \\
+\hline
+\end{tabular}
+\end{center}
+
+A precomputed Pauli multiplication table stores the product and phase offset for
+every pair of Pauli operators, enabling $O(1)$ row-multiplication steps.
+
+\subsubsection{Gate Implementation}
+
+All supported gates belong to the Clifford group and are
+implemented as direct bit manipulations on the tableau:
+
+\begin{center}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Gate} & \textbf{Tableau transformation} \\
+\hline
+$H$ & Swap columns $X \leftrightarrow Z$; adjust phase if both bits are 1. \\
+$S$ & $Z_{r,c} \mathrel{\oplus}= X_{r,c}$; adjust phase. \\
+$X$ & Flip phase if $Z_{r,c} = 1$. \\
+$Y$ & Flip phase if $X_{r,c} \oplus Z_{r,c} = 1$. \\
+$Z$ & Flip phase if $X_{r,c} = 1$. \\
+\hline
+$\mathit{CNOT}(c,t)$ & $X_{r,t} \mathrel{\oplus}= X_{r,c}$;\;
+                        $Z_{r,c} \mathrel{\oplus}= Z_{r,t}$;\; phase correction. \\
+$\mathit{CZ}$ & Decomposed as $H(t) \to \mathit{CNOT}(c,t) \to H(t)$. \\
+\hline
+\end{tabular}
+\end{center}
+
+The \texttt{swap} gate is decomposed at interpreter level as three consecutive CNOT gates.
+
+Because the stabiliser formalism only supports Clifford gates,
+non-Clifford gates (e.g.\ $T$, Toffoli, arbitrary rotations)
+cannot be simulated by this engine.  This is a deliberate
+trade-off: Clifford circuits can be simulated in $O(n^2)$ time per gate,
+whereas a general state-vector simulation would require $O(2^n)$ memory.
+
+\subsubsection{Measurement}
+
+Measurement of qubit $q$ proceeds as follows:
+
+\begin{enumerate}
+    \item Search stabiliser rows ($n \ldots 2n{-}1$) for a row where
+          $X_{r,q} = 1$.
+    \item If found:
+    \begin{itemize}
+        \item The outcome is sampled uniformly ($0$ or $1$).  If a per-prefix
+              seed was set via \texttt{seed()}, a deterministic
+              \texttt{random.Random(seed)} is used.
+        \item The tableau is updated to reflect the post-measurement
+              projective collapse.
+    \end{itemize}
+    \item If not found:
+    \begin{itemize}
+        \item The outcome is computed from the destabiliser rows.
+    \end{itemize}
+    \item The entanglement graph calls \texttt{split(q)} to remove $q$ from
+          its entanglement group.
+\end{enumerate}
+
+\subsubsection{Entanglement Graph}
+
+The class \texttt{EntaglementGraph} (\texttt{int/sim/data/graph.py})
+implements a \textbf{Union--Find} structure with path compression and
+union-by-rank.  It tracks which qubits are entangled:
+
+\begin{itemize}
+    \item \texttt{union(a, b)} --- called when a two-qubit gate links
+          $a$ and $b$.
+    \item \texttt{split(x)} --- called after measurement, disconnects
+          $x$ from its group.
+    \item \texttt{connected(a, b)} --- checks whether two qubits share an
+          entanglement group.
+    \item \texttt{remove(x)} --- used by \texttt{remove\_qubit}, returns
+          \texttt{False} if $x$ is still entangled.
+\end{itemize}
+
+\subsubsection{State Aliasing}
+
+The method \texttt{rename\_state(old\_id, new\_prefix)} creates an
+alias for an existing simulator state under a new prefix.  This is essential
+when qubits are transferred between places: the received qubit gets a new
+alias with the receiver's prefix but still references the same simulator
+state.
+
+% ═══════════════════════════════════════════════
+\subsection{Multiprocessing Model}
+\label{sec:impl-multiprocessing}
+
+Each place runs as a separate OS process
+(\texttt{multiprocessing.Process}).
+
+Key consequences:
+\begin{itemize}
+    \item Parse trees must be re-created in each process.
+    \item Shared state requires IPC primitives like
+          \texttt{multiprocessing} \texttt{.Queue} and
+          \texttt{multiprocessing} \texttt{.Manager}.
+\end{itemize}
+
+\subsubsection{Packet Network Internals}
+
+The \texttt{QuantumNetwork} class (\texttt{int/network.py}) is backed by:
+
+\begin{codebox}
+manager      = multiprocessing.Manager()
+packet_pool  = manager.list()                    # shared packet list
+condition    = manager.Condition(manager.Lock())  # for wait/notify
+global_counter = manager.Value('i', 0)           # monotonic packet ID
+\end{codebox}
+
+Sending (\texttt{send}) acquires the condition lock, appends a
+\texttt{Packet} to \texttt{packet\_pool}, increments the counter, and calls
+\texttt{condition.notify\_all()}.
+
+Receiving (\texttt{wait\_for}) acquires the condition lock and
+scans the pool for a matching packet.  If no match is found, it calls
+\texttt{condition.wait()} and re-scans when notified.  Matching considers:
+quantum/classical flag, data size, target ID, source ID, and message name.
+
+Peeking (\texttt{peek}) performs the same scan but does not consume
+or block.
+
+\subsubsection{Per-Place Console}
+
+Each place opens a separate CMD window via the \texttt{Console} class
+(\texttt{int/console.py}).  The window is a subprocess running
+\texttt{console\_worker.py}, connected to the place process through a
+TCP socket on \texttt{localhost}.
+
+% ═══════════════════════════════════════════════
+\subsection{Error Reporting Internals}
+\label{sec:impl-errors}
+
+The \texttt{ScriptErrors.showError()} method (\texttt{int/script\_errors.py})
+renders a coloured, box-drawn error display.
+
+\subsubsection{Runtime Error Verification}
+
+For tests that expect a specific runtime error, the framework parses
+structured \texttt{ERROR\_*} entries from the log:
+
+\begin{codebox}
+[--- TEST ---](D) ERROR_LINE_START[0]=5
+[--- TEST ---](D) ERROR_LINE_END[0]=5
+[--- TEST ---](D) ERROR_COL_START[0]=10
+[--- TEST ---](D) ERROR_COL_END[0]=15
+[--- TEST ---](D) ERROR_CODE[0]=DBZ-1
+\end{codebox}
+
+The helper \texttt{find\_error\_entry(line\_start,} \texttt{line\_end,}
+\texttt{col\_start,} \texttt{col\_end,} \texttt{code)} matches against these entries, allowing tests to verify
+both the error code and the exact source location.
+
+\subsubsection{Syntax Error Collection Mode}
+
+A special mode (\texttt{SYNTAX\_ERROR\_COLLECT}) scans all \texttt{.ql}
+files in \texttt{tests/syntax\_errors/}, runs the interpreter in
+\texttt{SYNTAX\_MODE} (parse-only, no execution), and collects error data
+into \texttt{tests/} \texttt{syntax\_errors.json}.  This is used to validate that
+the custom \texttt{QLangErrorListener} produces meaningful messages for
+every syntax error pattern.
+
+% ═══════════════════════════════════════════════
+\subsection{Key Architectural Decisions}
+\label{sec:impl-decisions}
+
+\begin{center}
+\begin{tabular}{|p{4.5cm}|p{8.5cm}|}
+\hline
+\textbf{Decision} & \textbf{Rationale} \\
+\hline
+Stabiliser tableau instead of state vector &
+    $O(n^2)$ per-gate cost vs.\ $O(2^n)$ memory for state vectors;
+    sufficient for the supported Clifford gate set. \\
+\hline
+OS processes instead of threads &
+    Bypasses Python's GIL, giving genuine parallelism for places. \\
+\hline
+Re-parsing per place &
+    ANTLR\,4 CST objects are not picklable; storing text and re-parsing
+    is the simplest workaround. \\
+\hline
+Handler dictionary instead of ANTLR Visitor &
+    Enables modular, file-per-handler organisation; avoids a monolithic
+    Visitor class. \\
+\hline
+TCP sockets for console I/O &
+    Connects the place process to a separate CMD window process on
+    Windows, allows independent lifecycle management. \\
+\hline
+\end{tabular}
+\end{center}
+
+% ═══════════════════════════════════════════════
+\subsection{Limitations}
+\label{sec:impl-limitations}
+
+\begin{itemize}
+    \item \textbf{No non-Clifford gates.}  The stabiliser formalism cannot
+          simulate gates outside the Clifford group (e.g.\ $T$, Toffoli,
+          arbitrary rotations).  Universal quantum computation is therefore
+          not expressible.
+    \item \textbf{Re-parsing overhead.}  Each place re-parses its code at
+          start-up, which adds latency proportional to the code size.
+\end{itemize}
