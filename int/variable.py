@@ -19,14 +19,13 @@ from .index_types import SimpleIndex, RangeIndex, ListIndex
 # dimensions is a list of array dimensions, [0] for single value
 # 
 class Variable:
-    def __init__(self, name: str, type: str, dimensions: list[int], index: list[int] = None, quantum_client=None, is_const: bool = False, initial_data=None):
+    def __init__(self, name: str, type: str, dimensions: list[int], index: list[int] = None, quantum_client=None, is_const: bool = False, initial_data=None, is_dynamic: bool = False):
         self.name = name
         self.type = type
         self.declared_type = type
         self.dimensions = dimensions
-        self.is_dynamic = any(isinstance(d, int) and d < 0 for d in dimensions)
-        self.data = None
-        self.is_list = False
+        self.is_dynamic = is_dynamic or (-100 in self.dimensions)
+            
         if not self.is_dynamic and initial_data is not None and isinstance(initial_data, list) and self.dimensions == [0]:
             self.is_dynamic = True
         self.index = index # this is used when handler returns a Variable with access index
@@ -253,6 +252,10 @@ class Variable:
             elif self.type == TYPE_STATE and self.declared_type == TYPE_ANY:
                 self.data = ValueResolver.extract_raw_value(new_value)
             else:
+                if self.is_dynamic and isinstance(new_value.value, list):
+                    self.data = ValueResolver.wrap_list(self.type, new_value.value, self.quantum_client)
+                    self.is_list = True
+                    return
                 val = ValueResolver.extract_raw_value(new_value)
                 self.data.set(val)
 

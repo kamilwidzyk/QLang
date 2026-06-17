@@ -195,7 +195,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
         )
     
     var_dims = dimensions
-    var = Variable(var_name, type, var_dims, quantum_client=self.quantum_client, is_const=is_const, initial_data=initial_data)
+    var = Variable(var_name, type, var_dims, quantum_client=self.quantum_client, is_const=is_const, initial_data=initial_data, is_dynamic=is_dynamic)
         
 
     if initial_value is not None:
@@ -216,7 +216,7 @@ def _handle_variable_subdeclaration(self: Place, block: any, parent: Any, type: 
 
         if isinstance(initial_value, list):
             shape = _list_shape(initial_value)
-            if not shapes_match(var_dims, shape) and (type != TYPE_ANY or is_dynamic):
+            if not shapes_match(var_dims, shape) and not is_dynamic:
                 # code: SM-1
                 raise ShapeMismatchException(
                     pos=ScriptErrors.Position.extract(block),
