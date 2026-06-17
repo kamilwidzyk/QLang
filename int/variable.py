@@ -30,6 +30,8 @@ class Variable:
             
         if not self.is_dynamic and initial_data is not None and isinstance(initial_data, list) and self.dimensions == [0]:
             self.is_dynamic = True
+        
+        self.is_resizable = self.is_dynamic and (-100 not in self.dimensions)
         self.index = index # this is used when handler returns a Variable with access index
         self.quantum_client = quantum_client
         self.initial_value = None
@@ -216,7 +218,7 @@ class Variable:
                 return
             
             if isinstance(target, list):
-                if getattr(self, 'is_dynamic', False) and last_index >= len(target):
+                if getattr(self, 'is_resizable', False) and last_index >= len(target):
                     depth = len(self.index)
                     while len(target) <= last_index:
                         if depth < len(self.dimensions):
@@ -247,10 +249,10 @@ class Variable:
                 if new_value.type != TYPE_LIST:
                     log(VARIABLE, FATAL, "List expression required")
                     exit()
-                self.assign_values(element, new_value.value, getattr(self, 'is_dynamic', False))
+                self.assign_values(element, new_value.value, getattr(self, 'is_resizable', False))
             else:
                 new_raw_value = getattr(new_value, 'value', new_value)
-                if getattr(self, 'is_dynamic', False) and isinstance(new_raw_value, list) and isinstance(target, list):
+                if getattr(self, 'is_resizable', False) and isinstance(new_raw_value, list) and isinstance(target, list):
                     target[last_index] = ValueResolver.wrap_list(self.type, new_raw_value, self.quantum_client)
                 else:
                     val = ValueResolver.extract_raw_value(new_value)
@@ -281,8 +283,9 @@ class Variable:
             elif self.type == TYPE_STATE and self.declared_type == TYPE_ANY:
                 self.data = ValueResolver.extract_raw_value(new_value)
             else:
-                if self.is_dynamic and isinstance(new_value.value, list):
-                    self.data = ValueResolver.wrap_list(self.type, new_value.value, self.quantum_client)
+                new_raw_value = getattr(new_value, 'value', new_value)
+                if getattr(self, 'is_resizable', False) and isinstance(new_raw_value, list):
+                    self.data = ValueResolver.wrap_list(self.type, new_raw_value, self.quantum_client)
                     self.is_list = True
                     return
                 val = ValueResolver.extract_raw_value(new_value)
@@ -415,7 +418,7 @@ class Variable:
         if isinstance(idx, SimpleIndex):
             resolved = idx.resolve(length)
             if resolved >= len(data):
-                if getattr(self, 'is_dynamic', False) and isinstance(data, list):
+                if getattr(self, 'is_resizable', False) and isinstance(data, list):
                     while len(data) <= resolved:
                         if len(indexes) > 1 or current_depth < len(self.dimensions):
                             data.append([])
