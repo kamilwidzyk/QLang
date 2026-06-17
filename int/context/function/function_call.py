@@ -15,6 +15,7 @@ from ...expression import (
     TYPE_STATE,
     TYPE_TEXT,
     TYPE_ANY,
+    TYPE_LIST,
     ValueResolver
 )
 from ...variable import Variable
@@ -139,8 +140,8 @@ def handle_function_call(self: Place, block: Any, parent: Any, pos: ScriptErrors
                     cleaned_varargs.append(val.value)
                 else:
                     cleaned_varargs.append(val)
-            var = Variable(param.name, TYPE_NUM, [len(cleaned_varargs)])
-            var.data = cleaned_varargs
+            var = Variable(param.name, TYPE_ANY, [len(cleaned_varargs)], quantum_client=self.quantum_client, is_dynamic=True)
+            var.set(Expression(TYPE_LIST, cleaned_varargs, shape=[len(cleaned_varargs)]), allow_const_init=True)
             new_scope.vars[param.name] = var
             param_index += 1
         else:

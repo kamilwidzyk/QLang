@@ -24,6 +24,8 @@ class Variable:
         self.type = type
         self.declared_type = type
         self.dimensions = dimensions
+        self.data = None
+        self.is_list = False
         self.is_dynamic = is_dynamic or (-100 in self.dimensions)
             
         if not self.is_dynamic and initial_data is not None and isinstance(initial_data, list) and self.dimensions == [0]:
@@ -246,7 +248,7 @@ class Variable:
         else:
             if isinstance(self.data, Text):
                 # Setting entire string
-                self.data.value = str(new_value) if new_value is not None else ""
+                self.data.value = str(ValueResolver.extract_raw_value(new_value)) if new_value is not None else ""
             elif self.type == "Function":
                 self.data = new_value.extract_raw_value() if hasattr(new_value, 'extract_raw_value') else Expression._extract_value_from(new_value)
             elif self.type == TYPE_STATE and self.declared_type == TYPE_ANY:
