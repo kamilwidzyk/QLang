@@ -6,10 +6,12 @@ place Alice{
     send qB to Bob as "qubitB";
 
     // Get two bits of input from user
-    obs bits[2];
+    num number;
     print("Enter number 0-3 (two bits): ");
-    input(bits, 0..3);
-    println("Input '%d' received. Preparing qubit to send..." % bits);
+    input(number, 0..3);
+    println("Input '%d' received. Preparing qubit to send..." % number);
+
+    obs bits[2] = number >2> obs;
     println("Bits to send: %d %d" % [bits[0], bits[1]]);
 
     // Encode the two bits into the qubit
@@ -33,5 +35,5 @@ place Bob {
     H qA;
     obs result[?] = measure [qA, qB];
     println("Measurement complete. Decoded bits: %d %d" % [result[0], result[1]]);
-    println("Decoded number: %d" % result);
+    println("Decoded number: %d" % (result >> num));
 }

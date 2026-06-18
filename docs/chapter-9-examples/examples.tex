@@ -55,4 +55,10 @@ When the maximum number is reached, the Manager sends a shutdown signal
 \texttt{named "task"} and \texttt{named "result"} ensures that task packets
 and result packets are never confused.
 
+\Needspace{8\baselineskip}
+\subsection{Example: Quantum Key Distribution (BB84)}
+\label{sec:bb84-example}
 
+The following example demonstrates a simplified version of the BB84 quantum key distribution protocol. Alice encodes bits using either the Z-basis (standard) or X-basis (Hadamard), and sends the qubits to Bob. Bob randomly chooses measurement bases. After the transmission, they compare their chosen bases to sift the key.
+
+\input{chapter-9-examples/qlang/BB84.tex}
