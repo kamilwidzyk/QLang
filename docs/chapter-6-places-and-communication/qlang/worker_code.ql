@@ -1,15 +1,6 @@
-// Receives a number to check from the Manager and sends back [number, isPrime]
+<<"stdlib:math.ql">>;
 
 show_console(0); // hide console for workers
-
-// return 1 if n is prime, else 0
-function is_prime(num n) {
-	num i = 2;
-	while (i**2 <= n) {
-		if (n % i++ == 0) return 0;
-	}
-	return 1;
-}
 
 num processed;
 
@@ -19,9 +10,8 @@ while (T) {
     if(task == -1) break; // stop loop at shutdown signal
     
     println("Worker received task: %d" % task);
-	num prime = is_prime(task);
-	num result[2] = [task, prime];
-    println("Worker sending result: %d -> %d" % [task, prime]);
+	num result[?] = [task, is_prime(task)];
+    println("Worker sending result: %d -> %d" % result);
 	send result to Manager as "result";
 	processed++;
 }

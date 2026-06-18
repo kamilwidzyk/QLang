@@ -1,6 +1,6 @@
 place Alice {
     println("Alice is preparing to teleport a qubit to Bob...");
-    // Prepare Bell pair
+    // Prepera Bell pair
     state q1, q2;
     H q1;
     CNOT q1 -> q2;
@@ -16,7 +16,7 @@ place Alice {
     println("Input '%d' received. Preparing qubit to teleport..." % flip);
 
     // 0 = no change, 1 = apply X gate
-    if (flip == 1) X to_send;
+    if (flip) X to_send;
 
     // Prepare qubit to teleport
     CNOT to_send -> q1;
@@ -26,7 +26,7 @@ place Alice {
     obs measurements[2] = measure [to_send, q1];
 
     // Send measurement results to Bob
-    println("Measurement complete: m0=%d m1=%d" % [measurements[0], measurements[1]]);
+    println("Measurement complete: m0=%d m1=%d" % measurements);
     send measurements to Bob as "measurements";
     println("Measurement results sent to Bob.");
 }
@@ -42,12 +42,11 @@ place Bob {
     println("Received measurement results from Alice.");
 
     // Apply corrections based on Alice's measurements
-    if(measurements[0] == 1) Z q2;
-    if(measurements[1] == 1) X q2;
+    if(measurements[0]) Z q2;
+    if(measurements[1]) X q2;
 
     // q2 should now be in the same state as Alice's original to_send qubit
     println("Teleportation complete.");
     obs orig_state = measure q2;
-
     println("Original state (0 or 1): %d" % orig_state);
 }

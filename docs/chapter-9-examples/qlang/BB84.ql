@@ -59,7 +59,7 @@ place Eve_spy{
     <<"stdlib:utils.ql">>;
 
     // T = Eve steals qubits, F = Eve sends qubits untouched
-    const obs steal_qubits = F;
+    const obs steal_qubits = T;
 
     while(T){
         state q[?] = receive state named "qubits";
@@ -68,33 +68,32 @@ place Eve_spy{
         if(!steal_qubits){ 
             println("Sending %d qubits untouched." % #q);
             send q to Bob as "qubits"; 
-            continue; 
+        }else{
+            println("%d qubits stolen." % #q);
+            obs guessed_basis[?] = random_bits(count=#q);
+            println("Guessed basis: %s" % binary_to_str(guessed_basis, zero="Z", one="X"));
+
+            // Apply guessed basis to stolen qubits
+            for i from 0 to #q{
+                if(guessed_basis[i]) H q[i];
+            }
+
+            // Measure stolen qubits -> original states collapse
+            obs measured[?] = measure q; 
+            println("Measured bits: %s" % binary_to_str(measured));
+
+            // Create the same amount of qubits to send back
+            state q_fake[#q]; 
+            
+            // Encode the "same" information on fake ones
+            for i from 0 to #q{
+                if(measured[i]) X q_fake[i]; // Encode bit
+                if(guessed_basis[i]) H q_fake[i]; // Encode basis
+            }
+
+            // Send packet back on it's way
+            send q_fake to Bob as "qubits";
         }
-        
-        println("%d qubits stolen." % #q);
-        obs guessed_basis[?] = random_bits(count=#q);
-        println("Guessed basis: %s" % binary_to_str(guessed_basis, zero="Z", one="X"));
-
-        // Apply guessed basis to stolen qubits
-        for i from 0 to #q{
-            if(guessed_basis[i]) H q[i];
-        }
-
-        // Measure stolen qubits -> original states collapse
-        obs measured[?] = measure q; 
-        println("Measured bits: %s" % binary_to_str(measured));
-
-        // Create the same amount of qubits to send back
-        state q_fake[#q]; 
-        
-        // Encode the "same" information on fake ones
-        for i from 0 to #q{
-            if(measured[i]) X q_fake[i]; // Encode bit
-            if(guessed_basis[i]) H q_fake[i]; // Encode basis
-        }
-
-        // Send packet back on it's way
-        send q_fake to Bob as "qubits";
     }
 }
 

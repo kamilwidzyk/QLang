@@ -81,14 +81,15 @@ KEYWORD_STYLES = [
     (('codebox_builtin_operator', 'normal'), {
         'reset', 'measure', 'measureX', 'superpose', 'not', 'H',
         'superpose', 'shift', 'S', 'X', 'Y', 'Z', 'dual_not', 'phase_not',
-        'entangle', 'CNOT', 'entangle_phase', 'CZ', 'swap'
+        'entangle', 'CNOT', 'entangle_phase', 'CZ', 'swap', 'wait', 'seed', 'random', 'cut',
+        'round', 'floor', 'ceil'
     }),
     (('codebox_builtin_function', 'normal'), {
         'println', 'print', 'debug', 'input'
     }),
     (('codebox_control', 'bold'), {
         'if', 'else', 'for', 'while', 'break', 'continue', 'return',
-        'from', 'to', 'step', 'elif', 'else if'
+        'from', 'to', 'step', 'elif', 'else if', 'send', 'as', 'iterate', 'index', 'available'
     }),
     (('codebox_constant', 'bold'), {
         'NULL', 'T', 'F'
