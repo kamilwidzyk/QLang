@@ -316,14 +316,250 @@ constants, three indexing modes
 (\texttt{SimpleIndex}, \texttt{RangeIndex}, \texttt{ListIndex}),
 character-level indexing into \texttt{Text}, and reset-to-initial-value.
 
-\subsubsection{Scope Manager}
+% ═══════════════════════════════════════════════
+\subsection{Scope System}
+\label{sec:impl-scopes}
 
-\texttt{ScopeManager} (\texttt{int/scope.py}) implements a
-linked-list stack of scopes.  Each scope stores a
-\texttt{vars} dictionary, a code position, a type label (\texttt{block},
-\texttt{for}, \texttt{if}, \texttt{function}, \ldots), and a parent
-reference.  Variable look-up walks from the current scope upward to the
-global scope.
+The scope system manages variable visibility and lifetime across all
+control-flow constructs.  It is implemented by two classes in
+\texttt{int/scope.py}: \texttt{Scope} and \texttt{ScopeManager}.
+
+\subsubsection{Scope Data Structure}
+
+Each \texttt{Scope} instance holds:
+
+\begin{center}
+\begin{tabular}{|l|p{9cm}|}
+\hline
+\textbf{Field} & \textbf{Description} \\
+\hline
+\texttt{vars}   & Dictionary mapping variable names to their value objects (\texttt{Variable}, \texttt{Num}, \texttt{Function}, \ldots). \\
+\hline
+\texttt{pos}    & Source-code position (\texttt{ScriptErrors.Position}) where this scope was created. \\
+\hline
+\texttt{type}   & String label identifying what construct created the scope: \texttt{"block"}, \texttt{"for"}, \texttt{"for\_iteration"}, \texttt{"while"}, \texttt{"if"}, \texttt{"iterate"}, \texttt{"iterate\_iteration"}, \texttt{"function"}. \\
+\hline
+\texttt{parent} & Reference to the enclosing \texttt{Scope}, or \texttt{None} for the global scope. \\
+\hline
+\end{tabular}
+\end{center}
+
+Scopes form a singly-linked list (child $\to$ parent).  The global scope
+is always at the root and has \texttt{parent = None}.
+
+\subsubsection{ScopeManager}
+
+\texttt{ScopeManager} maintains a single pointer \texttt{current} to the
+innermost active scope.  It exposes the following operations:
+
+\begin{center}
+\begin{tabular}{|l|p{9.5cm}|}
+\hline
+\textbf{Method} & \textbf{Behaviour} \\
+\hline
+\texttt{push(pos, type)} & Creates a new \texttt{Scope} whose parent is the current scope, and makes it current. \\
+\hline
+\texttt{pop()} & Restores \texttt{current} to the parent scope, effectively destroying the inner scope and all of its variables. Raises an exception when attempting to pop the global scope. \\
+\hline
+\texttt{get(name)} & Walks the scope chain from \texttt{current} upward and returns the first matching variable. \\
+\hline
+\texttt{exists(name)} & Same walk, returns a boolean. \\
+\hline
+\texttt{create(name, value)} & Inserts a variable into the \emph{current} scope only (may shadow an outer variable of the same name). \\
+\hline
+\texttt{set(name, value)} & Walks upward to find an existing variable and overwrites it; if not found, creates it in the current scope. \\
+\hline
+\texttt{assign(name, value)} & Walks upward and overwrites only if found (never creates). \\
+\hline
+\texttt{modify(name, func)} & Walks upward, calls \texttt{func(old\_value)} and stores the result back in the same scope. \\
+\hline
+\texttt{delete(name)} & Walks upward and removes the first matching variable. \\
+\hline
+\end{tabular}
+\end{center}
+
+The distinction between \texttt{create} and \texttt{set}/\texttt{assign}
+is critical: variable declarations use \texttt{create}, which always
+inserts into the current scope and enables shadowing, while assignments
+use \texttt{set} or \texttt{assign}, which walk upward to find the
+existing binding.
+
+\subsubsection{Scope Lifecycle in Control Structures}
+
+Every control-flow construct that introduces a new lexical context
+pushes a scope on entry and pops it on exit.  The scope type label
+differs per construct:
+
+\begin{itemize}
+    \item \textbf{For loop} (\texttt{handle\_for\_loop}): pushes a
+          \texttt{"for"} scope containing the counter variable, then
+          pushes an additional \texttt{"for\_iteration"} scope for each
+          iteration (cleared after every iteration to discard loop-body
+          variables).  Both scopes are popped on loop exit.
+    \item \textbf{While loop} (\texttt{handle\_while}): pushes a
+          \texttt{"while"} scope for each iteration and pops it at the
+          end of the iteration.
+    \item \textbf{Iterate loop} (\texttt{handle\_iterate}): pushes an
+          \texttt{"iterate"} scope for the element and optional index
+          variable, then pushes an
+          \texttt{"iterate\_iteration"} scope per iteration, identical
+          to the for loop pattern.
+    \item \textbf{If statement} (\texttt{handle\_if}): pushes an
+          \texttt{"if"} scope before executing the chosen branch and
+          pops it afterward.
+\end{itemize}
+
+All handlers use \texttt{try/finally} to guarantee that scopes are
+popped even when \texttt{break}, \texttt{continue}, or exceptions
+interrupt normal flow.
+
+\subsubsection{Functions and Closures}
+
+Functions interact with scopes in two phases:
+
+\begin{enumerate}
+    \item \textbf{Declaration} (\texttt{handle\_function\_declaration}):
+          the current scope at the point of the \texttt{function}
+          keyword is captured and stored in the \texttt{Function} object
+          as \texttt{closure\_scope}.  The function is then inserted
+          into the current scope via \texttt{scopes.create()}.
+    \item \textbf{Invocation} (\texttt{handle\_function\_call}):
+          a new \texttt{Scope} is created with
+          \texttt{parent = closure\_scope} (not the caller's scope).
+          Function parameters are added as variables in this new scope.
+          The \texttt{ScopeManager.current} pointer is temporarily
+          redirected to the new scope; after execution (whether normal
+          or via \texttt{FunctionReturn}), the original scope is
+          restored.
+\end{enumerate}
+
+This design means functions act as \textbf{closures}: they see the
+variables from the scope in which they were \emph{defined}, not from the
+scope in which they are \emph{called}.
+
+\subsubsection{Parent Operator}
+
+The parent operator \texttt{\^{}} (\texttt{handle\_operator\_parent})
+allows explicit scope navigation.  The handler counts the number of
+leading \texttt{\^{}} characters, walks that many links up the parent
+chain, and looks up the variable \emph{only in that target scope}
+(without the automatic upward walk).  This is useful for reaching a
+shadowed outer variable.  If the requested depth exceeds the available
+scope chain, a \texttt{NoParentScopeException} is raised.
+
+% ═══════════════════════════════════════════════
+\subsection{Place System}
+\label{sec:impl-places}
+
+The place system implements QLang's concurrency model, where each
+\texttt{place} declaration becomes an independent OS process with its
+own scope tree, console window, and quantum client.
+
+\subsubsection{Place Partitioning (\texttt{divideIntoPlaces})}
+
+The function \texttt{divideIntoPlaces()} in \texttt{int/places.py} walks
+the parsed AST's top-level items and partitions them into named
+groups:
+
+\begin{enumerate}
+    \item A \texttt{global} place is created unconditionally at position
+          $(0,\,0)$.
+    \item For each \texttt{PlaceDeclContext} node, the place name is
+          validated (Unicode letters, digits, underscores; not
+          \texttt{"global"}) and checked for uniqueness.  A new
+          \texttt{Place} is created and each \texttt{placeMember} child
+          is stored as source text together with its original line
+          number.
+    \item Top-level \texttt{FunctionDecl} and \texttt{Statement} nodes
+          that are not inside any \texttt{place} block are appended to
+          the \texttt{global} place.
+\end{enumerate}
+
+The source text of each member is extracted via the ANTLR token stream
+(\texttt{stream.getText(start\_index, stop\_index)}) to preserve the
+original formatting.  The original line number is stored alongside the
+text so that error messages in child processes can point back to the
+correct location in the source file.
+
+\subsubsection{Place Class}
+
+Each \texttt{Place} instance (\texttt{int/place.py}) encapsulates:
+
+\begin{center}
+\begin{tabular}{|l|p{8.5cm}|}
+\hline
+\textbf{Field} & \textbf{Description} \\
+\hline
+\texttt{name} & Place name (e.g.\ \texttt{"Alice"}, \texttt{"global"}). \\
+\hline
+\texttt{block} & List of source-text fragments (with line numbers) that constitute this place's code. \\
+\hline
+\texttt{scopes} & A \texttt{ScopeManager} instance --- each place has its own, independent scope tree. \\
+\hline
+\texttt{console} & A \texttt{Console} instance for I/O, opened as a separate CMD window. \\
+\hline
+\texttt{quantum\_client} & A \texttt{QuantumClient} proxy to the shared quantum server. \\
+\hline
+\texttt{quantum\_network} & Reference to the shared \texttt{QuantumNetwork} for \texttt{send}/\texttt{receive}. \\
+\hline
+\texttt{script\_errors} & \texttt{ScriptErrors} instance for error display. \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Per-Place Re-Parsing and Execution}
+
+Because ANTLR\,4 parse trees are not serialisable with Python's
+\texttt{pickle}, they cannot be transferred across
+\texttt{multiprocessing} boundaries.  Each place therefore stores its
+code as plain text and re-parses it inside the child process in
+\texttt{Place.process\_target()}:
+
+\begin{enumerate}
+    \item The stored text fragments are concatenated into a synthetic
+          \texttt{place Name \{ \ldots \};} string, with blank lines
+          inserted to preserve the original line numbering.
+    \item A fresh ANTLR lexer and parser produce a new parse tree.
+    \item Each \texttt{placeMember} child is dispatched to
+          \texttt{handle\_block()}, the central handler-dispatch method.
+\end{enumerate}
+
+The handler dispatch uses a dictionary of ${\sim}70$ ANTLR context
+types mapped to handler functions (described in
+Section~\ref{sec:impl-dispatch}). Each handler receives the place
+instance (\texttt{self}), the AST node, the parent node, and the source
+position.
+
+\subsubsection{Multiprocessing Execution}
+
+The \texttt{Places.run()} method iterates over all registered places and
+calls \texttt{Place.run()} on each one.  \texttt{Place.run()} creates a
+\texttt{multiprocessing.Process} with \texttt{process\_target} as the
+entry point.  All places start concurrently and run in true parallel
+(bypassing Python's GIL).
+
+The main process then calls \texttt{Places.wait\_for\_end()}, which
+joins every place process.  The \texttt{global} place is skipped if it
+contains no code.
+
+\subsubsection{Inter-Place Isolation}
+
+Each place is fully isolated:
+
+\begin{itemize}
+    \item \textbf{Scope isolation}: every place creates its own
+          \texttt{ScopeManager} with its own global scope.  Variables
+          and functions declared in one place are invisible to other
+          places.
+    \item \textbf{Console isolation}: every place opens a separate CMD
+          window via TCP socket.  I/O calls (\texttt{print},
+          \texttt{println}, \texttt{input}) are routed to the place's
+          own console.
+    \item \textbf{Communication}: the only way to exchange data between
+          places is through the shared \texttt{QuantumNetwork} packet
+          pool, using the \texttt{send}/\texttt{receive}/\texttt{available}
+          constructs.
+\end{itemize}
 
 % ═══════════════════════════════════════════════
 \subsection{Quantum Simulator}
